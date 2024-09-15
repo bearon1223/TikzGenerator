@@ -60,6 +60,11 @@ public class MainScreen implements Screen {
         t.add(importTikz).spaceTop(50);
         t.row();
 
+        TextButton importFromFileTikz = new TextButton("Import From File", skin);
+
+        t.add(importFromFileTikz).spaceTop(10);
+        t.row();
+
         TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
 
         convertToTikz.addListener(new ClickListener() {
