@@ -9,9 +9,17 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.tikz.grid.*;
+import com.tikz.grid.DrawType;
+import com.tikz.grid.GridInterface;
+import com.tikz.grid.MakeTikz;
+import com.tikz.grid.TikTypeStruct;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 
 public class MainScreen implements Screen {
     private final Main app;
@@ -62,6 +70,29 @@ public class MainScreen implements Screen {
 
         TextButton importFromFileTikz = new TextButton("Import From File", skin);
 
+        importFromFileTikz.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                File file = openFile();
+                if (file != null)
+                    if (file.exists())
+                        try {
+                            app.setScreen(new ImportTikzScreen(app, grid, Gdx.files.absolute(file.getAbsolutePath()).readString().replace("\n\n", "")));
+                        } catch (GdxRuntimeException e) {
+                            Dialog errorDialog = new Dialog("", skin) {
+                                {
+                                    getContentTable().pad(5f);
+                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                                    button("Ok");
+                                    text(String.format("The File at %s was unable to be loaded", file.getAbsolutePath()));
+                                }
+                            };
+
+                            errorDialog.show(stage);
+                        }
+            }
+        });
+
         t.add(importFromFileTikz).spaceTop(10);
         t.row();
 
@@ -104,6 +135,15 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
+    public File openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
     public MainScreen setGrid(GridInterface grid) {
         this.grid = grid;
         return this;
@@ -117,7 +157,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 grid.setDrawType(type);
                 table.getStage().setKeyboardFocus(null);
-                if(type == DrawType.TEXT) {
+                if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
                     grid.addingPoints = true;
                 } else {
@@ -158,13 +198,13 @@ public class MainScreen implements Screen {
     public void resize(int width, int height) {
         stage.getViewport().setWorldSize(width, height);
         stage.getViewport().update(width, height, true);
-        t.setSize(200 * width/1200f, height);
-        t.defaults().prefWidth(200*width/1200f);
+        t.setSize(200 * width / 1200f, height);
+        t.defaults().prefWidth(200 * width / 1200f);
         t.invalidate();
         t.layout();
         float scalingS = Math.min((float) 800 / grid.ROWS, (float) 1200 / grid.COLS);
         float scaling = Math.min((float) Gdx.graphics.getHeight() / grid.ROWS, (float) Gdx.graphics.getWidth() / grid.COLS);
-        app.updateFont(scaling/scalingS);
+        app.updateFont(scaling / scalingS);
     }
 
     @Override

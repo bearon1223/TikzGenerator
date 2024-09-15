@@ -2,10 +2,12 @@ package com.tikz;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.StringBuilder;
@@ -16,6 +18,8 @@ import com.tikz.grid.ImportFromTikz;
 public class ImportTikzScreen implements Screen {
     private final Stage stage;
 
+    TextArea textArea;
+
     public ImportTikzScreen(Main app, GridInterface gridInterface) {
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
@@ -23,12 +27,13 @@ public class ImportTikzScreen implements Screen {
         Table table = new Table(skin);
         table.setFillParent(true);
 
-        TextArea textArea = new TextArea("", skin);
+        textArea = new TextArea("", skin);
         textArea.setDisabled(false);
 
         ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setFadeScrollBars(false);
-        table.add(textArea).width(Value.percentWidth(1, table))
+        scrollPane.setDebug(true);
+
+        table.add(scrollPane).width(Value.percentWidth(1, table))
             .height(Value.percentHeight(1f-60/800f, table)).colspan(2).padBottom(5f);
         table.row();
 
@@ -52,30 +57,16 @@ public class ImportTikzScreen implements Screen {
                     sb.append(stackTraceElement.toString()).append("\n");
                 }
 
-                // Show the error in a dialog
-                Dialog dialog = new Dialog("Error", skin);
-                dialog.setClip(false);
-                dialog.setSize(table.getWidth()/2, table.getHeight()/2);
-
-                // Create label for error and add padding
-                Label errorLabel = new Label(sb.toString(), skin);
-                ScrollPane scrollPane = new ScrollPane(errorLabel);
-                dialog.getContentTable().add(scrollPane);
-
-                dialog.getContentTable().pad(5);
-
-                TextButton ok = new TextButton("OK", skin);
-                ok.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        dialog.hide();
+                Dialog errorDialog = new Dialog("", skin) {
+                    {
+                        getContentTable().pad(5f);
+                        getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                        button("Ok");
+                        text(sb.toString());
                     }
-                });
+                };
 
-                dialog.add(ok).width(100f).height(50f).pad(5).center();
-
-                // Show the dialog
-                dialog.show(stage);
+                errorDialog.show(stage);
             }
         }
         });
@@ -94,6 +85,11 @@ public class ImportTikzScreen implements Screen {
         stage.addActor(table);
 
         Gdx.input.setInputProcessor(stage);
+    }
+
+    public ImportTikzScreen(Main app, GridInterface gridInterface, String tikzCode) {
+        this(app, gridInterface);
+        textArea.setText(tikzCode);
     }
 
     @Override
