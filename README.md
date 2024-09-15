@@ -2,12 +2,14 @@
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+This project allows you to create TikZ graphics graphically and export them into valid latex code. This program can also import existing TikZ code, provided it is in the correct format, and display it for modification.
 
-## Platforms
-
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3.
+## Things to Note
+- `Ctrl + Z` Undo's the latest action (last line in the tik code)
+- There is no redo
+- To change the text, the submit button must be pressed under the text input
+- Text doesn't scale yet
+- This project is still very much a work in progress and these things are likely to change.
 
 ## Gradle
 
