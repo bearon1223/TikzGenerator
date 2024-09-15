@@ -190,7 +190,6 @@ public class GridInterface {
                     renderer.set(ShapeRenderer.ShapeType.Line);
                     renderer.setColor(Color.GOLD);
                     renderer.arc(e.x, e.y, 100, 0, 180f);
-//                    System.out.println(e);
                     break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
@@ -281,6 +280,8 @@ public class GridInterface {
 
             shapeRenderer.circle(dotX, dotY, 3f);
         }
+
+        shapeRenderer.circle(x2, y2, 3f);
     }
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();
