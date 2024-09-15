@@ -32,10 +32,9 @@ public class ImportTikzScreen implements Screen {
         textArea.setDisabled(false);
 
         ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setDebug(true);
 
         table.add(scrollPane).width(Value.percentWidth(1, table))
-            .height(Value.percentHeight(1f-60/800f, table)).colspan(2).padBottom(5f);
+            .height(Value.percentHeight(1f-60/800f, table)).colspan(2).padBottom(10f);
         table.row();
 
         TextButton importTik = new TextButton("Import Tikz Code", skin);

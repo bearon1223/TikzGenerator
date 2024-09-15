@@ -111,7 +111,7 @@ public class ImportFromTikz {
 
                 // add it to points
                 points.add(new TikTypeStruct(center, dist, DrawType.CIRCLE));
-            } else {
+            } else if(!command.isEmpty()){
                 throw new IllegalDrawType("Unknown Tikz Code ("+command+")");
             }
         }
