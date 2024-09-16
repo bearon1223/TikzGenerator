@@ -42,7 +42,8 @@ public class GridInterface {
 
     public void drawGrid(ShapeRenderer renderer) {
         // Draw grid
-        final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f + screen.t.getWidth() / 2, Gdx.graphics.getHeight() / 2f);
+        final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f + screen.t.getWidth() / 2,
+            Gdx.graphics.getHeight() / 2f);
         renderer.set(ShapeRenderer.ShapeType.Filled);
         scaling = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
         // draw small lines
