@@ -213,7 +213,7 @@ public class GridInterface {
         }
 
         // do stuff at the cursor
-        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() >= screen.t.getWidth()) {
+        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > screen.t.getWidth()) {
             switch (currentType) {
                 case LINE:
                 case CIRCLE:
@@ -230,8 +230,10 @@ public class GridInterface {
                     }
                     break;
                 case TEXT:
-                    editing = new TikTypeStruct(mouse, currentType, text);
-                    points.add(editing);
+                    if(addingPoints) {
+                        editing = new TikTypeStruct(mouse, currentType, text);
+                        points.add(editing);
+                    }
                     break;
                 case POLYGON:
                     if (!addingPoints) {

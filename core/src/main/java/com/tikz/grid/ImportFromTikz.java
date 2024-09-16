@@ -16,7 +16,8 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException,
+        NumberFormatException, IllegalDrawType {
         Array<TikTypeStruct> points = new Array<>();
         String[] commands = tik.replace("\n", "").split(";");
         int n = 0;
@@ -38,7 +39,8 @@ public class ImportFromTikz {
                     // dashed lines
                     if (command.contains("[dashed]")) {
                         // delete the dashed stuff
-                        String str1 = stringVectors[0].replace("[dashed] ", "").replace("[dashed]", "");
+                        String str1 = stringVectors[0].replace("[dashed] ", "")
+                            .replace("[dashed]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -46,7 +48,8 @@ public class ImportFromTikz {
 
                         points.add(new TikTypeStruct(origin, endPoint, DrawType.DOTTED_LINE));
                     } else if (command.contains("[thin, ->]") || command.contains("[thick,->]")) {
-                        String str1 = stringVectors[0].replace("[thin, ->] ", "").replace("[thick,->]", "");
+                        String str1 = stringVectors[0].replace("[thin, ->] ", "")
+                            .replace("[thick,->]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -54,7 +57,8 @@ public class ImportFromTikz {
 
                         points.add(new TikTypeStruct(origin, endPoint, DrawType.ARROW));
                     } else if (command.contains("[thin, <->]") || command.contains("[thin,<->]")) {
-                        String str1 = stringVectors[0].replace("[thin, <->] ", "").replace("[thin,<->]", "");
+                        String str1 = stringVectors[0].replace("[thin, <->] ", "")
+                            .replace("[thin,<->]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -97,22 +101,21 @@ public class ImportFromTikz {
                 // add it to points
                 points.add(new TikTypeStruct(loc, DrawType.TEXT, text.toString()));
             } else if (command.contains("circle")) {
-                System.out.println("\tCircle Implementation is WIP");
-
                 // split everything
                 String[] circleStrings = command.split("circle");
 
                 // get the center, and the edge and remove the tik stuff
                 Vector2 center = new Vector2().fromString(circleStrings[0].trim());
-                circleStrings[1] = circleStrings[1].replace("(", "").replace("cm)", "");
+                circleStrings[1] = circleStrings[1].replace("(", "")
+                    .replace("cm)", "");
 
                 // get the edge and use it as a radius
                 Vector2 dist = center.cpy().add(Float.parseFloat(circleStrings[1].trim()), 0);
 
                 // add it to points
                 points.add(new TikTypeStruct(center, dist, DrawType.CIRCLE));
-            } else if(!command.isEmpty()){
-                throw new IllegalDrawType("Unknown Tikz Code ("+command+")");
+            } else if (!command.isEmpty()) {
+                throw new IllegalDrawType("Unknown Tikz Command (" + command + ")");
             }
         }
         return points;
