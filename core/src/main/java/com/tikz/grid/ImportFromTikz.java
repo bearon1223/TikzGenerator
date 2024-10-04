@@ -116,14 +116,13 @@ public class ImportFromTikz {
         return points;
     }
 
-    public static Array<TikTypeStruct> FromVectorsToPoints(String vecs) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
-        Array<TikTypeStruct> points = new Array<>();
+    public static TikTypeStruct FromVectorsToPoints(String vecs) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<Vector2> vectors = new Array<>();
         String[] vectorStrings = vecs.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
             if (v.isBlank()) continue;
 
-            // Split the numbers into two at the whitepsace
+            // Split the numbers into two at the whitespace
             String[] splitVectorString;
             if (v.contains(",")) {
                 splitVectorString = v.split(",");
@@ -140,7 +139,6 @@ public class ImportFromTikz {
             vectors.add(new Vector2().fromString(stringVector));
             System.out.printf("%s, from a string %s\n", vectors.peek(), v);
         }
-        points.add(new TikTypeStruct(vectors, DrawType.POLYGON));
-        return points;
+        return new TikTypeStruct(vectors, DrawType.POLYGON);
     }
 }

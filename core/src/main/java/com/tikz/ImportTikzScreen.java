@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.tikz.grid.DrawType;
 import com.tikz.grid.GridInterface;
 import com.tikz.grid.IllegalDrawType;
 import com.tikz.grid.ImportFromTikz;
@@ -79,7 +80,8 @@ public class ImportTikzScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    gridInterface.points = ImportFromTikz.FromVectorsToPoints(textArea.getText());
+                    gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText());
+                    gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
                     System.err.println("Error: Improper Tikz Code was imported");
 

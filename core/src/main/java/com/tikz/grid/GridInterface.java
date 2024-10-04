@@ -80,10 +80,6 @@ public class GridInterface {
         renderer.setColor(Color.GOLD);
         renderer.circle(mouse.x * scaling + center.x, mouse.y * scaling + center.y, 2f);
 
-//        if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
-//            NACA0012(points);
-//        }
-
         for (TikTypeStruct tik : points) {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
@@ -198,6 +194,16 @@ public class GridInterface {
                     renderer.setColor(Color.GOLD);
                     renderer.arc(e.x, e.y, 100, 0, 180f);
                     break;
+                case DROPPED_POLYGON:
+                    renderer.set(ShapeRenderer.ShapeType.Filled);
+                    System.out.println("In Dropped");
+                    // draw the polygon
+                    Vector2 vOld = editing.vertices.get(0).cpy().scl(scaling).add(center).add(2,2);
+                    for (int i = 1; i < editing.vertices.size; i++) {
+                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().scl(scaling).add(center).add(2,2), 2f);
+                        vOld = editing.vertices.get(i).cpy().scl(scaling).add(center).add(2,2);
+                    }
+                    break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
             }
@@ -262,6 +268,11 @@ public class GridInterface {
                     } else {
                         addingPoints = false;
                     }
+                    break;
+                case DROPPED_POLYGON:
+                    addingPoints = false;
+                    points.add(editing);
+                    setDrawType(DrawType.POLYGON);
                     break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
