@@ -121,7 +121,7 @@ public class ImportFromTikz {
         String[] vectorStrings = vecs.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
             if (v.isBlank()) continue;
-
+            v = v.trim();
             // Split the numbers into two at the whitespace
             String[] splitVectorString;
             if (v.contains(",")) {
@@ -136,7 +136,7 @@ public class ImportFromTikz {
             if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
             String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
 
-            vectors.add(new Vector2().fromString(stringVector).scl(2));
+            vectors.add(new Vector2().fromString(stringVector).scl(4));
         }
         return new TikTypeStruct(vectors, DrawType.POLYGON);
     }
