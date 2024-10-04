@@ -16,8 +16,7 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException,
-        NumberFormatException, IllegalDrawType {
+    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<TikTypeStruct> points = new Array<>();
         String[] commands = tik.replace("\n", "").split(";");
         int n = 0;
@@ -30,7 +29,7 @@ public class ImportFromTikz {
             Gdx.app.log("Import", n++ + " " + command);
             if (command.contains("--")) {
                 // tackle everything that is a line
-                String[] stringVectors = command.split("--");
+                String[] stringVectors = command.split("\\s+--\\s+");
                 for (int i = 0; i < stringVectors.length; i++) {
                     stringVectors[i] = stringVectors[i].trim();
                 }
@@ -39,8 +38,7 @@ public class ImportFromTikz {
                     // dashed lines
                     if (command.contains("[dashed]")) {
                         // delete the dashed stuff
-                        String str1 = stringVectors[0].replace("[dashed] ", "")
-                            .replace("[dashed]", "");
+                        String str1 = stringVectors[0].replace("[dashed] ", "").replace("[dashed]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -48,8 +46,7 @@ public class ImportFromTikz {
 
                         points.add(new TikTypeStruct(origin, endPoint, DrawType.DOTTED_LINE));
                     } else if (command.contains("[thin, ->]") || command.contains("[thick,->]")) {
-                        String str1 = stringVectors[0].replace("[thin, ->] ", "")
-                            .replace("[thick,->]", "");
+                        String str1 = stringVectors[0].replace("[thin, ->] ", "").replace("[thick,->]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -57,8 +54,7 @@ public class ImportFromTikz {
 
                         points.add(new TikTypeStruct(origin, endPoint, DrawType.ARROW));
                     } else if (command.contains("[thin, <->]") || command.contains("[thin,<->]")) {
-                        String str1 = stringVectors[0].replace("[thin, <->] ", "")
-                            .replace("[thin,<->]", "");
+                        String str1 = stringVectors[0].replace("[thin, <->] ", "").replace("[thin,<->]", "");
                         String str2 = stringVectors[1];
 
                         Vector2 origin = new Vector2().fromString(str1.trim());
@@ -106,8 +102,7 @@ public class ImportFromTikz {
 
                 // get the center, and the edge and remove the tik stuff
                 Vector2 center = new Vector2().fromString(circleStrings[0].trim());
-                circleStrings[1] = circleStrings[1].replace("(", "")
-                    .replace("cm)", "");
+                circleStrings[1] = circleStrings[1].replace("(", "").replace("cm)", "");
 
                 // get the edge and use it as a radius
                 Vector2 dist = center.cpy().add(Float.parseFloat(circleStrings[1].trim()), 0);
@@ -118,6 +113,34 @@ public class ImportFromTikz {
                 throw new IllegalDrawType("Unknown Tikz Command (" + command + ")");
             }
         }
+        return points;
+    }
+
+    public static Array<TikTypeStruct> FromVectorsToPoints(String vecs) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+        Array<TikTypeStruct> points = new Array<>();
+        Array<Vector2> vectors = new Array<>();
+        String[] vectorStrings = vecs.replace("(", "").replace(")", "").split("\\n+");
+        for (String v : vectorStrings) {
+            if (v.isBlank()) continue;
+
+            // Split the numbers into two at the whitepsace
+            String[] splitVectorString;
+            if (v.contains(",")) {
+                splitVectorString = v.split(",");
+                for (int i = 0; i < splitVectorString.length; i++) {
+                    splitVectorString[i] = splitVectorString[i].trim();
+                }
+            } else {
+                splitVectorString = v.split("\\s+");
+            }
+
+            if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
+            String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
+
+            vectors.add(new Vector2().fromString(stringVector));
+            System.out.printf("%s, from a string %s\n", vectors.peek(), v);
+        }
+        points.add(new TikTypeStruct(vectors, DrawType.POLYGON));
         return points;
     }
 }

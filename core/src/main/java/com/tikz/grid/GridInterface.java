@@ -11,6 +11,8 @@ import com.badlogic.gdx.utils.Array;
 import com.tikz.Main;
 import com.tikz.MainScreen;
 
+import static java.lang.Math.sqrt;
+
 public class GridInterface {
     public final int ROWS = 6;
     public final int COLS = 9;
@@ -77,6 +79,10 @@ public class GridInterface {
 
         renderer.setColor(Color.GOLD);
         renderer.circle(mouse.x * scaling + center.x, mouse.y * scaling + center.y, 2f);
+
+//        if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
+//            NACA0012(points);
+//        }
 
         for (TikTypeStruct tik : points) {
             Vector2 o = new Vector2();
@@ -305,6 +311,20 @@ public class GridInterface {
 
         // Draw the arrowhead (a filled triangle)
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
+    }
+
+    public void NACA0012(Array<TikTypeStruct> points) {
+        points.add(new TikTypeStruct(new Vector2(), new Vector2(), DrawType.LINE));
+        float c = 50;
+        for(int i = 1; i <= c; i++){
+            float z = (float) (0.12f/0.2f*(0.296*sqrt((double) i /c)-0.126f*((double) i /c)-0.3516*Math.pow((double) i /c, 2)+0.2843*Math.pow((double) i /c, 3)-0.1015*Math.pow((double) i /c, 4)));
+            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i/c*2, 2*z), DrawType.LINE));
+        }
+
+        for(int i = (int) c; i > 0; i--){
+            float z = (float) -(0.12f/0.2f*(0.296*sqrt((double) i /c)-0.126f*((double) i /c)-0.3516*Math.pow((double) i /c, 2)+0.2843*Math.pow((double) i /c, 3)-0.1015*Math.pow((double) i /c, 4)));
+            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i/c*2, 2*z), DrawType.LINE));
+        }
     }
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {

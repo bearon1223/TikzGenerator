@@ -34,7 +34,7 @@ public class ImportTikzScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(textArea);
 
         table.add(scrollPane).width(Value.percentWidth(1, table))
-            .height(Value.percentHeight(1f-60/800f, table)).colspan(2).padBottom(10f);
+            .height(Value.percentHeight(1f-60/800f, table)).colspan(3).padBottom(10f);
         table.row();
 
         TextButton importTik = new TextButton("Import Tikz Code", skin);
@@ -69,6 +69,40 @@ public class ImportTikzScreen implements Screen {
                 errorDialog.show(stage);
             }
         }
+        });
+
+        TextButton importVectors = new TextButton("Import List of Vectors", skin);
+        table.add(importVectors).width(Value.percentWidth(0.2f, table))
+            .height(Value.percentHeight(50/800f, table));
+
+        importVectors.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                try {
+                    gridInterface.points = ImportFromTikz.FromVectorsToPoints(textArea.getText());
+                } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
+                    System.err.println("Error: Improper Tikz Code was imported");
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(e.getMessage()).append("\n\n");
+
+                    StackTraceElement[] elements = e.getStackTrace();
+                    for(StackTraceElement stackTraceElement : elements) {
+                        sb.append(stackTraceElement.toString()).append("\n");
+                    }
+
+                    Dialog errorDialog = new Dialog("", skin) {
+                        {
+                            getContentTable().pad(5f);
+                            getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                            button("Ok");
+                            text(sb.toString());
+                        }
+                    };
+
+                    errorDialog.show(stage);
+                }
+            }
         });
 
         TextButton returnToMain = new TextButton("Return to Main Editor", skin);
