@@ -3,7 +3,6 @@ package com.tikz.grid;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
@@ -14,8 +13,8 @@ import com.tikz.MainScreen;
 import static java.lang.Math.sqrt;
 
 public class GridInterface {
-    public final int ROWS = 6;
-    public final int COLS = 9;
+    public static final int ROWS = 6;
+    public static final int COLS = 9;
     public float scaling = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
     public Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
     public boolean addingPoints = false;
@@ -70,7 +69,7 @@ public class GridInterface {
 
         draw();
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             points.clear();
         }
 
@@ -104,8 +103,8 @@ public class GridInterface {
                     renderer.end();
                     app.batch.begin();
                     app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                    app.font.setColor(Color.WHITE);
-                    app.font.draw(app.batch, tik.data, o.x, o.y+app.font.getCapHeight()/2, 1f, Align.center, false);
+                    app.TikzTextFont.setColor(Color.WHITE);
+                    app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                     app.batch.end();
                     renderer.begin();
                     renderer.setAutoShapeType(true);
@@ -131,9 +130,9 @@ public class GridInterface {
             }
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
-            if(Gdx.input.isKeyJustPressed(Input.Keys.Z) && points.size > 0) {
-                points.removeIndex(points.size-1);
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.Z) && points.size > 0) {
+                points.removeIndex(points.size - 1);
             }
         }
 
@@ -170,8 +169,8 @@ public class GridInterface {
                     renderer.end();
                     app.batch.begin();
                     app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                    app.font.setColor(Color.WHITE);
-                    app.font.draw(app.batch, editing.data, o.x, o.y+app.font.getCapHeight()/2, 1f,
+                    app.TikzTextFont.setColor(Color.WHITE);
+                    app.TikzTextFont.draw(app.batch, editing.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f,
                         Align.center, false);
                     app.batch.end();
                     renderer.begin();
@@ -212,7 +211,7 @@ public class GridInterface {
     public void draw() {
         final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         // do inputs stuff
-        mouse = new Vector2(Gdx.input.getX() - screen.t.getWidth()/2, Gdx.graphics.getHeight() - Gdx.input.getY());
+        mouse = new Vector2(Gdx.input.getX() - screen.t.getWidth() / 2, Gdx.graphics.getHeight() - Gdx.input.getY());
         mouse.sub(center).scl(1 / scaling);
 
         if (snapGrid) {
@@ -242,7 +241,7 @@ public class GridInterface {
                     }
                     break;
                 case TEXT:
-                    if(addingPoints) {
+                    if (addingPoints) {
                         editing = new TikTypeStruct(mouse, currentType, text);
                         points.add(editing);
                     }
@@ -261,7 +260,7 @@ public class GridInterface {
                     }
                     break;
                 case ARC:
-                    if(!addingPoints) {
+                    if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.ARC);
                     } else {
@@ -271,7 +270,7 @@ public class GridInterface {
                 case DROPPED_POLYGON:
                     addingPoints = false;
                     Array<Vector2> verts = editing.vertices;
-                    for(int i = 0; i < verts.size; i++) {
+                    for (int i = 0; i < verts.size; i++) {
                         verts.get(i).add(mouse);
                     }
                     points.add(editing);
@@ -330,14 +329,14 @@ public class GridInterface {
     public void NACA0012(Array<TikTypeStruct> points) {
         points.add(new TikTypeStruct(new Vector2(), new Vector2(), DrawType.LINE));
         float c = 50;
-        for(int i = 1; i <= c; i++){
-            float z = (float) (0.12f/0.2f*(0.296*sqrt((double) i /c)-0.126f*((double) i /c)-0.3516*Math.pow((double) i /c, 2)+0.2843*Math.pow((double) i /c, 3)-0.1015*Math.pow((double) i /c, 4)));
-            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i/c*2, 2*z), DrawType.LINE));
+        for (int i = 1; i <= c; i++) {
+            float z = (float) (0.12f / 0.2f * (0.296 * sqrt((double) i / c) - 0.126f * ((double) i / c) - 0.3516 * Math.pow((double) i / c, 2) + 0.2843 * Math.pow((double) i / c, 3) - 0.1015 * Math.pow((double) i / c, 4)));
+            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i / c * 2, 2 * z), DrawType.LINE));
         }
 
-        for(int i = (int) c; i > 0; i--){
-            float z = (float) -(0.12f/0.2f*(0.296*sqrt((double) i /c)-0.126f*((double) i /c)-0.3516*Math.pow((double) i /c, 2)+0.2843*Math.pow((double) i /c, 3)-0.1015*Math.pow((double) i /c, 4)));
-            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i/c*2, 2*z), DrawType.LINE));
+        for (int i = (int) c; i > 0; i--) {
+            float z = (float) -(0.12f / 0.2f * (0.296 * sqrt((double) i / c) - 0.126f * ((double) i / c) - 0.3516 * Math.pow((double) i / c, 2) + 0.2843 * Math.pow((double) i / c, 3) - 0.1015 * Math.pow((double) i / c, 4)));
+            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i / c * 2, 2 * z), DrawType.LINE));
         }
     }
 

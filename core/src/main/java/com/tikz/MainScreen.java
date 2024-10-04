@@ -3,8 +3,10 @@ package com.tikz;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -19,7 +21,6 @@ import com.tikz.grid.TikTypeStruct;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.IOException;
 
 public class MainScreen implements Screen {
     private final Main app;
@@ -33,9 +34,11 @@ public class MainScreen implements Screen {
         this.grid = new GridInterface(this, app);
 
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
         stage = new Stage(new ScreenViewport());
 
         t = new Table();
+        t.setSkin(skin);
         t.defaults().prefWidth(Value.percentWidth(0.9f, t));
         t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
 
@@ -43,17 +46,11 @@ public class MainScreen implements Screen {
 
         // type buttons
         addButton(DrawType.LINE, t, skin, "Line");
-
         addButton(DrawType.DOTTED_LINE, t, skin, "Dotted Line");
-
         addButton(DrawType.ARROW, t, skin, "Arrow");
-
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
-
         addButton(DrawType.TEXT, t, skin, "Text");
-
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-
         addButton(DrawType.POLYGON, t, skin, "Polygon");
 
         TextButton importTikz = new TextButton("Import existing Tikz", skin);
@@ -146,6 +143,8 @@ public class MainScreen implements Screen {
 
     public MainScreen setGrid(GridInterface grid) {
         this.grid = grid;
+        if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
+            this.grid.addingPoints = false;
         return this;
     }
 
@@ -194,18 +193,59 @@ public class MainScreen implements Screen {
         stage.draw();
     }
 
+//    @Override
+//    public void resize(int width, int height) {
+//        stage.getViewport().setWorldSize(width, height);
+//        stage.getViewport().update(width, height, true);
+//        t.setSize(200 * width / 1200f, height);
+//        t.defaults().prefWidth(200 * width / 1200f);
+//        float scalingS = Math.min((float) 800 / grid.ROWS, (float) 1200 / grid.COLS);
+//        float scaling = Math.min((float) Gdx.graphics.getHeight() / grid.ROWS, (float) Gdx.graphics.getWidth() / grid.COLS);
+//        app.updateFont(scaling / scalingS);
+//        t.invalidateHierarchy();
+//        t.layout();
+//    }
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().setWorldSize(width, height);
         stage.getViewport().update(width, height, true);
+
+        // Resize table
         t.setSize(200 * width / 1200f, height);
         t.defaults().prefWidth(200 * width / 1200f);
         t.invalidate();
         t.layout();
+
+        // Calculate scaling and update font
         float scalingS = Math.min((float) 800 / grid.ROWS, (float) 1200 / grid.COLS);
         float scaling = Math.min((float) Gdx.graphics.getHeight() / grid.ROWS, (float) Gdx.graphics.getWidth() / grid.COLS);
         app.updateFont(scaling / scalingS);
+
+        // Update skin with the new editor font
+        Skin skin = t.getSkin();
+        skin.add("default-font", app.editorFont, BitmapFont.class);  // Update the default font
+
+        // Create a new TextButton style and assign the updated font
+        TextButton.TextButtonStyle buttonStyle = skin.get(TextButton.TextButtonStyle.class);
+        buttonStyle.font = app.editorFont;
+
+        TextField.TextFieldStyle fieldStyle = skin.get(TextField.TextFieldStyle.class);
+        fieldStyle.font = app.editorFont;
+
+        // Update all text buttons to use the new style
+        for (Actor actor : t.getChildren()) {
+            if (actor instanceof TextButton) {
+                ((TextButton) actor).setStyle(buttonStyle);  // Apply new style with updated font
+            } else if (actor instanceof TextField) {
+                ((TextField) actor).setStyle(fieldStyle);
+            }
+        }
+
+        // Invalidate hierarchy to ensure layout refresh
+        t.invalidateHierarchy();
     }
+
 
     @Override
     public void pause() {

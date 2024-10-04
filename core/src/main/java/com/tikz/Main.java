@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.tikz.grid.ImportFromTikz;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 /**
  * {@link com.badlogic.gdx.Game} implementation shared by all platforms.
@@ -14,7 +14,8 @@ import com.tikz.grid.ImportFromTikz;
 public class Main extends Game {
     public SpriteBatch batch;
     public ShapeRenderer shapeRenderer;
-    public BitmapFont font;
+    public BitmapFont TikzTextFont;
+    public BitmapFont editorFont;
 
     @Override
     public void create() {
@@ -27,9 +28,21 @@ public class Main extends Game {
     public void updateFont(float scale) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/mainfont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int) (60*scale);
-        font = generator.generateFont(parameter);
+        parameter.size = (int) (60f*scale);
+        try {
+            TikzTextFont = generator.generateFont(parameter);
+        } catch (GdxRuntimeException ignored){
+        }
 
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/mainfont.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = (int) (14f*scale);
+        try {
+            editorFont = generator.generateFont(parameter);
+        } catch (GdxRuntimeException ignored){
+        }
+//        editorFont.getData().scale(scale);
     }
 
     @Override
@@ -41,6 +54,7 @@ public class Main extends Game {
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
-        font.dispose();
+        TikzTextFont.dispose();
+        editorFont.dispose();
     }
 }
