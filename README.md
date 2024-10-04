@@ -8,7 +8,6 @@ This project allows you to create TikZ graphics graphically and export them into
 - `Ctrl + Z` Undo's the latest action (last line in the tik code)
 - There is no redo
 - To change the text, the submit button must be pressed under the text input
-- Text doesn't scale yet
 - This project is still very much a work in progress and these things are likely to change.
 
 ## Gradle
