@@ -82,6 +82,7 @@ public class ImportTikzScreen implements Screen {
                 try {
                     gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText());
                     gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
+                    gridInterface.addingPoints = true;
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
                     System.err.println("Error: Improper Tikz Code was imported");
 

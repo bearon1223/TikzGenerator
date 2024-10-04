@@ -136,8 +136,7 @@ public class ImportFromTikz {
             if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
             String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
 
-            vectors.add(new Vector2().fromString(stringVector));
-            System.out.printf("%s, from a string %s\n", vectors.peek(), v);
+            vectors.add(new Vector2().fromString(stringVector).scl(2));
         }
         return new TikTypeStruct(vectors, DrawType.POLYGON);
     }

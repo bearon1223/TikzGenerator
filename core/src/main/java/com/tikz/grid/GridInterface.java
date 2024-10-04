@@ -196,12 +196,11 @@ public class GridInterface {
                     break;
                 case DROPPED_POLYGON:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
-                    System.out.println("In Dropped");
                     // draw the polygon
-                    Vector2 vOld = editing.vertices.get(0).cpy().scl(scaling).add(center).add(2,2);
+                    Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(scaling).add(center);
                     for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().scl(scaling).add(center).add(2,2), 2f);
-                        vOld = editing.vertices.get(i).cpy().scl(scaling).add(center).add(2,2);
+                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f);
+                        vOld = editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center);
                     }
                     break;
                 default:
@@ -271,6 +270,10 @@ public class GridInterface {
                     break;
                 case DROPPED_POLYGON:
                     addingPoints = false;
+                    Array<Vector2> verts = editing.vertices;
+                    for(int i = 0; i < verts.size; i++) {
+                        verts.get(i).add(mouse);
+                    }
                     points.add(editing);
                     setDrawType(DrawType.POLYGON);
                     break;
