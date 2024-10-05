@@ -62,7 +62,7 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(importTikz).spaceTop(50);
+        t.add(importTikz).spaceTop(Value.percentHeight(0.0416f, t));
         t.row();
 
         TextButton importFromFileTikz = new TextButton("Import From File", skin);
@@ -74,7 +74,8 @@ public class MainScreen implements Screen {
                 if (file != null)
                     if (file.exists())
                         try {
-                            app.setScreen(new ImportTikzScreen(app, grid, Gdx.files.absolute(file.getAbsolutePath()).readString().replace("\n\n", "")));
+                            app.setScreen(new ImportTikzScreen(app, grid,
+                                Gdx.files.absolute(file.getAbsolutePath()).readString().replace("\n\n", "")));
                         } catch (GdxRuntimeException e) {
                             Dialog errorDialog = new Dialog("", skin) {
                                 {
@@ -90,7 +91,7 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(importFromFileTikz).spaceTop(10);
+        t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
         TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
@@ -104,12 +105,12 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(convertToTikz).spaceBottom(50).spaceTop(10);
+        t.add(convertToTikz).spaceBottom(Value.percentHeight(0.0416f, t)).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
         // Create TextField
         textField = new TextField("", skin);
-        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceBottom(10);
+        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
         // Create Submit Button
@@ -165,7 +166,7 @@ public class MainScreen implements Screen {
             }
         });
 
-        table.add(b).spaceBottom(10);
+        table.add(b).spaceBottom(Value.percentHeight(0.0083f, table));
         table.row();
     }
 
