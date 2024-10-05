@@ -25,19 +25,16 @@ public class ShowTikz implements Screen {
         stage = new Stage(new ScreenViewport());
         t = new Table();
         t.setSkin(skin);
-        t.setPosition(200, 0);
-        t.setSize(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight());
+        t.setPosition(0, 0);
+        t.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         TextArea textArea = new TextArea(tikz, skin);
         textArea.setDisabled(false);
 
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFadeScrollBars(false);
-        t.add(textArea).width(Value.percentWidth(1, t)).height(Value.percentHeight(1, t));
 
         TextButton b = new TextButton("Return", skin);
-        b.setPosition(10, 10);
-        b.setSize(180, 50);
 
         b.addListener(new ClickListener() {
             @Override
@@ -46,8 +43,11 @@ public class ShowTikz implements Screen {
             }
         });
 
+        t.add(b).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
+            .padRight(Value.percentWidth(0.00417f, t)).bottom().padBottom(Value.percentWidth(0.00417f, t));
+
+        t.add(textArea).width(Value.percentWidth(0.833f, t)).height(Value.percentHeight(1, t));
         stage.addActor(t);
-        stage.addActor(b);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -68,7 +68,7 @@ public class ShowTikz implements Screen {
     public void resize(int width, int height) {
         stage.getViewport().setWorldSize(width, height);
         stage.getViewport().update(width, height, true);
-        t.setSize(width - 200, height);
+        t.setSize(width, height);
         t.invalidate();
         t.layout();
 

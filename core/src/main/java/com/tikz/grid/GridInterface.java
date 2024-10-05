@@ -48,7 +48,7 @@ public class GridInterface {
             Gdx.graphics.getHeight() / 2f);
         renderer.set(ShapeRenderer.ShapeType.Filled);
         scaling = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
-        scalingPercent = scaling / Math.min(1200f /(float) ROWS, 800f /(float) COLS);
+        scalingPercent = scaling / Math.min(1200f / (float) ROWS, 800f / (float) COLS);
         // draw small lines
         for (int i = -4; i <= 3; i++) {  // row
             for (int j = 0; j < 10; j++) {
@@ -91,7 +91,7 @@ public class GridInterface {
             switch (tik.type) {
                 case LINE:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 3f*scalingPercent);
+                    renderer.rectLine(o, e, 3f * scalingPercent);
                     break;
                 case CIRCLE:
                     renderer.set(ShapeRenderer.ShapeType.Line);
@@ -124,10 +124,10 @@ public class GridInterface {
                     // draw the polygon
                     Vector2 vPres = tik.vertices.get(0).cpy().scl(scaling).add(center);
                     for (int i = 1; i < tik.vertices.size; i++) {
-                        renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(scaling).add(center), 2f*scalingPercent);
+                        renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(scaling).add(center), 2f * scalingPercent);
                         vPres = tik.vertices.get(i).cpy().scl(scaling).add(center);
                     }
-                    renderer.rectLine(vPres, tik.vertices.get(0).cpy().scl(scaling).add(center), 2f*scalingPercent);
+//                    renderer.rectLine(vPres, tik.vertices.get(0).cpy().scl(scaling).add(center), 2f * scalingPercent);
                     break;
             }
         }
@@ -149,7 +149,7 @@ public class GridInterface {
             switch (currentType) {
                 case LINE:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 3f*scalingPercent);
+                    renderer.rectLine(o, e, 3f * scalingPercent);
                     break;
                 case CIRCLE:
                     renderer.set(ShapeRenderer.ShapeType.Line);
@@ -160,10 +160,10 @@ public class GridInterface {
                     // draw the polygon
                     Vector2 vPres = editing.vertices.get(0).cpy().scl(scaling).add(center);
                     for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vPres, editing.vertices.get(i).cpy().scl(scaling).add(center), 2f*scalingPercent);
+                        renderer.rectLine(vPres, editing.vertices.get(i).cpy().scl(scaling).add(center), 2f * scalingPercent);
                         vPres = editing.vertices.get(i).cpy().scl(scaling).add(center);
                     }
-                    renderer.rectLine(vPres, mouse.cpy().scl(scaling).add(center), 2f*scalingPercent);
+                    renderer.rectLine(vPres, mouse.cpy().scl(scaling).add(center), 2f * scalingPercent);
                     break;
                 case TEXT:
                     o = editing.origin.cpy().scl(scaling).add(center);
@@ -200,7 +200,7 @@ public class GridInterface {
                     // draw the polygon
                     Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(scaling).add(center);
                     for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f*scaling);
+                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f * scaling);
                         vOld = editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center);
                     }
                     break;
@@ -256,6 +256,7 @@ public class GridInterface {
                     } else {
                         if (mouse.equals(editing.vertices.get(0))) {
                             addingPoints = false;
+                            editing.vertices.add(editing.vertices.get(0));
                             points.add(editing);
                         } else
                             editing.vertices.add(mouse);
@@ -282,6 +283,9 @@ public class GridInterface {
                     throw new IllegalDrawType("Unknown Draw Type");
             }
         } else if (Gdx.input.isButtonJustPressed(1)) {
+            if (currentType == DrawType.POLYGON) {
+                points.add(editing);
+            }
             addingPoints = false;
         }
     }
@@ -302,17 +306,17 @@ public class GridInterface {
             float dotX = x1 + i * dotSpacing * directionX;
             float dotY = y1 + i * dotSpacing * directionY;
 
-            shapeRenderer.circle(dotX, dotY, 3f*scalingPercent);
+            shapeRenderer.circle(dotX, dotY, 3f * scalingPercent);
         }
 
-        shapeRenderer.circle(x2, y2, 3f*scalingPercent);
+        shapeRenderer.circle(x2, y2, 3f * scalingPercent);
     }
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 3f*scalingPercent);
+        shapeRenderer.rectLine(x1, y1, x2, y2, 3f * scalingPercent);
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
@@ -344,7 +348,7 @@ public class GridInterface {
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 3f*scalingPercent);
+        shapeRenderer.rectLine(x1, y1, x2, y2, 3f * scalingPercent);
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);

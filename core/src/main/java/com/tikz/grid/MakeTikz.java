@@ -37,7 +37,8 @@ public abstract class MakeTikz {
                         poly.append(String.format("--%s", vertex.toString()));
                     }
                     poly.delete(0, 2);
-                    output.append(String.format("\\draw %s--%s;\n", poly, tik.vertices.get(0)));
+                    output.append(String.format("\\draw %s;\n", poly));
+//                    output.append(String.format("\\draw %s--%s;\n", poly, tik.vertices.get(0)));
                     break;
                 default:
                     throw new IllegalStateException("Unexpected DrawType: " + tik.type);
