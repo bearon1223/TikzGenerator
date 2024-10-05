@@ -26,7 +26,7 @@ public class Main extends Game {
     }
 
     public void updateFont(float scale) {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/mainfont.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) (60f*scale);
         try {
@@ -34,7 +34,7 @@ public class Main extends Game {
         } catch (GdxRuntimeException ignored){
         }
 
-        generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/mainfont.ttf"));
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         parameter.size = (int) (14f*scale);

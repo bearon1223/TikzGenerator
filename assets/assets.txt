@@ -3,6 +3,7 @@ ui/font-subtitle.fnt
 ui/font-window.fnt
 ui/font.fnt
 ui/mainfont.ttf
+ui/Times New Roman.ttf
 ui/uiskin.atlas
 ui/uiskin.json
 ui/uiskin.png
