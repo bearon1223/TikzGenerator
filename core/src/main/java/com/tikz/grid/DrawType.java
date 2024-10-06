@@ -7,7 +7,8 @@ public enum DrawType {
     TEXT,
     DOTTED_LINE,
     DOUBLE_ARROW,
-    POLYGON,
+    FILLED_POLYGON,
+    DOTTED_POLYGON,
     ARC,
     DROPPED_POLYGON
 }

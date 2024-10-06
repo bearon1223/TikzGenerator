@@ -31,13 +31,14 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw %s circle(%1.2f cm);\n", tik.origin.toString(),
                         tik.origin.dst(tik.endPoint)));
                     break;
-                case POLYGON:
+                case DOTTED_POLYGON:
+                case FILLED_POLYGON:
                     StringBuilder poly = new StringBuilder();
                     for (Vector2 vertex : tik.vertices) {
                         poly.append(String.format("--%s", vertex.toString()));
                     }
                     poly.delete(0, 2);
-                    output.append(String.format("\\draw %s;\n", poly));
+                    output.append(String.format("\\draw%s %s;\n",tik.type == DrawType.DOTTED_POLYGON ? "[dashed]" : "", poly));
 //                    output.append(String.format("\\draw %s--%s;\n", poly, tik.vertices.get(0)));
                     break;
                 default:

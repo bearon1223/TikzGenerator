@@ -25,7 +25,7 @@ public class TikTypeStruct {
     public TikTypeStruct(Array<Vector2> vertices, DrawType type) {
         this.vertices = vertices;
         this.type = type;
-        if (type != DrawType.POLYGON)
+        if (type != DrawType.FILLED_POLYGON && type != DrawType.DOTTED_POLYGON)
             throw new IllegalDrawType("The Polygon type was not used for polygons");
     }
 }

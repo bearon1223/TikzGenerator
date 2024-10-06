@@ -46,12 +46,13 @@ public class MainScreen implements Screen {
 
         // type buttons
         addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.DOTTED_LINE, t, skin, "Dotted Line");
+        addButton(DrawType.DOTTED_LINE, t, skin, "Dashed Line");
         addButton(DrawType.ARROW, t, skin, "Arrow");
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
         addButton(DrawType.TEXT, t, skin, "Text");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.POLYGON, t, skin, "Multi-Line / Polygon");
+        addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
+        addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
 
         TextButton importTikz = new TextButton("Import existing Tikz", skin);
 

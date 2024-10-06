@@ -84,7 +84,7 @@ public class GridInterface {
         for (TikTypeStruct tik : points) {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
-            if (tik.type != DrawType.POLYGON) {
+            if (tik.type != DrawType.FILLED_POLYGON) {
                 o = tik.origin.cpy().scl(scaling).add(center);
                 e = tik.endPoint.cpy().scl(scaling).add(center);
             }
@@ -119,7 +119,7 @@ public class GridInterface {
                     renderer.set(ShapeRenderer.ShapeType.Filled);
                     drawTwoHeadedArrow(renderer, o.x, o.y, e.x, e.y, 20f);
                     break;
-                case POLYGON:
+                case FILLED_POLYGON:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
                     // draw the polygon
                     Vector2 vPres = tik.vertices.get(0).cpy().scl(scaling).add(center);
@@ -129,6 +129,16 @@ public class GridInterface {
                     }
 //                    renderer.rectLine(vPres, tik.vertices.get(0).cpy().scl(scaling).add(center), 2f * scalingPercent);
                     break;
+                case DOTTED_POLYGON:
+                    renderer.set(ShapeRenderer.ShapeType.Filled);
+                    // draw the polygon
+                    Vector2 vPres2 = tik.vertices.get(0).cpy().scl(scaling).add(center);
+                    for (int i = 1; i < tik.vertices.size; i++) {
+                        Vector2 a = tik.vertices.get(i).cpy().scl(scaling).add(center);
+                        drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
+                        vPres2 = tik.vertices.get(i).cpy().scl(scaling).add(center);
+                    }
+                break;
             }
         }
 
@@ -141,7 +151,7 @@ public class GridInterface {
         if (editing != null && addingPoints) {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
-            if (currentType != DrawType.POLYGON) {
+            if (currentType != DrawType.FILLED_POLYGON) {
                 editing.endPoint = mouse.cpy();
                 o = editing.origin.cpy().scl(scaling).add(center);
                 e = editing.endPoint.cpy().scl(scaling).add(center);
@@ -155,7 +165,7 @@ public class GridInterface {
                     renderer.set(ShapeRenderer.ShapeType.Line);
                     renderer.circle(o.x, o.y, o.dst(e));
                     break;
-                case POLYGON:
+                case FILLED_POLYGON:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
                     // draw the polygon
                     Vector2 vPres = editing.vertices.get(0).cpy().scl(scaling).add(center);
@@ -164,6 +174,18 @@ public class GridInterface {
                         vPres = editing.vertices.get(i).cpy().scl(scaling).add(center);
                     }
                     renderer.rectLine(vPres, mouse.cpy().scl(scaling).add(center), 2f * scalingPercent);
+                    break;
+                case DOTTED_POLYGON:
+                    renderer.set(ShapeRenderer.ShapeType.Filled);
+                    // draw the polygon
+                    Vector2 vPres2 = editing.vertices.get(0).cpy().scl(scaling).add(center);
+                    for (int i = 1; i < editing.vertices.size; i++) {
+                        Vector2 a = editing.vertices.get(i).cpy().scl(scaling).add(center);
+                        drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
+                        vPres2 = editing.vertices.get(i).cpy().scl(scaling).add(center);
+                    };
+                    Vector2 a = mouse.cpy().scl(scaling).add(center);
+                    drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
                     break;
                 case TEXT:
                     o = editing.origin.cpy().scl(scaling).add(center);
@@ -248,10 +270,11 @@ public class GridInterface {
                         points.add(editing);
                     }
                     break;
-                case POLYGON:
+                case DOTTED_POLYGON:
+                case FILLED_POLYGON:
                     if (!addingPoints) {
                         addingPoints = true;
-                        editing = new TikTypeStruct(new Array<Vector2>(), currentType);
+                        editing = new TikTypeStruct(new Array<>(), currentType);
                         editing.vertices.add(mouse);
                     } else {
                         if (mouse.equals(editing.vertices.get(0))) {
@@ -277,13 +300,13 @@ public class GridInterface {
                         verts.get(i).add(mouse);
                     }
                     points.add(editing);
-                    setDrawType(DrawType.POLYGON);
+                    setDrawType(DrawType.FILLED_POLYGON);
                     break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
             }
         } else if (Gdx.input.isButtonJustPressed(1)) {
-            if (currentType == DrawType.POLYGON) {
+            if (currentType == DrawType.FILLED_POLYGON || currentType == DrawType.DOTTED_POLYGON) {
                 points.add(editing);
             }
             addingPoints = false;

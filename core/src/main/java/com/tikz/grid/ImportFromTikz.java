@@ -69,14 +69,26 @@ public class ImportFromTikz {
                         points.add(new TikTypeStruct(origin, endPoint, DrawType.LINE));
                     }
                 } else {
-                    // POLYGON case (for every vector, try to convert it
-                    String[] vectors = command.trim().split("--");
-                    Array<Vector2> vs = new Array<>();
-                    for (String v : vectors) {
-                        v = v.trim();
-                        vs.add(new Vector2().fromString(v));
+                    if (command.contains("[dashed]")) {
+                        // FILLED_POLYGON case (for every vector, try to convert it)
+                        String newCommand = command.replace("[dashed]", "");
+                        String[] vectors = newCommand.trim().split("--");
+                        Array<Vector2> vs = new Array<>();
+                        for (String v : vectors) {
+                            v = v.trim();
+                            vs.add(new Vector2().fromString(v));
+                        }
+                        points.add(new TikTypeStruct(vs, DrawType.DOTTED_POLYGON));
+                    } else {
+                        // FILLED_POLYGON case (for every vector, try to convert it)
+                        String[] vectors = command.trim().split("--");
+                        Array<Vector2> vs = new Array<>();
+                        for (String v : vectors) {
+                            v = v.trim();
+                            vs.add(new Vector2().fromString(v));
+                        }
+                        points.add(new TikTypeStruct(vs, DrawType.FILLED_POLYGON));
                     }
-                    points.add(new TikTypeStruct(vs, DrawType.POLYGON));
                 }
             } else if (command.contains("node at")) {
                 // Text Case
@@ -148,6 +160,6 @@ public class ImportFromTikz {
 
             vectors.add(new Vector2().fromString(stringVector).scl(4));
         }
-        return new TikTypeStruct(vectors, DrawType.POLYGON);
+        return new TikTypeStruct(vectors, DrawType.FILLED_POLYGON);
     }
 }
