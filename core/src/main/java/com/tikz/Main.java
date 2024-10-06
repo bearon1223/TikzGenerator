@@ -42,7 +42,6 @@ public class Main extends Game {
             editorFont = generator.generateFont(parameter);
         } catch (GdxRuntimeException ignored){
         }
-//        editorFont.getData().scale(scale);
     }
 
     @Override

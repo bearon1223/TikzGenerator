@@ -352,28 +352,14 @@ public class GridInterface {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Calculate the points for the arrowhead triangle
-        float arrowX1 = x2 - arrowHeadSize * scalingPercent * (float) cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * scalingPercent * (float) sin(angle - Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize / 2 * scalingPercent * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize / 2 * scalingPercent * (float) sin(angle - Math.PI / 6);
 
-        float arrowX2 = x2 - arrowHeadSize * scalingPercent * (float) cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * scalingPercent * (float) sin(angle + Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize / 2 * scalingPercent * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize / 2 * scalingPercent * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead (a filled triangle)
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
-    }
-
-    public void NACA0012(Array<TikTypeStruct> points) {
-        points.add(new TikTypeStruct(new Vector2(), new Vector2(), DrawType.LINE));
-        float c = 50;
-        for (int i = 1; i <= c; i++) {
-            float z = (float) (0.12f / 0.2f * (0.296 * sqrt((double) i / c) - 0.126f * ((double) i / c) - 0.3516 * Math.pow((double) i / c, 2) + 0.2843 * Math.pow((double) i / c, 3) - 0.1015 * Math.pow((double) i / c, 4)));
-            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i / c * 2, 2 * z), DrawType.LINE));
-        }
-
-        for (int i = (int) c; i > 0; i--) {
-            float z = (float) -(0.12f / 0.2f * (0.296 * sqrt((double) i / c) - 0.126f * ((double) i / c) - 0.3516 * Math.pow((double) i / c, 2) + 0.2843 * Math.pow((double) i / c, 3) - 0.1015 * Math.pow((double) i / c, 4)));
-            points.add(new TikTypeStruct(points.peek().endPoint, new Vector2((float) i / c * 2, 2 * z), DrawType.LINE));
-        }
     }
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {

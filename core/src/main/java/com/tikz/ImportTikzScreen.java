@@ -38,21 +38,34 @@ public class ImportTikzScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(textArea);
 
         t.add(scrollPane).width(Value.percentWidth(1, t))
-            .height(Value.percentHeight(1f - 60 / 800f - 30/800f, t)).colspan(3).padBottom(Value.percentHeight(5f/800f, t));
+            .height(Value.percentHeight(1f - 60 / 800f - 30 / 800f, t)).colspan(3).padBottom(Value.percentHeight(5f / 800f, t));
         t.row();
 
-        Label scaleLabel = new Label("Scale of the Vector List: ", skin);
-        t.add(scaleLabel).height(Value.percentHeight(15/800f, t)).pad(Value.percentHeight(5/800f, t)).right();
+        Label scaleLabel = new Label("(Vectors) Scale: 1.00; rotation angle: 0 deg", skin);
+        t.add(scaleLabel).height(Value.percentHeight(15 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
 
-        Slider scale = new Slider(0.5f, 10f, 0.25f, false, skin);
+        Slider scale = new Slider(0.5f, 10f, 0.5f, false, skin);
+        scale.setValue(1f);
+
+        t.add(scale).height(Value.percentHeight(15 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
+
+        Slider rotation = new Slider(-180, 180, 5, false, skin);
+        rotation.setValue(+0f);
+        rotation.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                scaleLabel.setText(String.format("(Vectors) Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
+            }
+        });
+
+        t.add(rotation).height(Value.percentHeight(15 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
+
         scale.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                float value = scale.getValue();
-                scaleLabel.setText("Scale of the Vector List: " + value);
+                scaleLabel.setText(String.format("(Vectors) Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
             }
         });
-        t.add(scale).height(Value.percentHeight(15/800f, t)).pad(Value.percentHeight(5/800f, t)).left();
 
         t.row();
 
@@ -98,7 +111,7 @@ public class ImportTikzScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText(), scale.getValue());
+                    gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText(), scale.getValue(), rotation.getValue());
                     gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
                     gridInterface.addingPoints = true;
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {

@@ -1,6 +1,7 @@
 package com.tikz.grid;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -132,13 +133,15 @@ public class ImportFromTikz {
      * Converts a list of vectors into a polygon usable by this program
      *
      * @param vectorInput List of vectors
+     * @param scale How much to scale the output by
+     * @param rotationDeg how much to rotate by in the clockwise direction
      * @return Array of Tikz Points in Grid Interface Format
      * @throws GdxRuntimeException   Throws Malformed Vector
-     * @throws NullPointerException  Parsing Float for circles failed
-     * @throws NumberFormatException Parsing Float for circles failed
+     * @throws NullPointerException  Parsing Float for vectors failed
+     * @throws NumberFormatException Parsing Float for vectors failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static TikTypeStruct FromVectorsToPoints(String vectorInput, float scale) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    public static TikTypeStruct FromVectorsToPoints(String vectorInput, float scale, float rotationDeg) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<Vector2> vectors = new Array<>();
         String[] vectorStrings = vectorInput.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
@@ -158,7 +161,7 @@ public class ImportFromTikz {
             if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
             String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
 
-            vectors.add(new Vector2().fromString(stringVector).scl(scale));
+            vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
         }
         return new TikTypeStruct(vectors, DrawType.FILLED_POLYGON);
     }
