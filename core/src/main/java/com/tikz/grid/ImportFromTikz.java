@@ -138,7 +138,7 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static TikTypeStruct FromVectorsToPoints(String vectorInput) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    public static TikTypeStruct FromVectorsToPoints(String vectorInput, float scale) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<Vector2> vectors = new Array<>();
         String[] vectorStrings = vectorInput.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
@@ -158,7 +158,7 @@ public class ImportFromTikz {
             if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
             String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
 
-            vectors.add(new Vector2().fromString(stringVector).scl(4));
+            vectors.add(new Vector2().fromString(stringVector).scl(scale));
         }
         return new TikTypeStruct(vectors, DrawType.FILLED_POLYGON);
     }

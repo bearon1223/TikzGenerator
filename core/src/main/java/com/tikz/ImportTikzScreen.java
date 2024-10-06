@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -37,7 +38,22 @@ public class ImportTikzScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(textArea);
 
         t.add(scrollPane).width(Value.percentWidth(1, t))
-            .height(Value.percentHeight(1f - 60 / 800f, t)).colspan(3).padBottom(10f);
+            .height(Value.percentHeight(1f - 60 / 800f - 30/800f, t)).colspan(3).padBottom(Value.percentHeight(5f/800f, t));
+        t.row();
+
+        Label scaleLabel = new Label("Scale of the Vector List: ", skin);
+        t.add(scaleLabel).height(Value.percentHeight(15/800f, t)).pad(Value.percentHeight(5/800f, t)).right();
+
+        Slider scale = new Slider(0.5f, 10f, 0.25f, false, skin);
+        scale.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                float value = scale.getValue();
+                scaleLabel.setText("Scale of the Vector List: " + value);
+            }
+        });
+        t.add(scale).height(Value.percentHeight(15/800f, t)).pad(Value.percentHeight(5/800f, t)).left();
+
         t.row();
 
         TextButton importTik = new TextButton("Import Tikz Code", skin);
@@ -82,7 +98,7 @@ public class ImportTikzScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText());
+                    gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText(), scale.getValue());
                     gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
                     gridInterface.addingPoints = true;
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
