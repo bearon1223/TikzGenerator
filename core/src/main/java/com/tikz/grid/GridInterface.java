@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.tikz.Main;
 import com.tikz.MainScreen;
 
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 public class GridInterface {
     public static final int ROWS = 6;
@@ -92,8 +92,7 @@ public class GridInterface {
                     renderer.rectLine(o, e, 2f * scalingPercent);
                     break;
                 case CIRCLE:
-                    renderer.set(ShapeRenderer.ShapeType.Line);
-                    renderer.circle(o.x, o.y, o.dst(e));
+                    drawCircle(renderer, o.x, o.y, o.dst(e));
                     break;
                 case ARROW:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
@@ -160,8 +159,7 @@ public class GridInterface {
                     renderer.rectLine(o, e, 2f * scalingPercent);
                     break;
                 case CIRCLE:
-                    renderer.set(ShapeRenderer.ShapeType.Line);
-                    renderer.circle(o.x, o.y, o.dst(e));
+                    drawCircle(renderer, o.x, o.y, o.dst(e));
                     break;
                 case FILLED_POLYGON:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
@@ -334,6 +332,18 @@ public class GridInterface {
         shapeRenderer.circle(x2, y2, 2f * scalingPercent);
     }
 
+    public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius) {
+        int segments = 360/5;
+        Vector2 center = new Vector2(x, y);
+        Vector2 vPres = new Vector2(x + radius, y);
+        for(int i = 0; i <= segments; i++) {
+            double alpha = 2* PI / segments * i;
+            Vector2 newPoint = center.cpy().add((float) (radius*cos(alpha)), (float) (radius*sin(alpha)));
+            shapeRenderer.rectLine(vPres, newPoint, 2f * scalingPercent);
+            vPres = newPoint.cpy();
+        }
+    }
+
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
         shapeRenderer.rectLine(x1, y1, x2, y2, 2f * scalingPercent);
@@ -342,11 +352,11 @@ public class GridInterface {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Calculate the points for the arrowhead triangle
-        float arrowX1 = x2 - arrowHeadSize * (float) Math.cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * (float) Math.sin(angle - Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize * (float) sin(angle - Math.PI / 6);
 
-        float arrowX2 = x2 - arrowHeadSize * (float) Math.cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * (float) Math.sin(angle + Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead (a filled triangle)
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
@@ -374,19 +384,19 @@ public class GridInterface {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Arrowhead at the end (x2, y2)
-        float arrowX1 = x2 - arrowHeadSize * (float) Math.cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * (float) Math.sin(angle - Math.PI / 6);
-        float arrowX2 = x2 - arrowHeadSize * (float) Math.cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * (float) Math.sin(angle + Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize * (float) sin(angle - Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the end
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
 
         // Arrowhead at the start (x1, y1)
-        float arrowX3 = x1 + arrowHeadSize * (float) Math.cos(angle - Math.PI / 6);
-        float arrowY3 = y1 + arrowHeadSize * (float) Math.sin(angle - Math.PI / 6);
-        float arrowX4 = x1 + arrowHeadSize * (float) Math.cos(angle + Math.PI / 6);
-        float arrowY4 = y1 + arrowHeadSize * (float) Math.sin(angle + Math.PI / 6);
+        float arrowX3 = x1 + arrowHeadSize * (float) cos(angle - Math.PI / 6);
+        float arrowY3 = y1 + arrowHeadSize * (float) sin(angle - Math.PI / 6);
+        float arrowX4 = x1 + arrowHeadSize * (float) cos(angle + Math.PI / 6);
+        float arrowY4 = y1 + arrowHeadSize * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the start
         shapeRenderer.triangle(x1, y1, arrowX3, arrowY3, arrowX4, arrowY4);
