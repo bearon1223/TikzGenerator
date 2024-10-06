@@ -145,6 +145,7 @@ public class MainScreen implements Screen {
 
     public MainScreen setGrid(GridInterface grid) {
         this.grid = grid;
+        this.grid.screen = this;
         if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
             this.grid.addingPoints = false;
         return this;

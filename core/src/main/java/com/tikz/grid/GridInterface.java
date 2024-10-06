@@ -15,31 +15,29 @@ import static java.lang.Math.sqrt;
 public class GridInterface {
     public static final int ROWS = 6;
     public static final int COLS = 9;
+    private final Main app;
     public float scaling = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
     public float scalingPercent = 1;
     public Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
     public boolean addingPoints = false;
-    private boolean snapGrid = true;
     public String text = "Base Text";
-
-    private final Main app;
-    private final MainScreen screen;
-
-    private DrawType currentType = DrawType.LINE;
+    public MainScreen screen;
     public Array<TikTypeStruct> points = new Array<>();
     public TikTypeStruct editing;
+    private boolean snapGrid = true;
+    private DrawType currentType = DrawType.LINE;
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
         this.screen = screen;
     }
 
-    public void setDrawType(DrawType type) {
-        this.currentType = type;
-    }
-
     public DrawType getDrawType() {
         return currentType;
+    }
+
+    public void setDrawType(DrawType type) {
+        this.currentType = type;
     }
 
     public void drawGrid(ShapeRenderer renderer) {
@@ -138,7 +136,7 @@ public class GridInterface {
                         drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
                         vPres2 = tik.vertices.get(i).cpy().scl(scaling).add(center);
                     }
-                break;
+                    break;
             }
         }
 
@@ -183,7 +181,7 @@ public class GridInterface {
                         Vector2 a = editing.vertices.get(i).cpy().scl(scaling).add(center);
                         drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
                         vPres2 = editing.vertices.get(i).cpy().scl(scaling).add(center);
-                    };
+                    }
                     Vector2 a = mouse.cpy().scl(scaling).add(center);
                     drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
                     break;
@@ -306,7 +304,8 @@ public class GridInterface {
                     throw new IllegalDrawType("Unknown Draw Type");
             }
         } else if (Gdx.input.isButtonJustPressed(1)) {
-            if (currentType == DrawType.FILLED_POLYGON || currentType == DrawType.DOTTED_POLYGON) {
+            if ((currentType == DrawType.FILLED_POLYGON || currentType == DrawType.DOTTED_POLYGON)
+                && editing.vertices.size > 1) {
                 points.add(editing);
             }
             addingPoints = false;
@@ -334,8 +333,6 @@ public class GridInterface {
 
         shapeRenderer.circle(x2, y2, 2f * scalingPercent);
     }
-
-    ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
