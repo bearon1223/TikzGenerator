@@ -352,11 +352,11 @@ public class GridInterface {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Calculate the points for the arrowhead triangle
-        float arrowX1 = x2 - arrowHeadSize * (float) cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * (float) sin(angle - Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize * scalingPercent * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize * scalingPercent * (float) sin(angle - Math.PI / 6);
 
-        float arrowX2 = x2 - arrowHeadSize * (float) cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * (float) sin(angle + Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize * scalingPercent * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize * scalingPercent * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead (a filled triangle)
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
