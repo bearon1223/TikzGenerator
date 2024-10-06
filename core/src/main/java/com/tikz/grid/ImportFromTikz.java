@@ -116,9 +116,19 @@ public class ImportFromTikz {
         return points;
     }
 
-    public static TikTypeStruct FromVectorsToPoints(String vecs) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    /**
+     * Converts a list of vectors into a polygon usable by this program
+     *
+     * @param vectorInput List of vectors
+     * @return Array of Tikz Points in Grid Interface Format
+     * @throws GdxRuntimeException   Throws Malformed Vector
+     * @throws NullPointerException  Parsing Float for circles failed
+     * @throws NumberFormatException Parsing Float for circles failed
+     * @throws IllegalDrawType       Unknown Draw Code
+     */
+    public static TikTypeStruct FromVectorsToPoints(String vectorInput) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<Vector2> vectors = new Array<>();
-        String[] vectorStrings = vecs.replace("(", "").replace(")", "").split("\\n+");
+        String[] vectorStrings = vectorInput.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
             if (v.isBlank()) continue;
             v = v.trim();

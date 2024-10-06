@@ -19,7 +19,7 @@ import com.tikz.grid.ImportFromTikz;
 
 public class ImportTikzScreen implements Screen {
     private final Stage stage;
-    private Table t;
+    private final Table t;
     private final Main app;
     TextArea textArea;
 

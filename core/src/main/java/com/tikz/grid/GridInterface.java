@@ -91,7 +91,7 @@ public class GridInterface {
             switch (tik.type) {
                 case LINE:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 3f * scalingPercent);
+                    renderer.rectLine(o, e, 2f * scalingPercent);
                     break;
                 case CIRCLE:
                     renderer.set(ShapeRenderer.ShapeType.Line);
@@ -149,7 +149,7 @@ public class GridInterface {
             switch (currentType) {
                 case LINE:
                     renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 3f * scalingPercent);
+                    renderer.rectLine(o, e, 2f * scalingPercent);
                     break;
                 case CIRCLE:
                     renderer.set(ShapeRenderer.ShapeType.Line);
@@ -200,7 +200,7 @@ public class GridInterface {
                     // draw the polygon
                     Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(scaling).add(center);
                     for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f * scaling);
+                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f * scalingPercent);
                         vOld = editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center);
                     }
                     break;
@@ -306,17 +306,17 @@ public class GridInterface {
             float dotX = x1 + i * dotSpacing * directionX;
             float dotY = y1 + i * dotSpacing * directionY;
 
-            shapeRenderer.circle(dotX, dotY, 3f * scalingPercent);
+            shapeRenderer.circle(dotX, dotY, 2f * scalingPercent);
         }
 
-        shapeRenderer.circle(x2, y2, 3f * scalingPercent);
+        shapeRenderer.circle(x2, y2, 2f * scalingPercent);
     }
 
     ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 3f * scalingPercent);
+        shapeRenderer.rectLine(x1, y1, x2, y2, 2f * scalingPercent);
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
@@ -348,7 +348,7 @@ public class GridInterface {
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 3f * scalingPercent);
+        shapeRenderer.rectLine(x1, y1, x2, y2, 2f * scalingPercent);
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);

@@ -51,7 +51,7 @@ public class MainScreen implements Screen {
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
         addButton(DrawType.TEXT, t, skin, "Text");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.POLYGON, t, skin, "Polygon");
+        addButton(DrawType.POLYGON, t, skin, "Multi-Line / Polygon");
 
         TextButton importTikz = new TextButton("Import existing Tikz", skin);
 
@@ -194,19 +194,6 @@ public class MainScreen implements Screen {
         stage.draw();
     }
 
-//    @Override
-//    public void resize(int width, int height) {
-//        stage.getViewport().setWorldSize(width, height);
-//        stage.getViewport().update(width, height, true);
-//        t.setSize(200 * width / 1200f, height);
-//        t.defaults().prefWidth(200 * width / 1200f);
-//        float scalingS = Math.min((float) 800 / grid.ROWS, (float) 1200 / grid.COLS);
-//        float scaling = Math.min((float) Gdx.graphics.getHeight() / grid.ROWS, (float) Gdx.graphics.getWidth() / grid.COLS);
-//        app.updateFont(scaling / scalingS);
-//        t.invalidateHierarchy();
-//        t.layout();
-//    }
-
     @Override
     public void resize(int width, int height) {
         stage.getViewport().setWorldSize(width, height);
@@ -219,8 +206,10 @@ public class MainScreen implements Screen {
         t.layout();
 
         // Calculate scaling and update font
-        float scalingS = Math.min((float) 800 / grid.ROWS, (float) 1200 / grid.COLS);
-        float scaling = Math.min((float) Gdx.graphics.getHeight() / grid.ROWS, (float) Gdx.graphics.getWidth() / grid.COLS);
+        float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
+        float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
+            (float) Gdx.graphics.getWidth() / GridInterface.COLS);
+
         app.updateFont(scaling / scalingS);
 
         // Update skin with the new editor font
