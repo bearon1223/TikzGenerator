@@ -22,7 +22,8 @@ public class ImportFromTikz {
         String[] commands = tik.replace("\n", "").split(";");
         int n = 0;
         for (String command : commands) {
-            if(command.contains("%"))
+            command = command.trim();
+            if(command.startsWith("%"))
                 continue;
             // remove tikz draw command and the end draw command
             command = command.replace("\\draw ", "");
@@ -160,7 +161,7 @@ public class ImportFromTikz {
                 splitVectorString = v.split("\\s+");
             }
 
-            if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector" + v);
+            if (splitVectorString.length != 2) throw new GdxRuntimeException("Malformed Vector " + v);
             String stringVector = "(" + splitVectorString[0] + "," + splitVectorString[1] + ")";
 
             vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
