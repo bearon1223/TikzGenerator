@@ -22,6 +22,8 @@ public class ImportFromTikz {
         String[] commands = tik.replace("\n", "").split(";");
         int n = 0;
         for (String command : commands) {
+            if(command.contains("%"))
+                continue;
             // remove tikz draw command and the end draw command
             command = command.replace("\\draw ", "");
             command = command.replace("\\draw", "");

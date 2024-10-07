@@ -196,12 +196,17 @@ public class ImportTikzScreen implements Screen {
         TextField.TextFieldStyle fieldStyle = skin.get(TextField.TextFieldStyle.class);
         fieldStyle.font = app.editorFont;
 
+        Label.LabelStyle labelStyle = skin.get(Label.LabelStyle.class);
+        labelStyle.font = app.editorFont;
+
         // Update all text buttons to use the new style
         for (Actor actor : t.getChildren()) {
             if (actor instanceof TextButton) {
-                ((TextButton) actor).setStyle(buttonStyle);  // Apply new style with updated font
+                ((TextButton) actor).setStyle(buttonStyle);
             } else if (actor instanceof TextField) {
                 ((TextField) actor).setStyle(fieldStyle);
+            } else if (actor instanceof Label) {
+                ((Label) actor).setStyle(labelStyle);
             }
         }
 

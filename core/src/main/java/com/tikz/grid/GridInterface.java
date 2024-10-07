@@ -314,6 +314,8 @@ public class GridInterface {
         // Calculate the total distance between the start and end points
         float distance = (float) Math.hypot(x2 - x1, y2 - y1);
 
+        dotSpacing *= scalingPercent;
+
         // Calculate the number of dots that fit along the line
         int numDots = (int) (distance / dotSpacing);
 
@@ -322,14 +324,13 @@ public class GridInterface {
         float directionY = (y2 - y1) / distance;
 
         // Draw dots along the line at regular intervals
-        for (int i = 0; i <= numDots; i++) {
-            float dotX = x1 + i * dotSpacing * directionX;
-            float dotY = y1 + i * dotSpacing * directionY;
-
-            shapeRenderer.circle(dotX, dotY, 2f * scalingPercent);
+        Vector2 vPres = new Vector2(x1, y1);
+        for (int i = 0; i < numDots; i++) {
+            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing*directionX/2, dotSpacing*directionY/2), 2f*scalingPercent);
+            vPres.add(dotSpacing*directionX, dotSpacing*directionY);
         }
 
-        shapeRenderer.circle(x2, y2, 2f * scalingPercent);
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, 2f * scalingPercent);
     }
 
     public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius) {
