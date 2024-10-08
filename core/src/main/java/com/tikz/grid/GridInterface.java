@@ -67,7 +67,7 @@ public class GridInterface {
                 new Vector2(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2f + scaling * i), 1f);
         }
 
-        draw();
+        drawTikz();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             points.clear();
@@ -79,65 +79,7 @@ public class GridInterface {
         renderer.setColor(Color.GOLD);
         renderer.circle(mouse.x * scaling + center.x, mouse.y * scaling + center.y, 2f);
 
-        for (TikTypeStruct tik : points) {
-            Vector2 o = new Vector2();
-            Vector2 e = new Vector2();
-            if (tik.type != DrawType.FILLED_POLYGON) {
-                o = tik.origin.cpy().scl(scaling).add(center);
-                e = tik.endPoint.cpy().scl(scaling).add(center);
-            }
-            switch (tik.type) {
-                case LINE:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 2f * scalingPercent);
-                    break;
-                case CIRCLE:
-                    drawCircle(renderer, o.x, o.y, o.dst(e));
-                    break;
-                case ARROW:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawArrow(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case TEXT:
-                    renderer.end();
-                    app.batch.begin();
-                    app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                    app.TikzTextFont.setColor(Color.WHITE);
-                    app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
-                    app.batch.end();
-                    renderer.begin();
-                    renderer.setAutoShapeType(true);
-                    break;
-                case DOTTED_LINE:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawDottedLine(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case DOUBLE_ARROW:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawTwoHeadedArrow(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case FILLED_POLYGON:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    // draw the polygon
-                    Vector2 vPres = tik.vertices.get(0).cpy().scl(scaling).add(center);
-                    for (int i = 1; i < tik.vertices.size; i++) {
-                        renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(scaling).add(center), 2f * scalingPercent);
-                        vPres = tik.vertices.get(i).cpy().scl(scaling).add(center);
-                    }
-//                    renderer.rectLine(vPres, tik.vertices.get(0).cpy().scl(scaling).add(center), 2f * scalingPercent);
-                    break;
-                case DOTTED_POLYGON:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    // draw the polygon
-                    Vector2 vPres2 = tik.vertices.get(0).cpy().scl(scaling).add(center);
-                    for (int i = 1; i < tik.vertices.size; i++) {
-                        Vector2 a = tik.vertices.get(i).cpy().scl(scaling).add(center);
-                        drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
-                        vPres2 = tik.vertices.get(i).cpy().scl(scaling).add(center);
-                    }
-                    break;
-            }
-        }
+        renderAllPoints(renderer, center);
 
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.Z) && points.size > 0) {
@@ -145,6 +87,24 @@ public class GridInterface {
             }
         }
 
+        renderEditingPoint(renderer, center);
+    }
+
+    private void renderAllPoints(ShapeRenderer renderer, Vector2 center) {
+        // render every point
+        for (TikTypeStruct tik : points) {
+            Vector2 o = new Vector2();
+            Vector2 e = new Vector2();
+            if (tik.type != DrawType.FILLED_POLYGON) {
+                o = tik.origin.cpy().scl(scaling).add(center);
+                e = tik.endPoint.cpy().scl(scaling).add(center);
+            }
+            renderTikz(tik, tik.type, renderer, o, e, center);
+        }
+    }
+
+    public void renderEditingPoint(ShapeRenderer renderer, Vector2 center) {
+        // render the editing point
         if (editing != null && addingPoints) {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
@@ -153,82 +113,87 @@ public class GridInterface {
                 o = editing.origin.cpy().scl(scaling).add(center);
                 e = editing.endPoint.cpy().scl(scaling).add(center);
             }
-            switch (currentType) {
-                case LINE:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    renderer.rectLine(o, e, 2f * scalingPercent);
-                    break;
-                case CIRCLE:
-                    drawCircle(renderer, o.x, o.y, o.dst(e));
-                    break;
-                case FILLED_POLYGON:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    // draw the polygon
-                    Vector2 vPres = editing.vertices.get(0).cpy().scl(scaling).add(center);
-                    for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vPres, editing.vertices.get(i).cpy().scl(scaling).add(center), 2f * scalingPercent);
-                        vPres = editing.vertices.get(i).cpy().scl(scaling).add(center);
-                    }
+            if(currentType != DrawType.TEXT) {
+                renderTikz(editing, currentType, renderer, o, e, center);
+                if (currentType == DrawType.FILLED_POLYGON) {
+                    Vector2 vPres = editing.vertices.peek().cpy().scl(scaling).add(center);
                     renderer.rectLine(vPres, mouse.cpy().scl(scaling).add(center), 2f * scalingPercent);
-                    break;
-                case DOTTED_POLYGON:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    // draw the polygon
-                    Vector2 vPres2 = editing.vertices.get(0).cpy().scl(scaling).add(center);
-                    for (int i = 1; i < editing.vertices.size; i++) {
-                        Vector2 a = editing.vertices.get(i).cpy().scl(scaling).add(center);
-                        drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
-                        vPres2 = editing.vertices.get(i).cpy().scl(scaling).add(center);
-                    }
-                    Vector2 a = mouse.cpy().scl(scaling).add(center);
-                    drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
-                    break;
-                case TEXT:
-                    o = editing.origin.cpy().scl(scaling).add(center);
-                    editing = new TikTypeStruct(mouse, currentType, text);
-                    renderer.end();
-                    app.batch.begin();
-                    app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                    app.TikzTextFont.setColor(Color.WHITE);
-                    app.TikzTextFont.draw(app.batch, editing.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f,
-                        Align.center, false);
-                    app.batch.end();
-                    renderer.begin();
-                    renderer.setAutoShapeType(true);
-                    break;
-                case ARROW:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawArrow(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case DOTTED_LINE:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawDottedLine(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case DOUBLE_ARROW:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    drawTwoHeadedArrow(renderer, o.x, o.y, e.x, e.y, 20f);
-                    break;
-                case ARC:
-                    renderer.set(ShapeRenderer.ShapeType.Line);
-                    renderer.setColor(Color.GOLD);
-                    renderer.arc(e.x, e.y, 100, 0, 180f);
-                    break;
-                case DROPPED_POLYGON:
-                    renderer.set(ShapeRenderer.ShapeType.Filled);
-                    // draw the polygon
-                    Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(scaling).add(center);
-                    for (int i = 1; i < editing.vertices.size; i++) {
-                        renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center), 2f * scalingPercent);
-                        vOld = editing.vertices.get(i).cpy().add(mouse).scl(scaling).add(center);
-                    }
-                    break;
-                default:
-                    throw new IllegalDrawType("Unknown Draw Type");
+                } else if (currentType == DrawType.DOTTED_POLYGON) {
+                    Vector2 vPres = editing.vertices.peek().cpy().scl(scaling).add(center);
+                    drawDottedLine(renderer, vPres.x, vPres.y, mouse.cpy().scl(scaling).add(center).x, mouse.cpy().scl(scaling).add(center).y, 20f);
+                }
+            } else {
+                o = editing.origin.cpy().scl(scaling).add(center);
+                editing = new TikTypeStruct(mouse, currentType, text);
+                renderer.end();
+                app.batch.begin();
+                app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
+                app.TikzTextFont.setColor(Color.WHITE);
+                app.TikzTextFont.draw(app.batch, editing.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f,
+                    Align.center, false);
+                app.batch.end();
+                renderer.begin();
+                renderer.setAutoShapeType(true);
             }
         }
     }
 
-    public void draw() {
+    public void renderTikz(TikTypeStruct tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
+        switch (type) {
+            case LINE:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                renderer.rectLine(o, e, 2f * scalingPercent);
+                break;
+            case CIRCLE:
+                drawCircle(renderer, o.x, o.y, o.dst(e));
+                break;
+            case ARROW:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                drawArrow(renderer, o.x, o.y, e.x, e.y, 20f);
+                break;
+            case DOTTED_LINE:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                drawDottedLine(renderer, o.x, o.y, e.x, e.y, 20f);
+                break;
+            case DOUBLE_ARROW:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                drawTwoHeadedArrow(renderer, o.x, o.y, e.x, e.y, 20f);
+                break;
+            case FILLED_POLYGON:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                // draw the polygon
+                Vector2 vPres = tik.vertices.get(0).cpy().scl(scaling).add(center);
+                for (int i = 1; i < tik.vertices.size; i++) {
+                    renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(scaling).add(center), 2f * scalingPercent);
+                    vPres = tik.vertices.get(i).cpy().scl(scaling).add(center);
+                }
+                break;
+            case DOTTED_POLYGON:
+                renderer.set(ShapeRenderer.ShapeType.Filled);
+                // draw the polygon
+                Vector2 vPres2 = tik.vertices.get(0).cpy().scl(scaling).add(center);
+                for (int i = 1; i < tik.vertices.size; i++) {
+                    Vector2 a = tik.vertices.get(i).cpy().scl(scaling).add(center);
+                    drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
+                    vPres2 = tik.vertices.get(i).cpy().scl(scaling).add(center);
+                }
+                break;
+            case TEXT:
+                renderer.end();
+                app.batch.begin();
+                app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
+                app.TikzTextFont.setColor(Color.WHITE);
+                app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
+                app.batch.end();
+                renderer.begin();
+                renderer.setAutoShapeType(true);
+                break;
+            default:
+                throw new IllegalDrawType("Unknown Draw Type");
+        }
+    }
+
+    public void drawTikz() {
         final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         // do inputs stuff
         mouse = new Vector2(Gdx.input.getX() - screen.t.getWidth() / 2, Gdx.graphics.getHeight() - Gdx.input.getY());
