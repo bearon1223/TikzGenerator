@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -32,7 +33,6 @@ public class MainScreen implements Screen {
     private GridInterface grid;
     private float time = 1f;
     private boolean hiddenMenu = false;
-    private boolean panning = false;
     private Vector2 startingPan = new Vector2();
 
     public MainScreen(Main app) {
@@ -55,10 +55,23 @@ public class MainScreen implements Screen {
         addButton(DrawType.DOTTED_LINE, t, skin, "Dashed Line");
         addButton(DrawType.ARROW, t, skin, "Arrow");
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
-        addButton(DrawType.TEXT, t, skin, "Text");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
+        addButton(DrawType.LINE, t, skin, "Arc");
         addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
         addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
+        // Create TextField
+        textField = new TextField("Base Text", skin);
+        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+        addButton(DrawType.TEXT, t, skin, "Insert Text");
+
+
+        textField.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                grid.text = textField.getText();
+            }
+        });
 
         TextButton importTikz = new TextButton("Import existing Tikz", skin);
 
@@ -69,7 +82,7 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(importTikz).spaceTop(Value.percentHeight(0.0416f, t));
+        t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
         t.row();
 
         TextButton importFromFileTikz = new TextButton("Import From File", skin);
@@ -112,27 +125,23 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(convertToTikz).spaceBottom(Value.percentHeight(0.0416f, t)).spaceTop(Value.percentHeight(0.0083f, t));
+        t.add(convertToTikz).spaceBottom(Value.percentHeight(20 / 800f, t)).
+            spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
-        // Create TextField
-        textField = new TextField("", skin);
-        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        // Create Submit Button
-        TextButton submitButton = new TextButton("Submit", skin);
-        t.add(submitButton);
-        t.row();
-
-        // Handle Button Click
-        submitButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                grid.text = textField.getText();
-                stage.setKeyboardFocus(null);
-            }
-        });
+//        // Create Submit Button
+//        TextButton submitButton = new TextButton("Submit", skin);
+//        t.add(submitButton);
+//        t.row();
+//
+//        // Handle Button Click
+//        submitButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                grid.text = textField.getText();
+//                stage.setKeyboardFocus(null);
+//            }
+//        });
 
         stage.addActor(t);
 
@@ -186,6 +195,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 grid.setDrawType(type);
                 table.getStage().setKeyboardFocus(null);
+                stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
                     grid.addingPoints = true;
@@ -220,47 +230,12 @@ public class MainScreen implements Screen {
         app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();
 
-        stage.act(delta);
-        stage.draw();
-
-        // Toggle hiding main menu
-        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
-            hiddenMenu = !hiddenMenu;
-            time = 0;
+        if(!hiddenMenu || time < 0.5f) {
+            stage.act(delta);
+            stage.draw();
         }
 
-        // change zoom
-        float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
-        float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
-            (float) Gdx.graphics.getWidth() / GridInterface.COLS);
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-            grid.zoomLevel += 0.125f;
-            grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
-
-            // Update tikz font using the gridSpacing factor from the grid
-            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
-            grid.zoomLevel -= 0.125f;
-            grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
-
-            // Update tikz font using the gridSpacing factor from the grid
-            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
-            grid.zoomLevel = 1;
-            grid.panning.set(0,0);
-
-            // Update tikz font using the gridSpacing factor from the grid
-            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
-        }
-
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE)) {
-            startingPan = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()).add(grid.panning);
-        }
-
-        if(Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
-            grid.panning.set(startingPan.cpy().sub(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()));
-        }
+        handleInputs();
 
         if (time < 0.5f) {
             time += Gdx.graphics.getDeltaTime();
@@ -270,6 +245,60 @@ public class MainScreen implements Screen {
                 tableOffset = -t.getWidth() * (1 - ease(time * 2));
             }
         }
+    }
+
+    private void handleInputs() {
+        // Toggle hiding main menu
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            hiddenMenu = !hiddenMenu;
+            time = 0;
+            // remove the keyboard focus from the text box
+            stage.setKeyboardFocus(null);
+        }
+
+        if(Gdx.input.isButtonPressed(0) && Gdx.input.getX() > tableOffset + t.getWidth()) {
+            stage.setKeyboardFocus(null);
+        }
+
+        // change zoom
+        float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
+        float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
+            (float) Gdx.graphics.getWidth() / GridInterface.COLS);
+
+        if(stage.getKeyboardFocus() == null) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
+                grid.zoomLevel += 0.125f;
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+
+                // Update tikz font using the gridSpacing factor from the grid
+                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+                grid.zoomLevel -= 0.125f;
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+
+                // Update tikz font using the gridSpacing factor from the grid
+                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
+                grid.zoomLevel = 1;
+                grid.panning.set(0, 0);
+
+                // Update tikz font using the gridSpacing factor from the grid
+                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
+                grid.showGrid = !grid.showGrid;
+            }
+        }
+
+        if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+                startingPan = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()).add(grid.panning);
+            }
+            grid.panning.set(startingPan.cpy().sub(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()));
+        }
+    }
+
+    public boolean notTyping() {
+        return stage.getKeyboardFocus() == null;
     }
 
     @Override
@@ -313,6 +342,8 @@ public class MainScreen implements Screen {
 
         // Invalidate hierarchy to ensure layout refresh
         t.invalidateHierarchy();
+
+        // scale the table offset as well
         if (hiddenMenu) {
             tableOffset = -t.getWidth() * ease(time * 2);
         } else {

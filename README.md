@@ -6,9 +6,10 @@ This project allows you to create TikZ graphics graphically and export them into
 
 ## Controls
 - `Ctrl + Z` Undo's the latest action (last line in the tik code)
-- `Esc` is to clear the drawing
-- `Middle Mouse Button` is used for panning
-- `Tab` is to hide and un-hide the side menu bar
+- `Shift + Backspace` to clear the drawing
+- `Middle Mouse Button`  for panning
+- `Escape` to hide and un-hide the side menu bar
+- `h` to hide or unhide the grid
 - `+ or =` to zoom in
 - `-` to zoom out
 - `Backspace` to reset the zoom and position

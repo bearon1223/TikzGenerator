@@ -29,6 +29,7 @@ public class GridInterface {
     private boolean snapGrid = true;
     private DrawType currentType = DrawType.LINE;
     private float centerOffset = 0f;
+    public boolean showGrid = true;
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
@@ -69,30 +70,34 @@ public class GridInterface {
         // set the zoom
         zoomLevel = clamp(zoomLevel, 0.5f, 2f);
         gridSpacing *= zoomLevel;
-        // draw small lines
-        for (int i = -6; i <= 5; i++) {  // row
-            for (int j = 0; j < 10; j++) {
-                renderer.setColor(Color.GRAY);
-                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / 10 * j),
-                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / 10 * j), 1f);
-                renderer.setColor(Color.GRAY);
-                renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, 0),
-                    new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, Gdx.graphics.getHeight()), 1f);
+
+        if(showGrid) {
+            // draw small lines
+            for (int i = -6; i <= 5; i++) {  // row
+                for (int j = 0; j < 10; j++) {
+                    renderer.setColor(Color.GRAY);
+                    renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / 10 * j),
+                        new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / 10 * j), 1f);
+                    renderer.setColor(Color.GRAY);
+                    renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, 0),
+                        new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, Gdx.graphics.getHeight()), 1f);
+                }
             }
-        }
-        // draw big lines
-        for (int i = -6; i <= 6; i++) {
-            renderer.setColor(Color.WHITE);
-            renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
-                new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 1f);
-            renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
-                new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 1f);
+            // draw big lines
+            for (int i = -6; i <= 6; i++) {
+                renderer.setColor(Color.WHITE);
+                renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
+                    new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 1f);
+                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
+                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 1f);
+            }
         }
 
         drawTikz();
 
         // Clear all points
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (screen.notTyping() && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+            && Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
             points.clear();
         }
 
