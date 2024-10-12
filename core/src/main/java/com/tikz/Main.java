@@ -26,20 +26,24 @@ public class Main extends Game {
     }
 
     public void updateFont(float scale) {
+        updateTikFont(scale);
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = (int) (14f*scale);
+        try {
+            editorFont = generator.generateFont(parameter);
+        } catch (GdxRuntimeException ignored){
+        }
+    }
+
+    public void updateTikFont(float scale) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) (60f*scale);
         try {
             TikzTextFont = generator.generateFont(parameter);
-        } catch (GdxRuntimeException ignored){
-        }
-
-        generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
-        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = (int) (14f*scale);
-        try {
-            editorFont = generator.generateFont(parameter);
         } catch (GdxRuntimeException ignored){
         }
     }

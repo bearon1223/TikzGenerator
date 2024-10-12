@@ -4,13 +4,30 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 
 This project allows you to create TikZ graphics graphically and export them into valid latex code. This program can also import existing TikZ code, provided it is in the correct format, and display it for modification.
 
-## Things to Note
+## Controls
 - `Ctrl + Z` Undo's the latest action (last line in the tik code)
+- `Esc` is to clear the drawing
+- `Middle Mouse Button` is used for panning
+- `Tab` is to hide and un-hide the side menu bar
+- `+ or =` to zoom in
+- `-` to zoom out
+- `Backspace` to reset the zoom and position
+
+## Things to Note
 - There is no redo
 - To change the text, the submit button must be pressed under the text input
-- This project is still very much a work in progress and these things are likely to change.
+- This project is still _very much_ a work in progress and these things are likely to change.
+- The font is also not one-to-one with how LaTeX will render the font although an attempt was made it.
+- When downloading the release versions, only the exe file is included but the code itself is compatible with macOS. 
+You just need to download the code and run it in terminal using the gradle commands below.
 
-## Gradle
+## Things that may be added
+- Support for Colors
+- Arcs
+- Fixing the Font so that it is one-to-one with how LaTeX will render it
+- Math rendering in LaTeX
+
+## Gradle Commands
 
 This project uses [Gradle](https://gradle.org/) to manage dependencies.
 The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.

@@ -72,7 +72,7 @@ public class ShowTikz implements Screen {
         t.invalidate();
         t.layout();
 
-        // Calculate scaling and update font
+        // Calculate gridSpacing and update font
         float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
         float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS, (float) Gdx.graphics.getWidth() / GridInterface.COLS);
         app.updateFont(scaling / scalingS);

@@ -1,6 +1,7 @@
 package com.tikz;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -23,11 +24,16 @@ import javax.swing.*;
 import java.io.File;
 
 public class MainScreen implements Screen {
-    private final Main app;
-    private GridInterface grid;
-    private final Stage stage;
     public final Table t;
+    private final Main app;
+    private final Stage stage;
+    public float tableOffset = 0f;
     TextField textField;
+    private GridInterface grid;
+    private float time = 1f;
+    private boolean hiddenMenu = false;
+    private boolean panning = false;
+    private Vector2 startingPan = new Vector2();
 
     public MainScreen(Main app) {
         this.app = app;
@@ -134,6 +140,27 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
+    /**
+     * an easing function where f(x) = -x^{4}+2x^{2} when 0 < x < 1
+     *
+     * @param x (x) in f(x)
+     * @return f(x)
+     */
+    public static float ease(float x) {
+        x = clamp(x);
+        return (float) (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    }
+
+    /**
+     * clamps the value of x to be within the minimum and maximum values
+     *
+     * @param x value to be clamped
+     * @return value bound by 0 and 1
+     */
+    private static float clamp(float x) {
+        return x < (float) 0 ? (float) 0 : Math.min(x, (float) 1);
+    }
+
     public File openFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(null);
@@ -180,6 +207,7 @@ public class MainScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.BLACK);
+        t.setPosition(tableOffset, 0);
         app.shapeRenderer.setAutoShapeType(true);
         app.shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         app.shapeRenderer.begin();
@@ -189,11 +217,59 @@ public class MainScreen implements Screen {
 
         app.shapeRenderer.setColor(Color.BLACK);
         app.shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-        app.shapeRenderer.rect(0, 0, t.getWidth(), Gdx.graphics.getHeight());
+        app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();
 
         stage.act(delta);
         stage.draw();
+
+        // Toggle hiding main menu
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            hiddenMenu = !hiddenMenu;
+            time = 0;
+        }
+
+        // change zoom
+        float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
+        float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
+            (float) Gdx.graphics.getWidth() / GridInterface.COLS);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
+            grid.zoomLevel += 0.125f;
+            grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+
+            // Update tikz font using the gridSpacing factor from the grid
+            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+            grid.zoomLevel -= 0.125f;
+            grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+
+            // Update tikz font using the gridSpacing factor from the grid
+            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
+            grid.zoomLevel = 1;
+            grid.panning.set(0,0);
+
+            // Update tikz font using the gridSpacing factor from the grid
+            app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+        }
+
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+            startingPan = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()).add(grid.panning);
+        }
+
+        if(Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+            grid.panning.set(startingPan.cpy().sub(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()));
+        }
+
+        if (time < 0.5f) {
+            time += Gdx.graphics.getDeltaTime();
+            if (hiddenMenu) {
+                tableOffset = -t.getWidth() * ease(time * 2);
+            } else {
+                tableOffset = -t.getWidth() * (1 - ease(time * 2));
+            }
+        }
     }
 
     @Override
@@ -207,12 +283,12 @@ public class MainScreen implements Screen {
         t.invalidate();
         t.layout();
 
-        // Calculate scaling and update font
+        // Calculate gridSpacing and update font
         float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
         float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
-        app.updateFont(scaling / scalingS);
+        app.updateFont(scaling * grid.zoomLevel / scalingS);
 
         // Update skin with the new editor font
         Skin skin = t.getSkin();
@@ -236,8 +312,12 @@ public class MainScreen implements Screen {
 
         // Invalidate hierarchy to ensure layout refresh
         t.invalidateHierarchy();
+        if (hiddenMenu) {
+            tableOffset = -t.getWidth() * ease(time * 2);
+        } else {
+            tableOffset = -t.getWidth() * (1 - ease(time * 2));
+        }
     }
-
 
     @Override
     public void pause() {
