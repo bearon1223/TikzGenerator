@@ -288,7 +288,8 @@ public class MainScreen implements Screen {
         float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
-        app.updateFont(scaling * grid.zoomLevel / scalingS);
+        app.updateFont(scaling / scalingS);
+        app.updateTikFont(scaling * grid.zoomLevel / scalingS);
 
         // Update skin with the new editor font
         Skin skin = t.getSkin();

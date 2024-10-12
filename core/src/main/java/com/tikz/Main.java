@@ -22,12 +22,11 @@ public class Main extends Game {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         updateFont(1);
+        updateTikFont(1);
         setScreen(new MainScreen(this));
     }
 
     public void updateFont(float scale) {
-        updateTikFont(scale);
-
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/Times New Roman.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 

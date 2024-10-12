@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 public class TikTypeStruct {
     public Vector2 origin = new Vector2();
     public Vector2 endPoint = new Vector2();
-    public DrawType type = DrawType.LINE;
+    public DrawType type;
     public String data = "";
     public Array<Vector2> vertices = new Array<>();
     public Color color = Color.WHITE;
