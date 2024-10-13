@@ -21,12 +21,12 @@ This project allows you to create TikZ graphics graphically and export them into
 - The font is also not one-to-one with how LaTeX will render the font although an attempt was made it.
 - When downloading the release versions, only the exe file is included but the code itself is compatible with macOS. 
 You just need to download the code and run it in terminal using the gradle commands below.
+- It will do Math Rendering just beware the rendering is also not one-to-one with how LaTeX will render it.
 
 ## Things that may be added
 - Support for Colors
 - Arcs
 - Fixing the Font so that it is one-to-one with how LaTeX will render it
-- Math rendering in LaTeX
 
 ## Gradle Commands
 
