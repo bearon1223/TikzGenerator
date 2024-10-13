@@ -3,12 +3,15 @@ package com.tikz.grid;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.tikz.Main;
 import com.tikz.MainScreen;
+import org.scilab.forge.jlatexmath.ParseException;
 
 import static java.lang.Math.*;
 
@@ -26,10 +29,10 @@ public class GridInterface {
     public TikTypeStruct editing;
     public float zoomLevel = 1f;
     public Vector2 panning = new Vector2();
+    public boolean showGrid = true;
     private boolean snapGrid = true;
     private DrawType currentType = DrawType.LINE;
     private float centerOffset = 0f;
-    public boolean showGrid = true;
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
@@ -71,7 +74,7 @@ public class GridInterface {
         zoomLevel = clamp(zoomLevel, 0.5f, 2f);
         gridSpacing *= zoomLevel;
 
-        if(showGrid) {
+        if (showGrid) {
             // draw small lines
             for (int i = -6; i <= 5; i++) {  // row
                 for (int j = 0; j < 10; j++) {
@@ -96,7 +99,8 @@ public class GridInterface {
         drawTikz();
 
         // Clear all points
-        if (screen.notTyping() && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+        if (screen.notTyping() && (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+            || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))
             && Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
             points.clear();
         }
@@ -154,17 +158,9 @@ public class GridInterface {
                     drawDottedLine(renderer, vPres.x, vPres.y, mouse.cpy().scl(gridSpacing).add(center).x, mouse.cpy().scl(gridSpacing).add(center).y, 20f);
                 }
             } else {
+                editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.upscale);
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
-                editing = new TikTypeStruct(mouse, currentType, text);
-                renderer.end();
-                app.batch.begin();
-                app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                app.TikzTextFont.setColor(Color.WHITE);
-                app.TikzTextFont.draw(app.batch, editing.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f,
-                    Align.center, false);
-                app.batch.end();
-                renderer.begin();
-                renderer.setAutoShapeType(true);
+                renderTikz(editing, currentType, renderer, o, e, center);
             }
         }
     }
@@ -205,11 +201,29 @@ public class GridInterface {
                 }
                 break;
             case TEXT:
+                if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
+                    try {
+                        tik.latexImg = GenerateTikzImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
+                        if(tik.data.contains("\\frac")) {
+                            tik.upscale = 1.5f;
+                        }
+                    } catch (ParseException ignored) {
+                        System.err.println("Parse Error: " + tik.data);
+                        tik.latexImg = new Texture(Gdx.files.internal("Parsing Error.png"));
+                    }
+                }
                 renderer.end();
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
-                app.TikzTextFont.setColor(Color.WHITE);
-                app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
+                if (tik.latexImg == null) {
+                    app.TikzTextFont.setColor(Color.WHITE);
+                    app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
+                } else {
+                    float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
+                    float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
+                    Vector2 o2 = o.cpy().sub(sizeX/2, sizeY/2);
+                    app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
+                }
                 app.batch.end();
                 renderer.begin();
                 renderer.set(ShapeRenderer.ShapeType.Filled);
@@ -388,4 +402,10 @@ public class GridInterface {
         shapeRenderer.triangle(x1, y1, arrowX3, arrowY3, arrowX4, arrowY4);
     }
 
+    public void dispose() {
+        for (TikTypeStruct tik : points) {
+            tik.dispose();
+        }
+        System.out.println("Disposing of Textures");
+    }
 }

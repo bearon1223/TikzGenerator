@@ -23,9 +23,11 @@ public class ImportTikzScreen implements Screen {
     private final Table t;
     private final Main app;
     TextArea textArea;
+    private final GridInterface grid;
 
     public ImportTikzScreen(Main app, GridInterface gridInterface) {
         this.app = app;
+        this.grid = gridInterface;
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
 
@@ -231,6 +233,7 @@ public class ImportTikzScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        this.grid.dispose();
+        this.stage.dispose();
     }
 }

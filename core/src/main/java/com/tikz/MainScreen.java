@@ -60,7 +60,7 @@ public class MainScreen implements Screen {
         addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
         addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
         // Create TextField
-        textField = new TextField("Base Text", skin);
+        textField = new TextField(grid.text, skin);
         t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
         addButton(DrawType.TEXT, t, skin, "Insert Text");
@@ -120,7 +120,6 @@ public class MainScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Generating Tikz Points");
-                System.out.println(MakeTikz.convert(grid.points));
                 app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
             }
         });
@@ -128,20 +127,6 @@ public class MainScreen implements Screen {
         t.add(convertToTikz).spaceBottom(Value.percentHeight(20 / 800f, t)).
             spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
-
-//        // Create Submit Button
-//        TextButton submitButton = new TextButton("Submit", skin);
-//        t.add(submitButton);
-//        t.row();
-//
-//        // Handle Button Click
-//        submitButton.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                grid.text = textField.getText();
-//                stage.setKeyboardFocus(null);
-//            }
-//        });
 
         stage.addActor(t);
 
@@ -368,6 +353,7 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
+        grid.dispose();
         stage.dispose();
     }
 }

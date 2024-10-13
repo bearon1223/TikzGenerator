@@ -55,6 +55,7 @@ public class Main extends Game {
     @Override
     public void dispose() {
         batch.dispose();
+        screen.dispose();
         shapeRenderer.dispose();
         TikzTextFont.dispose();
         editorFont.dispose();

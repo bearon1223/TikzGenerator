@@ -4,4 +4,5 @@ eclipse.project.name = appName + '-core'
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+  implementation 'org.scilab.forge:jlatexmath:1.0.7'
 }

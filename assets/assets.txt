@@ -1,3 +1,4 @@
+Parsing Error.png
 ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt

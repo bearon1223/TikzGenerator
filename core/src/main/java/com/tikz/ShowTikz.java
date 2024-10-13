@@ -17,9 +17,11 @@ public class ShowTikz implements Screen {
     private final Stage stage;
     private final Main app;
     Table t;
+    private final GridInterface grid;
 
     public ShowTikz(Main app, GridInterface grid, String tikz) {
         this.app = app;
+        this.grid = grid;
 
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
@@ -119,5 +121,6 @@ public class ShowTikz implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        grid.dispose();
     }
 }

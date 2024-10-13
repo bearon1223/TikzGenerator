@@ -104,14 +104,14 @@ public class ImportFromTikz {
                 StringBuilder text = new StringBuilder();
 
                 for (int i = 1; i < str2.length - 1; i++) {
-                    text.append(str2[i].replace("{", "").replace("}", ""));
+                    text.append(str2[i]);
                     text.append(" ");
                 }
                 // append the last bit
-                text.append(str2[str2.length - 1].replace("{", "").replace("}", ""));
+                text.append(str2[str2.length - 1]);
 
                 // add it to points
-                points.add(new TikTypeStruct(loc, DrawType.TEXT, text.toString()));
+                points.add(new TikTypeStruct(loc, DrawType.TEXT, text.substring(1,text.length()-1)));
             } else if (command.contains("circle")) {
                 // split everything
                 String[] circleStrings = command.split("circle");

@@ -42,7 +42,7 @@ public abstract class MakeTikz {
 //                    output.append(String.format("\\draw %s--%s;\n", poly, tik.vertices.get(0)));
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected DrawType: " + tik.type);
+                    throw new IllegalDrawType("Unexpected DrawType: " + tik.type);
             }
         }
         return output.toString();
