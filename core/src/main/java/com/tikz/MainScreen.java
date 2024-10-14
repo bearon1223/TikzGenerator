@@ -280,6 +280,19 @@ public class MainScreen implements Screen {
             }
             grid.panning.set(startingPan.cpy().sub(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()));
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            grid.panning.add(0, scaling / scalingS * 5f);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            grid.panning.add(0, -scaling / scalingS * 5f);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            grid.panning.add(-scaling / scalingS * 5f, 0);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            grid.panning.add(scaling / scalingS * 5f, 0);
+        }
     }
 
     public boolean notTyping() {
