@@ -3,7 +3,6 @@ package com.tikz.grid;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -71,26 +70,45 @@ public class GridInterface {
         scaling = gridSpacing / Math.min(1200f / (float) ROWS, 800f / (float) COLS);
 
         // set the zoom
-        zoomLevel = clamp(zoomLevel, 0.5f, 2f);
+        zoomLevel = clamp(zoomLevel, 0.25f, 3f);
         gridSpacing *= zoomLevel;
 
         if (showGrid) {
+            final int viewable = 6;
+            int count = 10;
+            int min = (int) -Math.floor(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            int max = (int) Math.floor(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
             // draw small lines
-            for (int i = -6; i <= 5; i++) {  // row
-                for (int j = 0; j < 10; j++) {
-                    renderer.setColor(Color.GRAY);
-                    renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / 10 * j),
-                        new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / 10 * j), 1f);
-                    renderer.setColor(Color.GRAY);
-                    renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, 0),
-                        new Vector2(center.x + gridSpacing * i + gridSpacing / 10 * j, Gdx.graphics.getHeight()), 1f);
-                }
+            // Vertical Lines
+            if (zoomLevel < 0.5f) {
+                count = 5;
             }
+                for (int i = min; i <= max - 1; i++) {  // row
+                    for (int j = 0; j < count; j++) {
+                        renderer.setColor(Color.GRAY);
+                        renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
+                            new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
+                    }
+                }
             // draw big lines
-            for (int i = -6; i <= 6; i++) {
+            for (int i = min; i <= max; i++) {
                 renderer.setColor(Color.WHITE);
                 renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
                     new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 1f);
+            }
+
+            // Horizontal Lines
+            min = (int) -Math.floor(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
+            max = (int) Math.floor(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
+                for (int i = min; i <= max - 1; i++) {  // row
+                    for (int j = 0; j < count; j++) {
+                        renderer.setColor(Color.GRAY);
+                        renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
+                            new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
+                    }
+                }
+            for (int i = min; i <= max; i++) {
+                renderer.setColor(Color.WHITE);
                 renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
                     new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 1f);
             }
@@ -129,7 +147,7 @@ public class GridInterface {
         // render every point
         for (TikTypeStruct tik : points) {
             Vector2 o = new Vector2();
-            Vector2 e = new Vector2();
+            Vector2 e = new Vector2(-1, -1);
             if (tik.type != DrawType.FILLED_POLYGON) {
                 o = tik.origin.cpy().scl(gridSpacing).add(center);
                 e = tik.endPoint.cpy().scl(gridSpacing).add(center);
@@ -169,7 +187,7 @@ public class GridInterface {
         renderer.setColor(tik.color);
         switch (type) {
             case LINE:
-                renderer.rectLine(o, e, 2f * scaling);
+                renderer.rectLine(o, e, Math.max(2f * scaling * zoomLevel, 1));
                 break;
             case CIRCLE:
                 drawCircle(renderer, o.x, o.y, o.dst(e));
@@ -187,7 +205,7 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
                 for (int i = 1; i < tik.vertices.size; i++) {
-                    renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), 2f * scaling);
+                    renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), Math.max(2f * scaling * zoomLevel, 1));
                     vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                 }
                 break;
@@ -204,8 +222,11 @@ public class GridInterface {
                 if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
                     try {
                         tik.latexImg = GenerateTikzImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
-                        if(tik.data.contains("\\frac")) {
-                            tik.upscale = 1.5f;
+                        if (tik.data.contains("\\frac")) {
+                            tik.upscale += 0.5f;
+                        }
+                        if (tik.data.contains("\\sqrt")) {
+                            tik.upscale += 0.125f;
                         }
                     } catch (ParseException ignored) {
                         System.err.println("Parse Error: " + tik.data);
@@ -221,7 +242,7 @@ public class GridInterface {
                 } else {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
                     float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
-                    Vector2 o2 = o.cpy().sub(sizeX/2, sizeY/2);
+                    Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
                 }
                 app.batch.end();
@@ -232,7 +253,7 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(gridSpacing).add(center);
                 for (int i = 1; i < editing.vertices.size; i++) {
-                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), 2f * scaling);
+                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(2f * scaling * zoomLevel, 1));
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
                 break;
@@ -339,11 +360,11 @@ public class GridInterface {
         // Draw dots along the line at regular intervals
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
-            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing * directionX / 2, dotSpacing * directionY / 2), 2f * scaling);
+            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing * directionX / 2, dotSpacing * directionY / 2), Math.max(2f * scaling * zoomLevel, 1));
             vPres.add(dotSpacing * directionX, dotSpacing * directionY);
         }
 
-        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, 2f * scaling);
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
     }
 
     public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius) {
@@ -353,24 +374,24 @@ public class GridInterface {
         for (int i = 0; i <= segments; i++) {
             double alpha = 2 * PI / segments * i;
             Vector2 newPoint = center.cpy().add((float) (radius * cos(alpha)), (float) (radius * sin(alpha)));
-            shapeRenderer.rectLine(vPres, newPoint, 2f * scaling);
+            shapeRenderer.rectLine(vPres, newPoint, Math.max(2f * scaling * zoomLevel, 1));
             vPres = newPoint.cpy();
         }
     }
 
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 2f * scaling);
+        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Calculate the points for the arrowhead triangle
-        float arrowX1 = x2 - arrowHeadSize / 2 * scaling * (float) cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize / 2 * scaling * (float) sin(angle - Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize / 2 * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize / 2 * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
 
-        float arrowX2 = x2 - arrowHeadSize / 2 * scaling * (float) cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize / 2 * scaling * (float) sin(angle + Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize / 2 * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize / 2 * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead (a filled triangle)
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
@@ -378,25 +399,26 @@ public class GridInterface {
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, 2f * scaling);
+        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Arrowhead at the end (x2, y2)
-        float arrowX1 = x2 - arrowHeadSize * (float) cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * (float) sin(angle - Math.PI / 6);
-        float arrowX2 = x2 - arrowHeadSize * (float) cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * (float) sin(angle + Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the end
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
 
         // Arrowhead at the start (x1, y1)
-        float arrowX3 = x1 + arrowHeadSize * (float) cos(angle - Math.PI / 6);
-        float arrowY3 = y1 + arrowHeadSize * (float) sin(angle - Math.PI / 6);
-        float arrowX4 = x1 + arrowHeadSize * (float) cos(angle + Math.PI / 6);
-        float arrowY4 = y1 + arrowHeadSize * (float) sin(angle + Math.PI / 6);
+        float arrowX3 = x1 + arrowHeadSize * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
+        float arrowY3 = y1 + arrowHeadSize * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
+
+        float arrowX4 = x1 + arrowHeadSize * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
+        float arrowY4 = y1 + arrowHeadSize * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the start
         shapeRenderer.triangle(x1, y1, arrowX3, arrowY3, arrowX4, arrowY4);

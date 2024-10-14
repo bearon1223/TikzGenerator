@@ -215,7 +215,7 @@ public class MainScreen implements Screen {
         app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();
 
-        if(!hiddenMenu || time < 0.5f) {
+        if (!hiddenMenu || time < 0.5f) {
             stage.act(delta);
             stage.draw();
         }
@@ -241,7 +241,7 @@ public class MainScreen implements Screen {
             stage.setKeyboardFocus(null);
         }
 
-        if(Gdx.input.isButtonPressed(0) && Gdx.input.getX() > tableOffset + t.getWidth()) {
+        if (Gdx.input.isButtonPressed(0) && Gdx.input.getX() > tableOffset + t.getWidth()) {
             stage.setKeyboardFocus(null);
         }
 
@@ -250,16 +250,16 @@ public class MainScreen implements Screen {
         float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
-        if(stage.getKeyboardFocus() == null) {
+        if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
                 grid.zoomLevel += 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 3f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * grid.zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
                 grid.zoomLevel -= 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.5f, 2f);
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 3f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * grid.zoomLevel);
