@@ -253,13 +253,13 @@ public class MainScreen implements Screen {
         if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
                 grid.zoomLevel += 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 3f);
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * grid.zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
                 grid.zoomLevel -= 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 3f);
+                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * grid.zoomLevel);

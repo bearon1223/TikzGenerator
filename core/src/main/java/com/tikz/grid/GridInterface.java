@@ -70,14 +70,13 @@ public class GridInterface {
         scaling = gridSpacing / Math.min(1200f / (float) ROWS, 800f / (float) COLS);
 
         // set the zoom
-        zoomLevel = clamp(zoomLevel, 0.25f, 3f);
         gridSpacing *= zoomLevel;
 
         if (showGrid) {
             final int viewable = 6;
             int count = 10;
-            int min = (int) -Math.floor(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            int max = (int) Math.floor(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            int min = (int) -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            int max = (int) Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
             // draw small lines
             // Vertical Lines
             if (zoomLevel < 0.5f) {
@@ -98,8 +97,8 @@ public class GridInterface {
             }
 
             // Horizontal Lines
-            min = (int) -Math.floor(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
-            max = (int) Math.floor(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
+            min = (int) -Math.round(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
+            max = (int) Math.round(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
                 for (int i = min; i <= max - 1; i++) {  // row
                     for (int j = 0; j < count; j++) {
                         renderer.setColor(Color.GRAY);
