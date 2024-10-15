@@ -56,7 +56,8 @@ public class MainScreen implements Screen {
         addButton(DrawType.ARROW, t, skin, "Arrow");
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.LINE, t, skin, "Arc");
+        addButton(DrawType.CIRCULAR_ARC, t, skin, "Circular Arc");
+        addButton(DrawType.ELLIPTICAL_ARC, t, skin, "Elliptical Arc");
         addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
         addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
         // Create TextField

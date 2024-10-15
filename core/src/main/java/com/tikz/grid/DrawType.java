@@ -1,14 +1,15 @@
 package com.tikz.grid;
 
 public enum DrawType {
-    LINE,
-    CIRCLE,
     ARROW,
-    TEXT,
+    CIRCLE,
+    CIRCULAR_ARC,
     DOTTED_LINE,
-    DOUBLE_ARROW,
-    FILLED_POLYGON,
     DOTTED_POLYGON,
-    ARC,
-    DROPPED_POLYGON
+    DOUBLE_ARROW,
+    DROPPED_POLYGON,
+    ELLIPTICAL_ARC,
+    FILLED_POLYGON,
+    LINE,
+    TEXT
 }

@@ -32,6 +32,8 @@ public class GridInterface {
     private boolean snapGrid = true;
     private DrawType currentType = DrawType.LINE;
     private float centerOffset = 0f;
+    private final float lineWidth = 2f;
+    private int arcDrawState = 0;
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
@@ -59,7 +61,7 @@ public class GridInterface {
     }
 
     public void drawGrid(ShapeRenderer renderer) {
-        // set the center location. Center of the screen minus the pan location and adding the menu if its there
+        // set the center location. Center of the screen minus the pan location and adding the menu if it's there
         centerOffset = screen.t.getWidth() / 2f + screen.tableOffset / 2;
         final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f + centerOffset,
             Gdx.graphics.getHeight() / 2f).sub(panning);
@@ -73,43 +75,45 @@ public class GridInterface {
         gridSpacing *= zoomLevel;
 
         if (showGrid) {
-            final int viewable = 6;
+            final int viewable = 7;
             int count = 10;
-            int min = (int) -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            int max = (int) Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            int min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            int max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
             // draw small lines
             // Vertical Lines
             if (zoomLevel < 0.5f) {
-                count = 5;
+                count = 4;
             }
-                for (int i = min; i <= max - 1; i++) {  // row
-                    for (int j = 0; j < count; j++) {
-                        renderer.setColor(Color.GRAY);
-                        renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
-                            new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
-                    }
+            for (int i = min; i <= max - 1; i++) {  // row
+                for (int j = 0; j < count; j++) {
+                    renderer.setColor(Color.GRAY);
+                    renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
+                        new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
                 }
-            // draw big lines
-            for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.WHITE);
-                renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
-                    new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 1f);
             }
 
             // Horizontal Lines
-            min = (int) -Math.round(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
-            max = (int) Math.round(viewable / 1.5f / zoomLevel) + (int) (panning.y / gridSpacing);
-                for (int i = min; i <= max - 1; i++) {  // row
-                    for (int j = 0; j < count; j++) {
-                        renderer.setColor(Color.GRAY);
-                        renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
-                            new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
-                    }
+            min = -Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
+            max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
+            for (int i = min; i <= max - 1; i++) {  // row
+                for (int j = 0; j < count; j++) {
+                    renderer.setColor(Color.GRAY);
+                    renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
+                        new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
                 }
+            }
             for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.WHITE);
+                renderer.setColor(Color.LIGHT_GRAY);
                 renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
-                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 1f);
+                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
+            }
+            min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+            // draw big lines
+            for (int i = min; i <= max; i++) {
+                renderer.setColor(Color.LIGHT_GRAY);
+                renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
+                    new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
             }
         }
 
@@ -122,8 +126,10 @@ public class GridInterface {
             points.clear();
         }
 
-        renderer.setColor(Color.GOLD);
-        renderer.circle(center.x, center.y, 4f);
+        if (showGrid) {
+            renderer.setColor(Color.GOLD);
+            renderer.circle(center.x, center.y, max(2f*scaling, 2));
+        }
 
         if (editing != null) {
             renderer.setColor(editing.color);
@@ -175,7 +181,7 @@ public class GridInterface {
                     drawDottedLine(renderer, vPres.x, vPres.y, mouse.cpy().scl(gridSpacing).add(center).x, mouse.cpy().scl(gridSpacing).add(center).y, 20f);
                 }
             } else {
-                editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.upscale);
+                editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.numericalData);
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 renderTikz(editing, currentType, renderer, o, e, center);
             }
@@ -186,7 +192,7 @@ public class GridInterface {
         renderer.setColor(tik.color);
         switch (type) {
             case LINE:
-                renderer.rectLine(o, e, Math.max(2f * scaling * zoomLevel, 1));
+                renderer.rectLine(o, e, Math.max(lineWidth * scaling * zoomLevel, 1));
                 break;
             case CIRCLE:
                 drawCircle(renderer, o.x, o.y, o.dst(e));
@@ -204,7 +210,7 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
                 for (int i = 1; i < tik.vertices.size; i++) {
-                    renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), Math.max(2f * scaling * zoomLevel, 1));
+                    renderer.rectLine(vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), Math.max(lineWidth * scaling * zoomLevel, 1));
                     vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                 }
                 break;
@@ -222,10 +228,10 @@ public class GridInterface {
                     try {
                         tik.latexImg = GenerateTikzImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
                         if (tik.data.contains("\\frac")) {
-                            tik.upscale += 0.5f;
+                            tik.numericalData += 0.5f;
                         }
                         if (tik.data.contains("\\sqrt")) {
-                            tik.upscale += 0.125f;
+                            tik.numericalData += 0.125f;
                         }
                     } catch (ParseException ignored) {
                         System.err.println("Parse Error: " + tik.data);
@@ -239,7 +245,7 @@ public class GridInterface {
                     app.TikzTextFont.setColor(Color.WHITE);
                     app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
-                    float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
+                    float sizeY = app.TikzTextFont.getLineHeight() * tik.numericalData;
                     float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
                     Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
@@ -252,9 +258,13 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(gridSpacing).add(center);
                 for (int i = 1; i < editing.vertices.size; i++) {
-                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(2f * scaling * zoomLevel, 1));
+                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(lineWidth * scaling * zoomLevel, 1));
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
+                break;
+            case ELLIPTICAL_ARC:
+            case CIRCULAR_ARC:
+                drawArc(renderer, o, tik.numericalData*gridSpacing, tik.angles[0], tik.angles[1], tik.arcHeight*gridSpacing);
                 break;
             default:
                 throw new IllegalDrawType("Unknown Draw Type");
@@ -314,12 +324,26 @@ public class GridInterface {
                             editing.vertices.add(mouse);
                     }
                     break;
-                case ARC:
+                case ELLIPTICAL_ARC:
+                case CIRCULAR_ARC:
                     if (!addingPoints) {
                         addingPoints = true;
-                        editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.ARC);
+                        editing = new TikTypeStruct(mouse, new Vector2(), currentType);
+                        arcDrawState = 0;
                     } else {
-                        addingPoints = false;
+                        if(arcDrawState == 0) {
+                            arcDrawState = 1;
+//                            if(editing.numericalData < 0) {
+//                                editing.numericalData *= -1;
+//                                editing.origin.add(editing.numericalData, 0);
+//                            }
+                        } else if (arcDrawState == 1) {
+                            arcDrawState = 2;
+                        } else if(arcDrawState == 2) {
+                            arcDrawState = 0;
+                            addingPoints = false;
+                            points.add(editing);
+                        }
                     }
                     break;
                 case DROPPED_POLYGON:
@@ -341,6 +365,59 @@ public class GridInterface {
             }
             addingPoints = false;
         }
+
+        if (editing != null && addingPoints) {
+            if (currentType == DrawType.CIRCULAR_ARC) {
+                if (arcDrawState == 0) {
+                    // Calculate width and height (circular arc, so height = width)
+                    editing.numericalData = mouse.x - editing.origin.x;
+                    editing.arcHeight = editing.numericalData; // for circular, height equals width
+                } else if (arcDrawState == 1) {
+                    // First angle calculation
+                    Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
+                    Vector2 arcCenter = new Vector2(editing.origin).sub(
+                        (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
+                        (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
+                    );
+                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+                } else if (arcDrawState == 2) {
+                    // Second angle calculation
+                    Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
+                    Vector2 arcCenter = new Vector2(editing.origin).sub(
+                        (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
+                        (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
+                    );
+                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    editing.angles[1] = newMouse.angleDeg(start); // Store second angle
+                }
+            } else if (currentType == DrawType.ELLIPTICAL_ARC) {
+                if (arcDrawState == 0) {
+                    // Elliptical arc: width and height are different
+                    editing.numericalData = mouse.x - editing.origin.x;
+                    editing.arcHeight = mouse.y - editing.origin.y;
+                } else if (arcDrawState == 1) {
+                    // First angle calculation (elliptical)
+                    Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
+                    Vector2 arcCenter = new Vector2(editing.origin).sub(
+                        (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
+                        (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
+                    );
+                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+                } else if (arcDrawState == 2) {
+                    // Second angle calculation (elliptical)
+                    Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
+                    Vector2 arcCenter = new Vector2(editing.origin).sub(
+                        (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
+                        (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
+                    );
+                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    editing.angles[1] = newMouse.angleDeg(start); // Store second angle
+                }
+            }
+        }
+
     }
 
     public void drawDottedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dotSpacing) {
@@ -359,11 +436,11 @@ public class GridInterface {
         // Draw dots along the line at regular intervals
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
-            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing * directionX / 2, dotSpacing * directionY / 2), Math.max(2f * scaling * zoomLevel, 1));
+            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing * directionX / 2, dotSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1));
             vPres.add(dotSpacing * directionX, dotSpacing * directionY);
         }
 
-        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
     }
 
     public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius) {
@@ -373,14 +450,30 @@ public class GridInterface {
         for (int i = 0; i <= segments; i++) {
             double alpha = 2 * PI / segments * i;
             Vector2 newPoint = center.cpy().add((float) (radius * cos(alpha)), (float) (radius * sin(alpha)));
-            shapeRenderer.rectLine(vPres, newPoint, Math.max(2f * scaling * zoomLevel, 1));
+            shapeRenderer.rectLine(vPres, newPoint, Math.max(lineWidth * scaling * zoomLevel, 1));
+            vPres = newPoint.cpy();
+        }
+    }
+
+    public void drawArc(ShapeRenderer shapeRenderer, Vector2 start, float width, float startAngle, float endAngle, float height) {
+        int segments = (int) abs(endAngle - startAngle) / 5;
+        Vector2 center = new Vector2(start).sub(
+            (float) (width * Math.cos(Math.toRadians(startAngle))),
+            (float) (height * Math.sin(Math.toRadians(startAngle)))
+        );
+
+        Vector2 vPres = center.cpy().add((float) (width*cos(toRadians(startAngle))), (float) (height*sin(toRadians(startAngle))));
+        for(int i = 0; i <= segments; i++) {
+            double alpha = toRadians(endAngle - startAngle) / segments * i + toRadians(startAngle);
+            Vector2 newPoint = center.cpy().add((float) (width * cos(alpha)), (float) (height * sin(alpha)));
+            shapeRenderer.rectLine(vPres, newPoint, Math.max(lineWidth * scaling * zoomLevel, 1));
             vPres = newPoint.cpy();
         }
     }
 
     public void drawArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
+        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
@@ -398,7 +491,7 @@ public class GridInterface {
 
     public void drawTwoHeadedArrow(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float arrowHeadSize) {
         // Draw the line (shaft of the arrow)
-        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(2f * scaling * zoomLevel, 1));
+        shapeRenderer.rectLine(x1, y1, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);

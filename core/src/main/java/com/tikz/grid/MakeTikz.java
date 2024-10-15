@@ -39,7 +39,12 @@ public abstract class MakeTikz {
                     }
                     poly.delete(0, 2);
                     output.append(String.format("\\draw%s %s;\n",tik.type == DrawType.DOTTED_POLYGON ? "[dashed]" : "", poly));
-//                    output.append(String.format("\\draw %s--%s;\n", poly, tik.vertices.get(0)));
+                    break;
+                case CIRCULAR_ARC:
+                    output.append(String.format("\\draw %s arc(%1.2f:%1.2f:%1.2f);\n", tik.origin, tik.angles[0], tik.angles[1], tik.numericalData));
+                    break;
+                case ELLIPTICAL_ARC:
+                    output.append(String.format("\\draw %s arc(%1.2f:%1.2f:%1.2f and %1.2f);\n", tik.origin, tik.angles[0], tik.angles[1], tik.numericalData, tik.arcHeight));
                     break;
                 default:
                     throw new IllegalDrawType("Unexpected DrawType: " + tik.type);

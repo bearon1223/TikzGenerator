@@ -14,7 +14,7 @@ public class GenerateTikzImage {
         TeXFormula formula = new TeXFormula(latex);
         formula.setDEBUG(false);
         System.out.printf("LaTeX String: %s\n", latex);
-        return (BufferedImage) formula.createBufferedImage(TeXFormula.SERIF, 120f, Color.WHITE, null);
+        return (BufferedImage) formula.createBufferedImage(TeXFormula.SERIF, 512f, Color.WHITE, null);
     }
 
     public static Pixmap bufferedImageToPixMap(BufferedImage img) {
@@ -30,7 +30,7 @@ public class GenerateTikzImage {
                 int argb = img.getRGB(x, y);
                 // Check if the pixel is not transparent (alpha > 0)
                 int alpha = (argb >> 24) & 0xFF;
-                if (alpha > 0) {
+                if (alpha > 0x10) {
                     // Set pixel to white with full opacity
                     pixmap.drawPixel(x, y, 0xFFFFFFFF); // White pixel
                 } else {
