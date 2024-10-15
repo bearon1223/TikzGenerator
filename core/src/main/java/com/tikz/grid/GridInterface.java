@@ -332,11 +332,7 @@ public class GridInterface {
                         arcDrawState = 0;
                     } else {
                         if(arcDrawState == 0) {
-                            arcDrawState = 1;
-//                            if(editing.numericalData < 0) {
-//                                editing.numericalData *= -1;
-//                                editing.origin.add(editing.numericalData, 0);
-//                            }
+                            arcDrawState = 2;
                         } else if (arcDrawState == 1) {
                             arcDrawState = 2;
                         } else if(arcDrawState == 2) {
@@ -370,8 +366,8 @@ public class GridInterface {
             if (currentType == DrawType.CIRCULAR_ARC) {
                 if (arcDrawState == 0) {
                     // Calculate width and height (circular arc, so height = width)
-                    editing.numericalData = mouse.x - editing.origin.x;
-                    editing.arcHeight = editing.numericalData; // for circular, height equals width
+                    editing.numericalData = editing.origin.x - mouse.x;
+                    editing.arcHeight = mouse.x - editing.origin.x; // for circular, height equals width
                 } else if (arcDrawState == 1) {
                     // First angle calculation
                     Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
@@ -380,7 +376,8 @@ public class GridInterface {
                         (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
                     );
                     Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
-                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+//                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+                    editing.angles[0] = 0;
                 } else if (arcDrawState == 2) {
                     // Second angle calculation
                     Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
@@ -388,13 +385,13 @@ public class GridInterface {
                         (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
                         (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
                     );
-                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    Vector2 newMouse = new Vector2(new Vector2(mouse.x, arcCenter.y-mouse.y)).sub(arcCenter); // Calculate new mouse position relative to center
                     editing.angles[1] = newMouse.angleDeg(start); // Store second angle
                 }
             } else if (currentType == DrawType.ELLIPTICAL_ARC) {
                 if (arcDrawState == 0) {
                     // Elliptical arc: width and height are different
-                    editing.numericalData = mouse.x - editing.origin.x;
+                    editing.numericalData = editing.origin.x - mouse.x;
                     editing.arcHeight = mouse.y - editing.origin.y;
                 } else if (arcDrawState == 1) {
                     // First angle calculation (elliptical)
@@ -404,7 +401,8 @@ public class GridInterface {
                         (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
                     );
                     Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
-                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+//                    editing.angles[0] = newMouse.angleDeg(start); // Store first angle
+                    editing.angles[0] = 0;
                 } else if (arcDrawState == 2) {
                     // Second angle calculation (elliptical)
                     Vector2 start = new Vector2(editing.numericalData, 0); // Start at width along x-axis
@@ -412,7 +410,7 @@ public class GridInterface {
                         (float) (editing.numericalData * Math.cos(Math.toRadians(editing.angles[0]))),
                         (float) (editing.arcHeight * Math.sin(Math.toRadians(editing.angles[0])))
                     );
-                    Vector2 newMouse = new Vector2(mouse).sub(arcCenter); // Calculate new mouse position relative to center
+                    Vector2 newMouse = new Vector2(new Vector2(mouse.x, arcCenter.y-mouse.y)).sub(arcCenter); // Calculate new mouse position relative to center
                     editing.angles[1] = newMouse.angleDeg(start); // Store second angle
                 }
             }
