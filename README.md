@@ -5,31 +5,31 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 This project allows you to create TikZ graphics graphically and export them into valid latex code. This program can also import existing TikZ code, provided it is in the correct format, and display it for modification.
 
 ## Controls
-- `Ctrl + Z` Undo's the latest action (last line in the tik code)
-- `Shift + Backspace` to clear the drawing
-- `Middle Mouse Button`  for panning
-- `Escape` to hide and un-hide the side menu bar
 - `h` to hide or unhide the grid
+- `Escape` to hide and un-hide the side menu bar
 - `+ or =` to zoom in
 - `-` to zoom out
+- `Middle Mouse Button`  for panning
 - `Backspace` to reset the zoom and position
+- `Shift + Backspace` to clear the drawing
+- `Ctrl + Z` Undo's the latest action (last line in the tik code)
 
 ## Things to Note
 - There is no redo
-- To change the text, the submit button must be pressed under the text input
 - This project is still _very much_ a work in progress and these things are likely to change.
 - The font is also not one-to-one with how LaTeX will render the font although an attempt was made it.
 - When downloading the release versions, only the exe file is included but the code itself is compatible with macOS. 
 You just need to download the code and run it in terminal using the gradle commands below.
 - It will do Math Rendering just beware the rendering is also not one-to-one with how LaTeX will render it.
-- Arcs are not complete and will be redone. They are very weird to draw.
+- Arcs are not complete and will be redone. They are very weird to draw and do not export correctly.
 
 ## Things that may be added
-- Support for Colors
 - Arcs that aren't the buggies things in history
 - Fixing the Font so that it is one-to-one with how LaTeX will render it
 
 ## Gradle Commands
+
+Recommended way to run this program through gradle `./gradlew lwjgl3:run clean`
 
 This project uses [Gradle](https://gradle.org/) to manage dependencies.
 The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.

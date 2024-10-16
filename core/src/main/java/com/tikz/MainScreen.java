@@ -30,12 +30,14 @@ public class MainScreen implements Screen {
     private final Stage stage;
     public float tableOffset = 0f;
     TextField textField;
+    SelectBox<Color> colorSelectBox;
     private GridInterface grid;
     private float time = 1f;
     private boolean hiddenMenu = false;
     private Vector2 startingPan = new Vector2();
 
     public MainScreen(Main app) {
+        // TODO: Rework the entire UI so that dashes and arrow heads are checkboxes instead of separate acts
         this.app = app;
         this.grid = new GridInterface(this, app);
 
@@ -56,10 +58,11 @@ public class MainScreen implements Screen {
         addButton(DrawType.ARROW, t, skin, "Arrow");
         addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.CIRCULAR_ARC, t, skin, "Circular Arc");
-        addButton(DrawType.ELLIPTICAL_ARC, t, skin, "Elliptical Arc");
+        addButton(DrawType.CIRCULAR_ARC, t, skin, "Circular Arc\n(May not export correctly)");
+        addButton(DrawType.ELLIPTICAL_ARC, t, skin, "Elliptical Arc\n(May not export correctly)");
         addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
         addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
+
         // Create TextField
         textField = new TextField(grid.text, skin);
         t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
@@ -170,6 +173,7 @@ public class MainScreen implements Screen {
         this.grid.screen = this;
         if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
             this.grid.addingPoints = false;
+        this.textField.setText(this.grid.text);
         return this;
     }
 

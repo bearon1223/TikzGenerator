@@ -34,6 +34,7 @@ public class GridInterface {
     private float centerOffset = 0f;
     private final float lineWidth = 2f;
     private int arcDrawState = 0;
+    public Color selectedColor = Color.GOLDENROD;
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
@@ -131,9 +132,7 @@ public class GridInterface {
             renderer.circle(center.x, center.y, max(2f*scaling, 2));
         }
 
-        if (editing != null) {
-            renderer.setColor(editing.color);
-        }
+        renderer.setColor(selectedColor);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);
@@ -182,6 +181,7 @@ public class GridInterface {
                 }
             } else {
                 editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.numericalData);
+                editing.color = selectedColor;
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 renderTikz(editing, currentType, renderer, o, e, center);
             }
@@ -297,15 +297,19 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikTypeStruct(mouse, mouse.cpy().add(0.01f, 0.01f), currentType);
+                        editing.color = selectedColor;
                     } else {
                         addingPoints = false;
-                        points.add(new TikTypeStruct(editing.origin, mouse, currentType));
+                        TikTypeStruct a = new TikTypeStruct(editing.origin, mouse, currentType);
+                        a.color = selectedColor;
+                        points.add(a);
                         editing = null;
                     }
                     break;
                 case TEXT:
                     if (addingPoints) {
                         editing = new TikTypeStruct(mouse, currentType, text);
+                        editing.color = selectedColor;
                         points.add(editing);
                     }
                     break;
@@ -314,6 +318,7 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikTypeStruct(new Array<>(), currentType);
+                        editing.color = selectedColor;
                         editing.vertices.add(mouse);
                     } else {
                         if (mouse.equals(editing.vertices.get(0))) {
@@ -329,6 +334,7 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikTypeStruct(mouse, new Vector2(), currentType);
+                        editing.color = selectedColor;
                         arcDrawState = 0;
                     } else {
                         if(arcDrawState == 0) {
@@ -348,6 +354,7 @@ public class GridInterface {
                     for (int i = 0; i < verts.size; i++) {
                         verts.get(i).add(mouse);
                     }
+                    editing.color = selectedColor;
                     points.add(editing);
                     setDrawType(DrawType.FILLED_POLYGON);
                     break;
