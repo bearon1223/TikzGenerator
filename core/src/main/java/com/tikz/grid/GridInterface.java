@@ -226,7 +226,7 @@ public class GridInterface {
             case TEXT:
                 if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
                     try {
-                        tik.latexImg = GenerateTikzImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
+                        tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
                         if (tik.data.contains("\\frac")) {
                             tik.numericalData += 0.5f;
                         }
@@ -502,20 +502,20 @@ public class GridInterface {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
 
         // Arrowhead at the end (x2, y2)
-        float arrowX1 = x2 - arrowHeadSize * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
-        float arrowY1 = y2 - arrowHeadSize * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
-        float arrowX2 = x2 - arrowHeadSize * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
-        float arrowY2 = y2 - arrowHeadSize * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
+        float arrowX1 = x2 - arrowHeadSize / 2f * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
+        float arrowY1 = y2 - arrowHeadSize / 2f * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
+        float arrowX2 = x2 - arrowHeadSize / 2f * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
+        float arrowY2 = y2 - arrowHeadSize / 2f * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the end
         shapeRenderer.triangle(x2, y2, arrowX1, arrowY1, arrowX2, arrowY2);
 
         // Arrowhead at the start (x1, y1)
-        float arrowX3 = x1 + arrowHeadSize * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
-        float arrowY3 = y1 + arrowHeadSize * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
+        float arrowX3 = x1 + arrowHeadSize / 2f * scaling * zoomLevel * (float) cos(angle - Math.PI / 6);
+        float arrowY3 = y1 + arrowHeadSize / 2f * scaling * zoomLevel * (float) sin(angle - Math.PI / 6);
 
-        float arrowX4 = x1 + arrowHeadSize * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
-        float arrowY4 = y1 + arrowHeadSize * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
+        float arrowX4 = x1 + arrowHeadSize / 2f * scaling * zoomLevel * (float) cos(angle + Math.PI / 6);
+        float arrowY4 = y1 + arrowHeadSize / 2f * scaling * zoomLevel * (float) sin(angle + Math.PI / 6);
 
         // Draw the arrowhead at the start
         shapeRenderer.triangle(x1, y1, arrowX3, arrowY3, arrowX4, arrowY4);

@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import org.scilab.forge.jlatexmath.ParseException;
 import org.scilab.forge.jlatexmath.TeXFormula;
 
-public class GenerateTikzImage {
+public class GenerateLaTeXImage {
     public static BufferedImage renderLaTexToImage(String latex)  throws ParseException {
         // Create a TeXFormula object from the LaTeX string, which will be rendered as an image.
         TeXFormula formula = new TeXFormula(latex);

@@ -21,6 +21,7 @@ public class Main extends Game {
     public void create() {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
+        FreeTypeFontGenerator.setMaxTextureSize(FreeTypeFontGenerator.NO_MAXIMUM);
         updateFont(1);
         updateTikFont(1);
         setScreen(new MainScreen(this));
