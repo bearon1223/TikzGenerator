@@ -21,6 +21,7 @@ public class TikTypeStruct {
      */
     public float numericalData = 1;
     public float arcHeight = 1;
+    public boolean filled = false;
 
     public TikTypeStruct(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;

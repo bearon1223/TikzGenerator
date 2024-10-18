@@ -35,7 +35,7 @@ public class ImportFromTikz {
             Gdx.app.log("Import", n++ + " " + command);
             if (command.contains("--")) {
                 // tackle everything that is a line
-                String[] stringVectors = command.split("\\s+--\\s+");
+                String[] stringVectors = command.split("\\s*--\\s*");
                 for (int i = 0; i < stringVectors.length; i++) {
                     stringVectors[i] = stringVectors[i].trim();
                 }

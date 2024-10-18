@@ -177,7 +177,7 @@ public class GridInterface {
                     renderer.rectLine(vPres, mouse.cpy().scl(gridSpacing).add(center), 2f * scaling);
                 } else if (currentType == DrawType.DOTTED_POLYGON) {
                     Vector2 vPres = editing.vertices.peek().cpy().scl(gridSpacing).add(center);
-                    drawDottedLine(renderer, vPres.x, vPres.y, mouse.cpy().scl(gridSpacing).add(center).x, mouse.cpy().scl(gridSpacing).add(center).y, 20f);
+                    drawDashedLine(renderer, vPres.x, vPres.y, mouse.cpy().scl(gridSpacing).add(center).x, mouse.cpy().scl(gridSpacing).add(center).y, 20f);
                 }
             } else {
                 editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.numericalData);
@@ -201,7 +201,7 @@ public class GridInterface {
                 drawArrow(renderer, o.x, o.y, e.x, e.y, 20f);
                 break;
             case DOTTED_LINE:
-                drawDottedLine(renderer, o.x, o.y, e.x, e.y, 20f);
+                drawDashedLine(renderer, o.x, o.y, e.x, e.y, 20f);
                 break;
             case DOUBLE_ARROW:
                 drawTwoHeadedArrow(renderer, o.x, o.y, e.x, e.y, 20f);
@@ -219,7 +219,7 @@ public class GridInterface {
                 Vector2 vPres2 = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
                 for (int i = 1; i < tik.vertices.size; i++) {
                     Vector2 a = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
-                    drawDottedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
+                    drawDashedLine(renderer, vPres2.x, vPres2.y, a.x, a.y, 20f);
                     vPres2 = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                 }
                 break;
@@ -425,14 +425,14 @@ public class GridInterface {
 
     }
 
-    public void drawDottedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dotSpacing) {
+    public void drawDashedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dashSpacing) {
         // Calculate the total distance between the start and end points
         float distance = (float) Math.hypot(x2 - x1, y2 - y1);
 
-        dotSpacing *= scaling * zoomLevel;
+        dashSpacing *= scaling * zoomLevel;
 
         // Calculate the number of dots that fit along the line
-        int numDots = (int) (distance / dotSpacing);
+        int numDots = (int) (distance / dashSpacing);
 
         // Calculate the direction of the line (unit vector)
         float directionX = (x2 - x1) / distance;
@@ -441,8 +441,9 @@ public class GridInterface {
         // Draw dots along the line at regular intervals
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
-            shapeRenderer.rectLine(vPres, vPres.cpy().add(dotSpacing * directionX / 2, dotSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1));
-            vPres.add(dotSpacing * directionX, dotSpacing * directionY);
+            shapeRenderer.rectLine(vPres, vPres.cpy().add(dashSpacing * directionX / 2,
+                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1));
+            vPres.add(dashSpacing * directionX, dashSpacing * directionY);
         }
 
         shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
