@@ -56,14 +56,16 @@ public class ShowTikz implements Screen {
 
     @Override
     public void show() {
-        // TODO: Add methods to show Tikz in a text field
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.BLACK);
-        stage.act(delta);
-        stage.draw();
+        try {
+            stage.act(delta);
+            stage.draw();
+        } catch (ArrayIndexOutOfBoundsException ignored){
+        }
     }
 
     @Override
