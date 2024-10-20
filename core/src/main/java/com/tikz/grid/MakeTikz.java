@@ -55,13 +55,15 @@ public abstract class MakeTikz {
             }
         }
         StringBuilder extraCommands = new StringBuilder();
-        extraCommands.append("[");
-        for(String str : extraCommandsArray){
-            extraCommands.append(str);
-            if(!Objects.equals(str, extraCommandsArray.peek()))
-                extraCommands.append(", ");
+        if(extraCommandsArray.notEmpty()) {
+            extraCommands.append("[");
+            for (String str : extraCommandsArray) {
+                extraCommands.append(str);
+                if (!Objects.equals(str, extraCommandsArray.peek()))
+                    extraCommands.append(", ");
+            }
+            extraCommands.append("]");
         }
-        extraCommands.append("]");
         return extraCommands;
     }
 
