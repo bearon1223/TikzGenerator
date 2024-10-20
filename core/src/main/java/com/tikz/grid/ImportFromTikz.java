@@ -1,12 +1,9 @@
 package com.tikz.grid;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-
-import java.util.Arrays;
 
 public class ImportFromTikz {
     /**
@@ -21,130 +18,130 @@ public class ImportFromTikz {
      */
     public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<TikTypeStruct> points = new Array<>();
-        String[] commands = tik.replace("\n", "").split(";");
-        int n = 0;
-        for (String command : commands) {
-            command = command.trim();
-            if(command.startsWith("%"))
-                continue;
-            // remove tikz draw command and the end draw command
-            command = command.replace("\\draw ", "");
-            command = command.replace("\\draw", "");
-            command = command.replace(";", "");
-            command = command.trim();
-            Gdx.app.log("Import", n++ + " " + command);
-            if (command.contains("--")) {
-                // tackle everything that is a line
-                String[] stringVectors = command.split("\\s*--\\s*");
-                for (int i = 0; i < stringVectors.length; i++) {
-                    stringVectors[i] = stringVectors[i].trim();
-                }
-
-                if (stringVectors.length == 2) {
-                    // dashed lines
-                    if (command.contains("[dashed]")) {
-                        // delete the dashed stuff
-                        String str1 = stringVectors[0].replace("[dashed] ", "").replace("[dashed]", "");
-                        String str2 = stringVectors[1];
-
-                        Vector2 origin = new Vector2().fromString(str1.trim());
-                        Vector2 endPoint = new Vector2().fromString(str2.trim());
-
-                        points.add(new TikTypeStruct(origin, endPoint, DrawType.DOTTED_LINE));
-                    } else if (command.contains("[thin, ->]") || command.contains("[thick,->]")) {
-                        String str1 = stringVectors[0].replace("[thin, ->] ", "").replace("[thick,->]", "");
-                        String str2 = stringVectors[1];
-
-                        Vector2 origin = new Vector2().fromString(str1.trim());
-                        Vector2 endPoint = new Vector2().fromString(str2.trim());
-
-                        points.add(new TikTypeStruct(origin, endPoint, DrawType.ARROW));
-                    } else if (command.contains("[thin, <->]") || command.contains("[thin,<->]")) {
-                        String str1 = stringVectors[0].replace("[thin, <->] ", "").replace("[thin,<->]", "");
-                        String str2 = stringVectors[1];
-
-                        Vector2 origin = new Vector2().fromString(str1.trim());
-                        Vector2 endPoint = new Vector2().fromString(str2.trim());
-
-                        points.add(new TikTypeStruct(origin, endPoint, DrawType.DOUBLE_ARROW));
-                    } else {
-                        // Line Case
-                        Vector2 origin = new Vector2().fromString(stringVectors[0].trim());
-                        Vector2 endPoint = new Vector2().fromString(stringVectors[1].trim());
-
-                        points.add(new TikTypeStruct(origin, endPoint, DrawType.LINE));
-                    }
-                } else {
-                    if (command.contains("[dashed]")) {
-                        // FILLED_POLYGON case (for every vector, try to convert it)
-                        String newCommand = command.replace("[dashed]", "");
-                        String[] vectors = newCommand.trim().split("--");
-                        Array<Vector2> vs = new Array<>();
-                        for (String v : vectors) {
-                            v = v.trim();
-                            vs.add(new Vector2().fromString(v));
-                        }
-                        points.add(new TikTypeStruct(vs, DrawType.DOTTED_POLYGON));
-                    } else {
-                        // FILLED_POLYGON case (for every vector, try to convert it)
-                        String[] vectors = command.trim().split("--");
-                        Array<Vector2> vs = new Array<>();
-                        for (String v : vectors) {
-                            v = v.trim();
-                            vs.add(new Vector2().fromString(v));
-                        }
-                        points.add(new TikTypeStruct(vs, DrawType.FILLED_POLYGON));
-                    }
-                }
-            } else if (command.contains("node at")) {
-                // Text Case
-                String[] str2 = command.replace("node at ", "").split(" ");
-                // get the location
-                Vector2 loc = new Vector2().fromString(str2[0].trim());
-
-                // make the text string
-                StringBuilder text = new StringBuilder();
-
-                for (int i = 1; i < str2.length - 1; i++) {
-                    text.append(str2[i]);
-                    text.append(" ");
-                }
-                // append the last bit
-                text.append(str2[str2.length - 1]);
-
-                // add it to points
-                points.add(new TikTypeStruct(loc, DrawType.TEXT, text.substring(1,text.length()-1)));
-            } else if (command.contains("circle")) {
-                // split everything
-                String[] circleStrings = command.split("circle");
-
-                // get the center, and the edge and remove the tik stuff
-                Vector2 center = new Vector2().fromString(circleStrings[0].trim());
-                circleStrings[1] = circleStrings[1].replace("(", "").replace("cm)", "");
-
-                // get the edge and use it as a radius
-                Vector2 dist = center.cpy().add(Float.parseFloat(circleStrings[1].trim()), 0);
-
-                // add it to points
-                points.add(new TikTypeStruct(center, dist, DrawType.CIRCLE));
-            } else if (command.contains("arc")) {
-                String[] arcStrings = command.split("arc");
-                Vector2 start = new Vector2().fromString(arcStrings[0].trim());
-                String[] parameters;
-                if(command.contains("and")) {
-                    parameters = arcStrings[1].replaceAll("[()]", "").trim().replaceAll("\\s*and\\s*", ":").split("\\s*:\\s*");
-                    float[] degrees = {Float.parseFloat(parameters[0]), Float.parseFloat(parameters[1])};
-                    points.add(new TikTypeStruct(start, Float.parseFloat(parameters[2]), Float.parseFloat(parameters[3]), degrees, DrawType.ELLIPTICAL_ARC));
-                } else {
-                    parameters = arcStrings[1].replaceAll("[()]", "").trim().split("\\s*:\\s*");
-                    float[] degrees = {Float.parseFloat(parameters[0]), Float.parseFloat(parameters[1])};
-                    points.add(new TikTypeStruct(start, Float.parseFloat(parameters[2]), degrees, DrawType.CIRCULAR_ARC));
-                }
-                System.out.println(points.peek());
-            } else if (!command.isEmpty()) {
-                throw new IllegalDrawType("Unknown Tikz Command (" + command + ")");
-            }
-        }
+//        String[] commands = tik.replace("\n", "").split(";");
+//        int n = 0;
+//        for (String command : commands) {
+//            command = command.trim();
+//            if(command.startsWith("%"))
+//                continue;
+//            // remove tikz draw command and the end draw command
+//            command = command.replace("\\draw ", "");
+//            command = command.replace("\\draw", "");
+//            command = command.replace(";", "");
+//            command = command.trim();
+//            Gdx.app.log("Import", n++ + " " + command);
+//            if (command.contains("--")) {
+//                // tackle everything that is a line
+//                String[] stringVectors = command.split("\\s*--\\s*");
+//                for (int i = 0; i < stringVectors.length; i++) {
+//                    stringVectors[i] = stringVectors[i].trim();
+//                }
+//
+//                if (stringVectors.length == 2) {
+//                    // dashed lines
+//                    if (command.contains("[dashed]")) {
+//                        // delete the dashed stuff
+//                        String str1 = stringVectors[0].replace("[dashed] ", "").replace("[dashed]", "");
+//                        String str2 = stringVectors[1];
+//
+//                        Vector2 origin = new Vector2().fromString(str1.trim());
+//                        Vector2 endPoint = new Vector2().fromString(str2.trim());
+//
+//                        points.add(new TikTypeStruct(origin, endPoint, DrawType.DOTTED_LINE));
+//                    } else if (command.contains("[thin, ->]") || command.contains("[thick,->]")) {
+//                        String str1 = stringVectors[0].replace("[thin, ->] ", "").replace("[thick,->]", "");
+//                        String str2 = stringVectors[1];
+//
+//                        Vector2 origin = new Vector2().fromString(str1.trim());
+//                        Vector2 endPoint = new Vector2().fromString(str2.trim());
+//
+//                        points.add(new TikTypeStruct(origin, endPoint, DrawType.ARROW));
+//                    } else if (command.contains("[thin, <->]") || command.contains("[thin,<->]")) {
+//                        String str1 = stringVectors[0].replace("[thin, <->] ", "").replace("[thin,<->]", "");
+//                        String str2 = stringVectors[1];
+//
+//                        Vector2 origin = new Vector2().fromString(str1.trim());
+//                        Vector2 endPoint = new Vector2().fromString(str2.trim());
+//
+//                        points.add(new TikTypeStruct(origin, endPoint, DrawType.DOUBLE_ARROW));
+//                    } else {
+//                        // Line Case
+//                        Vector2 origin = new Vector2().fromString(stringVectors[0].trim());
+//                        Vector2 endPoint = new Vector2().fromString(stringVectors[1].trim());
+//
+//                        points.add(new TikTypeStruct(origin, endPoint, DrawType.LINE));
+//                    }
+//                } else {
+//                    if (command.contains("[dashed]")) {
+//                        // MULTI_LINE case (for every vector, try to convert it)
+//                        String newCommand = command.replace("[dashed]", "");
+//                        String[] vectors = newCommand.trim().split("--");
+//                        Array<Vector2> vs = new Array<>();
+//                        for (String v : vectors) {
+//                            v = v.trim();
+//                            vs.add(new Vector2().fromString(v));
+//                        }
+//                        points.add(new TikTypeStruct(vs, DrawType.DOTTED_POLYGON));
+//                    } else {
+//                        // MULTI_LINE case (for every vector, try to convert it)
+//                        String[] vectors = command.trim().split("--");
+//                        Array<Vector2> vs = new Array<>();
+//                        for (String v : vectors) {
+//                            v = v.trim();
+//                            vs.add(new Vector2().fromString(v));
+//                        }
+//                        points.add(new TikTypeStruct(vs, DrawType.MULTI_LINE));
+//                    }
+//                }
+//            } else if (command.contains("node at")) {
+//                // Text Case
+//                String[] str2 = command.replace("node at ", "").split(" ");
+//                // get the location
+//                Vector2 loc = new Vector2().fromString(str2[0].trim());
+//
+//                // make the text string
+//                StringBuilder text = new StringBuilder();
+//
+//                for (int i = 1; i < str2.length - 1; i++) {
+//                    text.append(str2[i]);
+//                    text.append(" ");
+//                }
+//                // append the last bit
+//                text.append(str2[str2.length - 1]);
+//
+//                // add it to points
+//                points.add(new TikTypeStruct(loc, DrawType.TEXT, text.substring(1,text.length()-1)));
+//            } else if (command.contains("circle")) {
+//                // split everything
+//                String[] circleStrings = command.split("circle");
+//
+//                // get the center, and the edge and remove the tik stuff
+//                Vector2 center = new Vector2().fromString(circleStrings[0].trim());
+//                circleStrings[1] = circleStrings[1].replace("(", "").replace("cm)", "");
+//
+//                // get the edge and use it as a radius
+//                Vector2 dist = center.cpy().add(Float.parseFloat(circleStrings[1].trim()), 0);
+//
+//                // add it to points
+//                points.add(new TikTypeStruct(center, dist, DrawType.CIRCLE));
+//            } else if (command.contains("arc")) {
+//                String[] arcStrings = command.split("arc");
+//                Vector2 start = new Vector2().fromString(arcStrings[0].trim());
+//                String[] parameters;
+//                if(command.contains("and")) {
+//                    parameters = arcStrings[1].replaceAll("[()]", "").trim().replaceAll("\\s*and\\s*", ":").split("\\s*:\\s*");
+//                    float[] degrees = {Float.parseFloat(parameters[0]), Float.parseFloat(parameters[1])};
+//                    points.add(new TikTypeStruct(start, Float.parseFloat(parameters[2]), Float.parseFloat(parameters[3]), degrees, DrawType.ELLIPTICAL_ARC));
+//                } else {
+//                    parameters = arcStrings[1].replaceAll("[()]", "").trim().split("\\s*:\\s*");
+//                    float[] degrees = {Float.parseFloat(parameters[0]), Float.parseFloat(parameters[1])};
+//                    points.add(new TikTypeStruct(start, Float.parseFloat(parameters[2]), degrees, DrawType.CIRCULAR_ARC));
+//                }
+//                System.out.println(points.peek());
+//            } else if (!command.isEmpty()) {
+//                throw new IllegalDrawType("Unknown Tikz Command (" + command + ")");
+//            }
+//        }
         return points;
     }
 
@@ -182,6 +179,6 @@ public class ImportFromTikz {
 
             vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
         }
-        return new TikTypeStruct(vectors, DrawType.FILLED_POLYGON);
+        return new TikTypeStruct(vectors, DrawType.MULTI_LINE);
     }
 }

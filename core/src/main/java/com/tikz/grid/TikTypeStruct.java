@@ -21,7 +21,9 @@ public class TikTypeStruct {
      */
     public float numericalData = 1;
     public float arcHeight = 1;
-    public boolean filled = false;
+    public boolean dashed = true;
+    public boolean frontArrow = false;
+    public boolean backArrow = true;
 
     public TikTypeStruct(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
@@ -62,7 +64,7 @@ public class TikTypeStruct {
     public TikTypeStruct(Array<Vector2> vertices, DrawType type) {
         this.vertices = vertices;
         this.type = type;
-        if (type != DrawType.FILLED_POLYGON && type != DrawType.DOTTED_POLYGON)
+        if (type != DrawType.MULTI_LINE)
             throw new IllegalDrawType("The Polygon type was not used for polygons");
     }
 
