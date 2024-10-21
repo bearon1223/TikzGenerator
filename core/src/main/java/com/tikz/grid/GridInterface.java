@@ -190,10 +190,17 @@ public class GridInterface {
             case MULTI_LINE:
                 // draw the polygon
                 Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
-                for (int i = 1; i < tik.vertices.size; i++) {
-                    drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed, false, false);
-                    vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
+                if (tik.vertices.size > 1) {
+                    drawLine(renderer, vPres, tik.vertices.get(1).cpy().scl(gridSpacing).add(center), tik.dashed, false, tik.backArrow);
+                    vPres = tik.vertices.get(1).cpy().scl(gridSpacing).add(center);
                 }
+                if (tik.vertices.size > 2) {
+                    for (int i = 2; i < tik.vertices.size - 1; i++) {
+                        drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed, false, false);
+                        vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
+                    }
+                }
+                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && !addingPoints, false);
                 break;
             case TEXT:
                 if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
@@ -230,7 +237,8 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(gridSpacing).add(center);
                 for (int i = 1; i < editing.vertices.size; i++) {
-                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(lineWidth * scaling * zoomLevel, 1));
+//                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(lineWidth * scaling * zoomLevel, 1));
+                    drawLine(renderer, vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), dashed, frontArrow, backArrow);
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
                 break;
@@ -293,6 +301,8 @@ public class GridInterface {
                         if (mouse.equals(editing.vertices.get(0))) {
                             addingPoints = false;
                             editing.vertices.add(editing.vertices.get(0));
+                            editing.frontArrow = false;
+                            editing.backArrow = false;
                             points.add(editing);
                         } else
                             editing.vertices.add(mouse);
