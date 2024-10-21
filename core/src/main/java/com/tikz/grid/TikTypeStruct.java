@@ -21,9 +21,9 @@ public class TikTypeStruct {
      */
     public float numericalData = 1;
     public float arcHeight = 1;
-    public boolean dashed = true;
+    public boolean dashed = false;
     public boolean frontArrow = false;
-    public boolean backArrow = true;
+    public boolean backArrow = false;
 
     public TikTypeStruct(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
