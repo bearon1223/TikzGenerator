@@ -5,5 +5,6 @@ public enum DrawType {
     DROPPED_POLYGON,
     MULTI_LINE,
     LINE,
-    TEXT
+    TEXT,
+    BEZIER
 }

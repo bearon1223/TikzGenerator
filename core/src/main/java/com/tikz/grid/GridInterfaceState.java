@@ -13,4 +13,5 @@ public class GridInterfaceState {
     public static boolean dashed = false;
     public static boolean frontArrow = false;
     public static boolean backArrow = false;
+    public static int bezierDrawState = 0;
 }

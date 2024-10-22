@@ -32,6 +32,20 @@ public abstract class MakeTikz {
                     poly.delete(0, 2);
                     output.append(String.format("\\draw%s %s;\n", extraCommands, poly));
                     break;
+                case BEZIER:
+                    int lineCount = 10;
+                    StringBuilder bezier = new StringBuilder();
+                    for (int i = 0; i <= lineCount; i++) {
+                        float t = (float) i / lineCount;
+                        Vector2 a = tik.controlPoint.cpy();
+                        Vector2 b = tik.origin.cpy().sub(tik.controlPoint.cpy()).scl((1 - t) * (1 - t));
+                        Vector2 c = tik.endPoint.cpy().sub(tik.controlPoint.cpy()).scl(t * t);
+                        Vector2 newPoint = a.add(b).add(c);
+                        bezier.append(String.format("--%s", newPoint.toString()));
+                    }
+                    bezier.delete(0, 2);
+                    output.append(String.format("\\draw%s %s;\n", extraCommands, bezier));
+                    break;
                 default:
                     throw new IllegalDrawType("Unexpected DrawType: " + tik.type);
             }

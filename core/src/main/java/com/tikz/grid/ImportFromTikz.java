@@ -21,44 +21,45 @@ public class ImportFromTikz {
     public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<TikTypeStruct> points = new Array<>();
         String[] commands = tik.split("\\n+");
-        for(String command : commands) {
+        for (String command : commands) {
             command = command.replaceAll("\\s*\\\\draw\\s*", "");
             boolean isDashed = command.contains("dashed");
             boolean frontArrow = command.contains(">");
             boolean backArrow = command.contains("<");
             command = command.replaceAll("\\[(.*?)]", "").replaceAll(";", "");
-            if(command.contains("node at")) {
-//                String regex = "\\(([^)]+)\\)\\s*\\{([^}]+)}";
+            if (command.contains("node at")) {
                 String regex = "\\(([^)]+)\\)\\s*\\{((?:\\$[^$]+\\$|[^{}])+)}";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(command);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
-                    Vector2 loc = new Vector2().fromString("("+vector+")");
+                    Vector2 loc = new Vector2().fromString("(" + vector + ")");
                     String content = matcher.group(2);
                     points.add(new TikTypeStruct(loc, DrawType.TEXT, content));
                 }
-            } else if(command.contains("circle")) {
+            } else if (command.contains("circle")) {
                 // (a, b) circle(2.0cm);
-                String regex = "\\(([^)]+)\\)\\s*circle\\(([^}]+)cm\\)";
+                String regex = "\\(([^)]+)\\)\\s*circle\\s*\\(([^}]+)cm\\)";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(command);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
-                    Vector2 loc = new Vector2().fromString("("+vector+")");
+                    Vector2 loc = new Vector2().fromString("(" + vector + ")");
                     float radius = Float.parseFloat(matcher.group(2));
                     TikTypeStruct tikType = new TikTypeStruct(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
                     tikType.dashed = isDashed;
                     points.add(tikType);
                 }
+            } else if (command.contains("arc")) {
+                throw new IllegalDrawType("Arcs are unable to be rendered as they are unpredictable: " + command);
             } else {
                 String[] vectors = command.split("\\s*--\\s*");
-                for(int i = 0; i < vectors.length; i++) {
+                for (int i = 0; i < vectors.length; i++) {
                     vectors[i] = vectors[i].replaceAll(",\\s*", ", ").trim();
                 }
-                if(vectors.length == 2) {
+                if (vectors.length == 2) {
                     Vector2 start = new Vector2().fromString(vectors[0]);
                     Vector2 end = new Vector2().fromString(vectors[1]);
                     TikTypeStruct tikType = new TikTypeStruct(start, end, DrawType.LINE);
@@ -68,7 +69,7 @@ public class ImportFromTikz {
                     points.add(tikType);
                 } else if (vectors.length > 2) {
                     Array<Vector2> vector2Array = new Array<>();
-                    for(String v : vectors) {
+                    for (String v : vectors) {
                         v = v.trim();
                         vector2Array.add(new Vector2().fromString(v));
                     }
@@ -87,7 +88,7 @@ public class ImportFromTikz {
      * Converts a list of vectors into a polygon usable by this program
      *
      * @param vectorInput List of vectors
-     * @param scale How much to scale the output by
+     * @param scale       How much to scale the output by
      * @param rotationDeg how much to rotate by in the clockwise direction
      * @return Array of Tikz Points in Grid Interface Format
      * @throws GdxRuntimeException   Throws Malformed Vector

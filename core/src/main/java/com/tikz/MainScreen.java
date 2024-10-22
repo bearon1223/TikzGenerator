@@ -48,6 +48,12 @@ public class MainScreen implements Screen {
 
         t.setSize(200, Gdx.graphics.getHeight());
 
+        // type buttons
+        addButton(DrawType.LINE, t, skin, "Line");
+        addButton(DrawType.CIRCLE, t, skin, "Circle");
+        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
+        addButton(DrawType.BEZIER, t, skin, "Bezier Line");
+
         TextButton dashed = new TextButton("Dashed: False", skin);
 
         dashed.addListener(new ClickListener() {
@@ -58,7 +64,7 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(dashed).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
         TextButton frontArrow = new TextButton("Front Arrow: False", skin);
@@ -86,11 +92,6 @@ public class MainScreen implements Screen {
 
         t.add(backArrow).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
-
-        // type buttons
-        addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.MULTI_LINE, t, skin, "Filled Multi-Line / Polygon");
 
         // Create TextField
         textField = new TextField(GridInterfaceState.text, skin);

@@ -18,11 +18,11 @@ import static java.lang.Math.*;
 public class GridInterface {
     public static final int ROWS = 6;
     public static final int COLS = 9;
-    private final Main app;
     private final float lineWidth = 2f;
-    public float gridSpacing = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
+    private final Main app;
+    public float gridSpacing = 1;
     public float scaling = 1;
-    public Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    public Vector2 mouse = new Vector2();
     public Vector2 panning = new Vector2();
     public Array<TikTypeStruct> points = new Array<>();
     public TikTypeStruct editing;
@@ -242,6 +242,10 @@ public class GridInterface {
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
                 break;
+            case BEZIER:
+                Vector2 c = editing.controlPoint.cpy().scl(gridSpacing).add(center);;
+                drawBezier(renderer, o, c, e, tik.dashed, false, false);
+                break;
             default:
                 throw new IllegalDrawType("Unknown Draw Type");
         }
@@ -261,7 +265,7 @@ public class GridInterface {
         if (Gdx.input.isKeyJustPressed(Input.Keys.S) && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             snapGrid = !snapGrid;
         }
-
+        
         // do stuff at the cursor
         if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2) {
             switch (currentType) {
@@ -320,6 +324,11 @@ public class GridInterface {
                     editing.backArrow = backArrow;
                     points.add(editing);
                     setDrawType(DrawType.MULTI_LINE);
+                    break;
+                case BEZIER:
+                    currentType = DrawType.LINE;
+                    editing = new TikTypeStruct(new Vector2(2, 2), new Vector2(0, 0), new Vector2(3, 4), DrawType.BEZIER);
+                    points.add(new TikTypeStruct(new Vector2(2, 2), new Vector2(0, 0), new Vector2(3, 4), DrawType.BEZIER));
                     break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
@@ -411,23 +420,23 @@ public class GridInterface {
         shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
     }
 
-/*
-    public void drawArc(ShapeRenderer shapeRenderer, Vector2 start, float width, float startAngle, float endAngle, float height) {
-        int segments = (int) abs(endAngle - startAngle) / 5;
-        Vector2 center = new Vector2(start).sub(
-            (float) (width * Math.cos(Math.toRadians(startAngle))),
-            (float) (height * Math.sin(Math.toRadians(startAngle)))
-        );
-
-        Vector2 vPres = center.cpy().add((float) (width * cos(toRadians(startAngle))), (float) (height * sin(toRadians(startAngle))));
-        for (int i = 0; i <= segments; i++) {
-            double alpha = toRadians(endAngle - startAngle) / segments * i + toRadians(startAngle);
-            Vector2 newPoint = center.cpy().add((float) (width * cos(alpha)), (float) (height * sin(alpha)));
-            shapeRenderer.rectLine(vPres, newPoint, Math.max(lineWidth * scaling * zoomLevel, 1));
+    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 control, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow) {
+        int lineCount = 100;
+        Vector2 vPres = new Vector2(start);
+        for (int i = 0; i <= lineCount; i++) {
+            float t = (float) i / lineCount;
+            Vector2 a = control.cpy();
+            Vector2 b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
+            Vector2 c = end.cpy().sub(control.cpy()).scl(t * t);
+            Vector2 newPoint = a.add(b).add(c);
+            if (i % 2 == 0 || !isDashed)
+                drawLine(renderer, vPres, newPoint, isDashed, frontArrow, backArrow);
             vPres = newPoint.cpy();
         }
+//        renderer.circle(start.x, start.y, 5f);
+//        renderer.circle(control.x, control.y, 5f);
+//        renderer.circle(end.x, end.y, 5f);
     }
-*/
 
     public void dispose() {
         for (TikTypeStruct tik : points) {
