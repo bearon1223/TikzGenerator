@@ -10,6 +10,7 @@ import java.util.Arrays;
 public class TikTypeStruct {
     public Vector2 origin = new Vector2();
     public Vector2 endPoint = new Vector2();
+    public Vector2 controlPoint = new Vector2();
     public float[] angles = {0f, 360f};
     public DrawType type;
     public String data = "";
@@ -21,7 +22,9 @@ public class TikTypeStruct {
      */
     public float numericalData = 1;
     public float arcHeight = 1;
-    public boolean filled = false;
+    public boolean dashed = false;
+    public boolean frontArrow = false;
+    public boolean backArrow = false;
 
     public TikTypeStruct(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
@@ -29,20 +32,11 @@ public class TikTypeStruct {
         this.type = type;
     }
 
-    public TikTypeStruct(Vector2 o, float radius, float[] angles, DrawType type) {
+    public TikTypeStruct(Vector2 o, Vector2 c, Vector2 e, DrawType type) {
         this.origin = o;
-        this.numericalData = radius;
-        this.arcHeight = radius;
+        this.controlPoint = c;
+        this.endPoint = e;
         this.type = type;
-        this.angles = angles;
-    }
-
-    public TikTypeStruct(Vector2 o, float width, float height, float[] angles, DrawType type) {
-        this.origin = o;
-        this.numericalData = width;
-        this.arcHeight = height;
-        this.type = type;
-        this.angles = angles;
     }
 
     public TikTypeStruct(Vector2 o, DrawType type, String data) {
@@ -62,7 +56,7 @@ public class TikTypeStruct {
     public TikTypeStruct(Array<Vector2> vertices, DrawType type) {
         this.vertices = vertices;
         this.type = type;
-        if (type != DrawType.FILLED_POLYGON && type != DrawType.DOTTED_POLYGON)
+        if (type != DrawType.MULTI_LINE)
             throw new IllegalDrawType("The Polygon type was not used for polygons");
     }
 

@@ -16,10 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.tikz.grid.DrawType;
-import com.tikz.grid.GridInterface;
-import com.tikz.grid.MakeTikz;
-import com.tikz.grid.TikTypeStruct;
+import com.tikz.grid.*;
 
 import javax.swing.*;
 import java.io.File;
@@ -30,14 +27,12 @@ public class MainScreen implements Screen {
     private final Stage stage;
     public float tableOffset = 0f;
     TextField textField;
-    SelectBox<Color> colorSelectBox;
     private GridInterface grid;
     private float time = 1f;
     private boolean hiddenMenu = false;
     private Vector2 startingPan = new Vector2();
 
     public MainScreen(Main app) {
-        // TODO: Rework the entire UI so that dashes and arrow heads are checkboxes instead of separate acts
         this.app = app;
         this.grid = new GridInterface(this, app);
 
@@ -54,17 +49,51 @@ public class MainScreen implements Screen {
 
         // type buttons
         addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.DOTTED_LINE, t, skin, "Dashed Line");
-        addButton(DrawType.ARROW, t, skin, "Arrow");
-        addButton(DrawType.DOUBLE_ARROW, t, skin, "Double Arrow");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.CIRCULAR_ARC, t, skin, "Circular Arc\n(May not export correctly)");
-        addButton(DrawType.ELLIPTICAL_ARC, t, skin, "Elliptical Arc\n(May not export correctly)");
-        addButton(DrawType.FILLED_POLYGON, t, skin, "Filled Multi-Line / Polygon");
-        addButton(DrawType.DOTTED_POLYGON, t, skin, "Dashed Multi-Line / Polygon");
+        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
+        addButton(DrawType.BEZIER, t, skin, "Bezier Line");
+
+        TextButton dashed = new TextButton("Dashed: False", skin);
+
+        dashed.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GridInterfaceState.dashed = !GridInterfaceState.dashed;
+                dashed.setText("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"));
+            }
+        });
+
+        t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton frontArrow = new TextButton("Front Arrow: False", skin);
+
+        frontArrow.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GridInterfaceState.frontArrow = !GridInterfaceState.frontArrow;
+                frontArrow.setText("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"));
+            }
+        });
+
+        t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton backArrow = new TextButton("Back Arrow: False", skin);
+
+        backArrow.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GridInterfaceState.backArrow = !GridInterfaceState.backArrow;
+                backArrow.setText("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"));
+            }
+        });
+
+        t.add(backArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
 
         // Create TextField
-        textField = new TextField(grid.text, skin);
+        textField = new TextField(GridInterfaceState.text, skin);
         t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
         addButton(DrawType.TEXT, t, skin, "Insert Text");
@@ -73,7 +102,7 @@ public class MainScreen implements Screen {
         textField.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                grid.text = textField.getText();
+                GridInterfaceState.text = textField.getText();
             }
         });
 
@@ -172,8 +201,8 @@ public class MainScreen implements Screen {
         this.grid = grid;
         this.grid.screen = this;
         if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
-            this.grid.addingPoints = false;
-        this.textField.setText(this.grid.text);
+            GridInterfaceState.addingPoints = false;
+        this.textField.setText(GridInterfaceState.text);
         return this;
     }
 
@@ -188,9 +217,9 @@ public class MainScreen implements Screen {
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
-                    grid.addingPoints = true;
+                    GridInterfaceState.addingPoints = true;
                 } else {
-                    grid.addingPoints = false;
+                    GridInterfaceState.addingPoints = false;
                 }
             }
         });
@@ -257,25 +286,25 @@ public class MainScreen implements Screen {
 
         if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-                grid.zoomLevel += 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 2f);
+                GridInterfaceState.zoomLevel += 0.125f;
+                GridInterfaceState.zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
-                grid.zoomLevel -= 0.125f;
-                grid.zoomLevel = GridInterface.clamp(grid.zoomLevel, 0.25f, 2f);
+                GridInterfaceState.zoomLevel -= 0.125f;
+                GridInterfaceState.zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
-                grid.zoomLevel = 1;
+                GridInterfaceState.zoomLevel = 1;
                 grid.panning.set(0, 0);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * grid.zoomLevel);
+                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
-                grid.showGrid = !grid.showGrid;
+                GridInterfaceState.showGrid = !GridInterfaceState.showGrid;
             }
         }
 
@@ -321,7 +350,7 @@ public class MainScreen implements Screen {
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
         app.updateFont(scaling / scalingS);
-        app.updateTikFont(scaling * grid.zoomLevel / scalingS);
+        app.updateTikFont(scaling * GridInterfaceState.zoomLevel / scalingS);
 
         // Update skin with the new editor font
         Skin skin = t.getSkin();
@@ -337,7 +366,7 @@ public class MainScreen implements Screen {
         // Update all text buttons to use the new style
         for (Actor actor : t.getChildren()) {
             if (actor instanceof TextButton) {
-                ((TextButton) actor).setStyle(buttonStyle);  // Apply new style with updated font
+                ((TextButton) actor).setStyle(buttonStyle);
             } else if (actor instanceof TextField) {
                 ((TextField) actor).setStyle(fieldStyle);
             }
