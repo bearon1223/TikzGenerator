@@ -188,24 +188,24 @@ public class GridInterface {
                 editing.backArrow = backArrow;
 
                 renderer.setColor(Color.WHITE);
-                renderer.circle(o.x, o.y, 5f);
-                renderer.circle(c.x, c.y, 5f);
-                renderer.circle(e.x, e.y, 5f);
+                renderer.circle(o.x, o.y, 5f*scaling);
+                renderer.circle(c.x, c.y, 5f*scaling);
+                renderer.circle(e.x, e.y, 5f*scaling);
                 Vector2 mouseReal = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-                if ((mouseReal.dst2(o) < 100 || isDraggingOrigin) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if ((mouseReal.dst2(o) < 100*scaling*scaling || isDraggingOrigin)&& !isDraggingEnd && !isDraggingControl && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
                     editing.origin.set(mouse.cpy());
                     isDraggingOrigin = true;
                 } else {
                     isDraggingOrigin = false;
                 }
-                if ((mouseReal.dst2(e) < 100 || isDraggingEnd) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if ((mouseReal.dst2(e) < 100*scaling*scaling || isDraggingEnd)&& !isDraggingOrigin && !isDraggingControl && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
                     editing.endPoint.set(mouse.cpy());
                     isDraggingEnd = true;
                 } else {
                     isDraggingEnd = false;
 
                 }
-                if ((mouseReal.dst2(c) < 100 || isDraggingControl) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if ((mouseReal.dst2(c) < 100*scaling*scaling || isDraggingControl)&& !isDraggingEnd && !isDraggingOrigin && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
                     editing.controlPoint.set(mouse.cpy());
                     isDraggingControl = true;
                 } else {
@@ -361,7 +361,7 @@ public class GridInterface {
                 case BEZIER:
                     if (!addingPoints) {
                         addingPoints = true;
-                        editing = new TikTypeStruct(new Vector2(), new Vector2(1, 1), new Vector2(2, 0), DrawType.BEZIER);
+                        editing = new TikTypeStruct(new Vector2(mouse.cpy()), mouse.cpy().add(1, 1), mouse.cpy().add(2, 0), DrawType.BEZIER);
                         editing.color = selectedColor;
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
