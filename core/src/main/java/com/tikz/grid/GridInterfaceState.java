@@ -13,5 +13,7 @@ public class GridInterfaceState {
     public static boolean dashed = false;
     public static boolean frontArrow = false;
     public static boolean backArrow = false;
-    public static int bezierDrawState = 0;
+    public static boolean isDraggingOrigin = false;
+    public static boolean isDraggingControl = false;
+    public static boolean isDraggingEnd = false;
 }

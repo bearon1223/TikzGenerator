@@ -159,7 +159,8 @@ public class GridInterface {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
             if (currentType != DrawType.MULTI_LINE) {
-                editing.endPoint = mouse.cpy();
+                if (currentType != DrawType.BEZIER)
+                    editing.endPoint = mouse.cpy();
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 e = editing.endPoint.cpy().scl(gridSpacing).add(center);
             }
@@ -174,6 +175,42 @@ public class GridInterface {
                 editing.color = selectedColor;
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 renderTikz(editing, currentType, renderer, o, e, center);
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                points.add(editing);
+                addingPoints = false;
+            }
+            if (addingPoints && currentType == DrawType.BEZIER) {
+                Vector2 c = editing.controlPoint.cpy().scl(gridSpacing).add(center);
+
+                editing.dashed = dashed;
+                editing.frontArrow = frontArrow;
+                editing.backArrow = backArrow;
+
+                renderer.setColor(Color.WHITE);
+                renderer.circle(o.x, o.y, 5f);
+                renderer.circle(c.x, c.y, 5f);
+                renderer.circle(e.x, e.y, 5f);
+                Vector2 mouseReal = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+                if ((mouseReal.dst2(o) < 100 || isDraggingOrigin) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                    editing.origin.set(mouse.cpy());
+                    isDraggingOrigin = true;
+                } else {
+                    isDraggingOrigin = false;
+                }
+                if ((mouseReal.dst2(e) < 100 || isDraggingEnd) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                    editing.endPoint.set(mouse.cpy());
+                    isDraggingEnd = true;
+                } else {
+                    isDraggingEnd = false;
+
+                }
+                if ((mouseReal.dst2(c) < 100 || isDraggingControl) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                    editing.controlPoint.set(mouse.cpy());
+                    isDraggingControl = true;
+                } else {
+                    isDraggingControl = false;
+                }
             }
         }
     }
@@ -237,14 +274,13 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(gridSpacing).add(center);
                 for (int i = 1; i < editing.vertices.size; i++) {
-//                    renderer.rectLine(vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), Math.max(lineWidth * scaling * zoomLevel, 1));
                     drawLine(renderer, vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), dashed, frontArrow, backArrow);
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
                 break;
             case BEZIER:
-                Vector2 c = editing.controlPoint.cpy().scl(gridSpacing).add(center);;
-                drawBezier(renderer, o, c, e, tik.dashed, false, false);
+                Vector2 c = tik.controlPoint.cpy().scl(gridSpacing).add(center);
+                drawBezier(renderer, o, c, e, tik.dashed, tik.frontArrow, tik.backArrow);
                 break;
             default:
                 throw new IllegalDrawType("Unknown Draw Type");
@@ -265,7 +301,7 @@ public class GridInterface {
         if (Gdx.input.isKeyJustPressed(Input.Keys.S) && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             snapGrid = !snapGrid;
         }
-        
+
         // do stuff at the cursor
         if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2) {
             switch (currentType) {
@@ -319,16 +355,18 @@ public class GridInterface {
                         verts.get(i).add(mouse);
                     }
                     editing.color = selectedColor;
-                    editing.dashed = dashed;
-                    editing.frontArrow = frontArrow;
-                    editing.backArrow = backArrow;
                     points.add(editing);
                     setDrawType(DrawType.MULTI_LINE);
                     break;
                 case BEZIER:
-                    currentType = DrawType.LINE;
-                    editing = new TikTypeStruct(new Vector2(2, 2), new Vector2(0, 0), new Vector2(3, 4), DrawType.BEZIER);
-                    points.add(new TikTypeStruct(new Vector2(2, 2), new Vector2(0, 0), new Vector2(3, 4), DrawType.BEZIER));
+                    if (!addingPoints) {
+                        addingPoints = true;
+                        editing = new TikTypeStruct(new Vector2(), new Vector2(1, 1), new Vector2(2, 0), DrawType.BEZIER);
+                        editing.color = selectedColor;
+                        editing.dashed = dashed;
+                        editing.frontArrow = frontArrow;
+                        editing.backArrow = backArrow;
+                    }
                     break;
                 default:
                     throw new IllegalDrawType("Unknown Draw Type");
@@ -421,21 +459,33 @@ public class GridInterface {
     }
 
     public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 control, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow) {
-        int lineCount = 100;
+        int lineCount = 50;
         Vector2 vPres = new Vector2(start);
-        for (int i = 0; i <= lineCount; i++) {
-            float t = (float) i / lineCount;
-            Vector2 a = control.cpy();
-            Vector2 b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
-            Vector2 c = end.cpy().sub(control.cpy()).scl(t * t);
-            Vector2 newPoint = a.add(b).add(c);
+        float t = 1f / lineCount;
+        Vector2 a = control.cpy();
+        Vector2 b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
+        Vector2 c = end.cpy().sub(control.cpy()).scl(t * t);
+        Vector2 newPoint = a.add(b).add(c);
+        drawLine(renderer, vPres, newPoint, false, false, backArrow);
+        vPres = newPoint.cpy();
+
+        for (int i = 1; i < lineCount; i++) {
+            t = (float) i / lineCount;
+            a = control.cpy();
+            b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
+            c = end.cpy().sub(control.cpy()).scl(t * t);
+            newPoint = a.add(b).add(c);
             if (i % 2 == 0 || !isDashed)
-                drawLine(renderer, vPres, newPoint, isDashed, frontArrow, backArrow);
+                drawLine(renderer, vPres, newPoint, false, false, false);
             vPres = newPoint.cpy();
         }
-//        renderer.circle(start.x, start.y, 5f);
-//        renderer.circle(control.x, control.y, 5f);
-//        renderer.circle(end.x, end.y, 5f);
+
+        t = 1;
+        a = control.cpy();
+        b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
+        c = end.cpy().sub(control.cpy()).scl(t * t);
+        newPoint = a.add(b).add(c);
+        drawLine(renderer, vPres, newPoint, false, frontArrow, false);
     }
 
     public void dispose() {

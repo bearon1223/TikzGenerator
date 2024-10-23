@@ -27,7 +27,6 @@ public class MainScreen implements Screen {
     private final Stage stage;
     public float tableOffset = 0f;
     TextField textField;
-    SelectBox<Color> colorSelectBox;
     private GridInterface grid;
     private float time = 1f;
     private boolean hiddenMenu = false;
