@@ -399,6 +399,8 @@ public class GridInterface {
         float x2 = end.x;
         float y1 = origin.y;
         float y2 = end.y;
+
+        // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
         float arrowHeadSize = 20f * scaling * zoomLevel;
 
@@ -409,8 +411,6 @@ public class GridInterface {
         }
 
         if (frontArrow) {
-            // Calculate the angle of the line
-
             // Calculate the points for the arrowhead triangle
             float arrowX1 = x2 - arrowHeadSize / 2 * (float) cos(angle - Math.PI / 6);
             float arrowY1 = y2 - arrowHeadSize / 2 * (float) sin(angle - Math.PI / 6);

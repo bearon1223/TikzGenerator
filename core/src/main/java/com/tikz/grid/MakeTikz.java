@@ -33,7 +33,7 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw%s %s;\n", extraCommands, poly));
                     break;
                 case BEZIER:
-                    int lineCount = 10;
+                    int lineCount = 15;
                     StringBuilder bezier = new StringBuilder();
                     for (int i = 0; i <= lineCount; i++) {
                         float t = (float) i / lineCount;
