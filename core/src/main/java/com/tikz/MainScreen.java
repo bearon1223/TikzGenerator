@@ -53,7 +53,7 @@ public class MainScreen implements Screen {
         addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
         addButton(DrawType.BEZIER, t, skin, "Bezier Line");
 
-        TextButton dashed = new TextButton("Dashed: False", skin);
+        TextButton dashed = new TextButton("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"), skin);
 
         dashed.addListener(new ClickListener() {
             @Override
@@ -66,7 +66,7 @@ public class MainScreen implements Screen {
         t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton frontArrow = new TextButton("Front Arrow: False", skin);
+        TextButton frontArrow = new TextButton("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"), skin);
 
         frontArrow.addListener(new ClickListener() {
             @Override
@@ -79,7 +79,7 @@ public class MainScreen implements Screen {
         t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton backArrow = new TextButton("Back Arrow: False", skin);
+        TextButton backArrow = new TextButton("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"), skin);
 
         backArrow.addListener(new ClickListener() {
             @Override
