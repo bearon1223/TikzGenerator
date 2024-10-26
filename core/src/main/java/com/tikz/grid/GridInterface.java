@@ -138,6 +138,7 @@ public class GridInterface {
         }
 
         renderEditingTik(renderer, center);
+//        drawBezier(renderer, new Vector2(300, 300), new Vector2(500, 300), false, false, false, new Vector2(350, 400), new Vector2(450, 200));
     }
 
     private void renderAllPoints(ShapeRenderer renderer, Vector2 center) {
@@ -479,6 +480,48 @@ public class GridInterface {
         c = end.cpy().sub(control.cpy()).scl(t * t);
         newPoint = a.add(b).add(c);
         drawLine(renderer, vPres, newPoint, false, frontArrow, false);
+    }
+
+    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Vector2... controlPoints) {
+        int lineCount = 20;
+        Vector2 vPres = start.cpy();
+        Array<Vector2> vectors = new Array<>();
+        vectors.add(start);
+        for (Vector2 controlPoint : controlPoints) {
+            vectors.add(controlPoint);
+        }
+        vectors.add(end);
+        int n = vectors.size-1;
+
+        // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
+        for(int line = 0; line <= lineCount; line++) {
+            float t = (float) line / lineCount;
+            Vector2 point = new Vector2();
+            for (int i = 0; i <= n; i++) {
+                double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+                point.add(vectors.get(i).cpy().scl((float) scl));
+            }
+            drawCircle(renderer, point.x, point.y, 5, false);
+        }
+        for (Vector2 controlPoint : controlPoints) {
+            drawCircle(renderer, controlPoint.x, controlPoint.y, 5, false);
+        }
+        drawCircle(renderer, start.x, start.y, 5, false);
+        drawCircle(renderer, end.x, end.y, 5, false);
+    }
+
+    private int binomialCoefficient(int n, int i) {
+        return factorial(n)/(factorial(i)*factorial(n - i));
+    }
+
+    private int factorial(int n) {
+        int fac = 1;
+        if(n == 0)
+            return 1;
+        for(int i = 1; i <= n; i++){
+            fac *= i;
+        }
+        return fac;
     }
 
     public void dispose() {
