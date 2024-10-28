@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -20,6 +21,8 @@ import com.tikz.grid.*;
 
 import javax.swing.*;
 import java.io.File;
+
+import static com.tikz.grid.GridInterfaceState.*;
 
 public class MainScreen implements Screen {
     public final Table t;
@@ -209,6 +212,10 @@ public class MainScreen implements Screen {
     public void addButton(DrawType type, Table table, Skin skin, String name) {
         TextButton b = new TextButton(name, skin);
 
+        if(type == DrawType.BEZIER) {
+            b.setText(name + " control count: " + bezierControlPointCount);
+        }
+
         b.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -218,6 +225,9 @@ public class MainScreen implements Screen {
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
                     GridInterfaceState.addingPoints = true;
+                } else if(type == DrawType.BEZIER) {
+                    b.setText(name + " control count: " + bezierControlPointCount);
+                    GridInterfaceState.addingPoints = false;
                 } else {
                     GridInterfaceState.addingPoints = false;
                 }
@@ -286,25 +296,35 @@ public class MainScreen implements Screen {
 
         if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-                GridInterfaceState.zoomLevel += 0.125f;
-                GridInterfaceState.zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
+                zoomLevel += 0.125f;
+                zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
+                app.updateTikFont(scaling / scalingS * zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
-                GridInterfaceState.zoomLevel -= 0.125f;
-                GridInterfaceState.zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
+                zoomLevel -= 0.125f;
+                zoomLevel = GridInterface.clamp(zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
+                app.updateTikFont(scaling / scalingS * zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
-                GridInterfaceState.zoomLevel = 1;
+                zoomLevel = 1;
                 grid.panning.set(0, 0);
 
                 // Update tikz font using the gridSpacing factor from the grid
-                app.updateTikFont(scaling / scalingS * GridInterfaceState.zoomLevel);
+                app.updateTikFont(scaling / scalingS * zoomLevel);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
-                GridInterfaceState.showGrid = !GridInterfaceState.showGrid;
+                showGrid = !showGrid;
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT_BRACKET)) {
+                bezierControlPointCount--;
+                if (bezierControlPointCount < 1) {
+                    bezierControlPointCount = 1;
+                }
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET)) {
+                bezierControlPointCount++;
+                if (bezierControlPointCount > 6) {
+                    bezierControlPointCount = 6;
+                }
             }
         }
 

@@ -177,12 +177,16 @@ public class GridInterface {
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 renderTikz(editing, currentType, renderer, o, e, center);
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 points.add(editing);
                 addingPoints = false;
             }
             if (addingPoints && currentType == DrawType.BEZIER) {
-                Vector2 c = editing.controlPoint.cpy().scl(gridSpacing).add(center);
+                Array<Vector2> controlPoints = new Array<>();
+
+                for(Vector2 c : editing.vertices) {
+                    controlPoints.add(c.cpy().scl(gridSpacing).add(center));
+                }
 
                 editing.dashed = dashed;
                 editing.frontArrow = frontArrow;
@@ -190,7 +194,9 @@ public class GridInterface {
 
                 renderer.setColor(Color.WHITE);
                 renderer.circle(o.x, o.y, 5f * scaling);
-                renderer.circle(c.x, c.y, 5f * scaling);
+                for (Vector2 c : controlPoints) {
+                    renderer.circle(c.x, c.y, 5f * scaling);
+                }
                 renderer.circle(e.x, e.y, 5f * scaling);
                 Vector2 mouseReal = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
                 if (((mouseReal.dst2(o) < 100 * scaling * scaling && draggingState == 0) || draggingState == 1) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
@@ -199,10 +205,17 @@ public class GridInterface {
                 } else if (((mouseReal.dst2(e) < 100 * scaling * scaling && draggingState == 0) || draggingState == 2) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
                     editing.endPoint.set(mouse.cpy());
                     draggingState = 2;
-                } else if (((mouseReal.dst2(c) < 100 * scaling * scaling && draggingState == 0) || draggingState == 3) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
-                    editing.controlPoint.set(mouse.cpy());
-                    draggingState = 3;
-                } else if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                }
+
+                for(int i = 0; i < controlPoints.size; i++) {
+                    Vector2 c = controlPoints.get(i);
+                    if((mouseReal.dst2(c) < 100*scaling * scaling && draggingState == 0 || draggingState == i + 3) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                        editing.vertices.get(i).set(mouse.cpy());
+                        draggingState = i + 3;
+                    }
+                }
+
+                if(draggingState != 0 && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
                     draggingState = 0;
                 }
             }
@@ -273,8 +286,11 @@ public class GridInterface {
                 }
                 break;
             case BEZIER:
-                Vector2 c = tik.controlPoint.cpy().scl(gridSpacing).add(center);
-                drawBezier(renderer, o, c, e, tik.dashed, tik.frontArrow, tik.backArrow);
+                Array<Vector2> points = new Array<>();
+                for(Vector2 p : tik.vertices) {
+                    points.add(p.cpy().scl(gridSpacing).add(center));
+                }
+                drawBezier(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, points);
                 break;
             default:
                 throw new IllegalDrawType("Unknown Draw Type");
@@ -355,7 +371,11 @@ public class GridInterface {
                 case BEZIER:
                     if (!addingPoints) {
                         addingPoints = true;
-                        editing = new TikTypeStruct(new Vector2(mouse.cpy()), mouse.cpy().add(1, 1), mouse.cpy().add(2, 0), DrawType.BEZIER);
+                        Vector2[] v = new Vector2[bezierControlPointCount];
+                        for(int i = 0; i < bezierControlPointCount; i++) {
+                            v[i] = mouse.cpy().add(2f/(bezierControlPointCount+1)*(i+1), (float) pow(-1, i));
+                        }
+                        editing = new TikTypeStruct(new Vector2(mouse.cpy()), mouse.cpy().add(2, 0), DrawType.BEZIER, v);
                         editing.color = selectedColor;
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
@@ -452,38 +472,8 @@ public class GridInterface {
         shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
     }
 
-    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 control, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow) {
+    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Array<Vector2> controlPoints) {
         int lineCount = 50;
-        Vector2 vPres = new Vector2(start);
-        float t = 1f / lineCount;
-        Vector2 a = control.cpy();
-        Vector2 b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
-        Vector2 c = end.cpy().sub(control.cpy()).scl(t * t);
-        Vector2 newPoint = a.add(b).add(c);
-        drawLine(renderer, vPres, newPoint, false, false, backArrow);
-        vPres = newPoint.cpy();
-
-        for (int i = 1; i < lineCount; i++) {
-            t = (float) i / lineCount;
-            a = control.cpy();
-            b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
-            c = end.cpy().sub(control.cpy()).scl(t * t);
-            newPoint = a.add(b).add(c);
-            if (i % 2 == 0 || !isDashed)
-                drawLine(renderer, vPres, newPoint, false, false, false);
-            vPres = newPoint.cpy();
-        }
-
-        t = 1;
-        a = control.cpy();
-        b = start.cpy().sub(control.cpy()).scl((1 - t) * (1 - t));
-        c = end.cpy().sub(control.cpy()).scl(t * t);
-        newPoint = a.add(b).add(c);
-        drawLine(renderer, vPres, newPoint, false, frontArrow, false);
-    }
-
-    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Vector2... controlPoints) {
-        int lineCount = 20;
         Vector2 vPres = start.cpy();
         Array<Vector2> vectors = new Array<>();
         vectors.add(start);
@@ -492,22 +482,34 @@ public class GridInterface {
         }
         vectors.add(end);
         int n = vectors.size-1;
+        float t = 1f/lineCount;
+        Vector2 point = new Vector2();
+        for (int i = 0; i <= n; i++) {
+            double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+            point.add(vectors.get(i).cpy().scl((float) scl));
+        }
+        drawLine(renderer, vPres, point, false, false, backArrow);
+        vPres = point.cpy();
 
         // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
-        for(int line = 0; line <= lineCount; line++) {
-            float t = (float) line / lineCount;
-            Vector2 point = new Vector2();
+        for(int line = 1; line < lineCount; line++) {
+            t = (float) line / lineCount;
+            point = new Vector2();
             for (int i = 0; i <= n; i++) {
                 double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
                 point.add(vectors.get(i).cpy().scl((float) scl));
             }
-            drawCircle(renderer, point.x, point.y, 5, false);
+            if (line % 2 == 0 || !isDashed)
+                drawLine(renderer, vPres, point, false, false, false);
+            vPres = point.cpy();
         }
-        for (Vector2 controlPoint : controlPoints) {
-            drawCircle(renderer, controlPoint.x, controlPoint.y, 5, false);
+        t = 1;
+        point = new Vector2();
+        for (int i = 0; i <= n; i++) {
+            double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+            point.add(vectors.get(i).cpy().scl((float) scl));
         }
-        drawCircle(renderer, start.x, start.y, 5, false);
-        drawCircle(renderer, end.x, end.y, 5, false);
+        drawLine(renderer, vPres, point, false, frontArrow, false);
     }
 
     private int binomialCoefficient(int n, int i) {

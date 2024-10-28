@@ -10,7 +10,6 @@ import java.util.Arrays;
 public class TikTypeStruct {
     public Vector2 origin = new Vector2();
     public Vector2 endPoint = new Vector2();
-    public Vector2 controlPoint = new Vector2();
     public float[] angles = {0f, 360f};
     public DrawType type;
     public String data = "";
@@ -32,11 +31,13 @@ public class TikTypeStruct {
         this.type = type;
     }
 
-    public TikTypeStruct(Vector2 o, Vector2 c, Vector2 e, DrawType type) {
+    public TikTypeStruct(Vector2 o, Vector2 e, DrawType type, Vector2... controlPoints) {
         this.origin = o;
-        this.controlPoint = c;
         this.endPoint = e;
         this.type = type;
+        for(Vector2 controlPoint : controlPoints) {
+            vertices.add(controlPoint);
+        }
     }
 
     public TikTypeStruct(Vector2 o, DrawType type, String data) {

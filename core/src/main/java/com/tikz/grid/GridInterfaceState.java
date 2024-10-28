@@ -14,4 +14,5 @@ public class GridInterfaceState {
     public static boolean frontArrow = false;
     public static boolean backArrow = false;
     public static int draggingState = 0;
+    public static int bezierControlPointCount = 1;
 }

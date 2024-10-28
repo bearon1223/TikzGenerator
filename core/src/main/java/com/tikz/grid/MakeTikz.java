@@ -2,10 +2,13 @@ package com.tikz.grid;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Objects;
+
+import static java.lang.Math.pow;
 
 public abstract class MakeTikz {
     public static String convert(Array<TikTypeStruct> tikzShapes) {
@@ -35,13 +38,9 @@ public abstract class MakeTikz {
                 case BEZIER:
                     int lineCount = 15;
                     StringBuilder bezier = new StringBuilder();
-                    for (int i = 0; i <= lineCount; i++) {
-                        float t = (float) i / lineCount;
-                        Vector2 a = tik.controlPoint.cpy();
-                        Vector2 b = tik.origin.cpy().sub(tik.controlPoint.cpy()).scl((1 - t) * (1 - t));
-                        Vector2 c = tik.endPoint.cpy().sub(tik.controlPoint.cpy()).scl(t * t);
-                        Vector2 newPoint = a.add(b).add(c);
-                        bezier.append(String.format("--%s", newPoint.toString()));
+                    Array<Vector2> points = getBezierPoints(tik);
+                    for (Vector2 p : points) {
+                        bezier.append(String.format("--%s", p.toString()));
                     }
                     bezier.delete(0, 2);
                     output.append(String.format("\\draw%s %s;\n", extraCommands, bezier));
@@ -79,6 +78,45 @@ public abstract class MakeTikz {
             extraCommands.append("]");
         }
         return extraCommands;
+    }
+
+    private static Array<Vector2> getBezierPoints(TikTypeStruct tik) {
+        int lineCount = 15 + GridInterfaceState.bezierControlPointCount * 2;
+        Array<Vector2> outputPoints = new Array<>();
+        Array<Vector2> vectors = new Array<>();
+        vectors.add(tik.origin.cpy());
+        for (Vector2 controlPoint : tik.vertices) {
+            vectors.add(controlPoint);
+        }
+        vectors.add(tik.endPoint.cpy());
+        int n = vectors.size-1;
+
+        // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
+        for(int line = 0; line <= lineCount; line++) {
+            float t = (float) line / lineCount;
+            Vector2 point = new Vector2();
+            for (int i = 0; i <= n; i++) {
+                double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+                point.add(vectors.get(i).cpy().scl((float) scl));
+            }
+            outputPoints.add(point);
+        }
+
+        return outputPoints;
+    }
+
+    private static int binomialCoefficient(int n, int i) {
+        return factorial(n)/(factorial(i)*factorial(n - i));
+    }
+
+    private static int factorial(int n) {
+        int fac = 1;
+        if(n == 0)
+            return 1;
+        for(int i = 1; i <= n; i++){
+            fac *= i;
+        }
+        return fac;
     }
 
     public static void writeToFile(String path, Array<TikTypeStruct> tikzShapes) {
