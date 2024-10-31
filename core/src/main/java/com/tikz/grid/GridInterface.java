@@ -184,7 +184,7 @@ public class GridInterface {
             if (addingPoints && currentType == DrawType.BEZIER) {
                 Array<Vector2> controlPoints = new Array<>();
 
-                for(Vector2 c : editing.vertices) {
+                for (Vector2 c : editing.vertices) {
                     controlPoints.add(c.cpy().scl(gridSpacing).add(center));
                 }
 
@@ -207,15 +207,15 @@ public class GridInterface {
                     draggingState = 2;
                 }
 
-                for(int i = 0; i < controlPoints.size; i++) {
+                for (int i = 0; i < controlPoints.size; i++) {
                     Vector2 c = controlPoints.get(i);
-                    if((mouseReal.dst2(c) < 100*scaling * scaling && draggingState == 0 || draggingState == i + 3) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                    if ((mouseReal.dst2(c) < 100 * scaling * scaling && draggingState == 0 || draggingState == i + 3) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                         editing.vertices.get(i).set(mouse.cpy());
                         draggingState = i + 3;
                     }
                 }
 
-                if(draggingState != 0 && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                if (draggingState != 0 && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                     draggingState = 0;
                 }
             }
@@ -287,7 +287,7 @@ public class GridInterface {
                 break;
             case BEZIER:
                 Array<Vector2> points = new Array<>();
-                for(Vector2 p : tik.vertices) {
+                for (Vector2 p : tik.vertices) {
                     points.add(p.cpy().scl(gridSpacing).add(center));
                 }
                 drawBezier(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, points);
@@ -372,8 +372,8 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         Vector2[] v = new Vector2[bezierControlPointCount];
-                        for(int i = 0; i < bezierControlPointCount; i++) {
-                            v[i] = mouse.cpy().add(2f/(bezierControlPointCount+1)*(i+1), (float) pow(-1, i));
+                        for (int i = 0; i < bezierControlPointCount; i++) {
+                            v[i] = mouse.cpy().add(2f / (bezierControlPointCount + 1) * (i + 1), (float) pow(-1, i));
                         }
                         editing = new TikTypeStruct(new Vector2(mouse.cpy()), mouse.cpy().add(2, 0), DrawType.BEZIER, v);
                         editing.color = selectedColor;
@@ -481,22 +481,22 @@ public class GridInterface {
             vectors.add(controlPoint);
         }
         vectors.add(end);
-        int n = vectors.size-1;
-        float t = 1f/lineCount;
+        int n = vectors.size - 1;
+        float t = 1f / lineCount;
         Vector2 point = new Vector2();
         for (int i = 0; i <= n; i++) {
-            double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+            double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
             point.add(vectors.get(i).cpy().scl((float) scl));
         }
         drawLine(renderer, vPres, point, false, false, backArrow);
         vPres = point.cpy();
 
         // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
-        for(int line = 1; line < lineCount; line++) {
+        for (int line = 1; line < lineCount; line++) {
             t = (float) line / lineCount;
             point = new Vector2();
             for (int i = 0; i <= n; i++) {
-                double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+                double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
                 point.add(vectors.get(i).cpy().scl((float) scl));
             }
             if (line % 2 == 0 || !isDashed)
@@ -506,21 +506,21 @@ public class GridInterface {
         t = 1;
         point = new Vector2();
         for (int i = 0; i <= n; i++) {
-            double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+            double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
             point.add(vectors.get(i).cpy().scl((float) scl));
         }
         drawLine(renderer, vPres, point, false, frontArrow, false);
     }
 
     private int binomialCoefficient(int n, int i) {
-        return factorial(n)/(factorial(i)*factorial(n - i));
+        return factorial(n) / (factorial(i) * factorial(n - i));
     }
 
     private int factorial(int n) {
         int fac = 1;
-        if(n == 0)
+        if (n == 0)
             return 1;
-        for(int i = 1; i <= n; i++){
+        for (int i = 1; i <= n; i++) {
             fac *= i;
         }
         return fac;

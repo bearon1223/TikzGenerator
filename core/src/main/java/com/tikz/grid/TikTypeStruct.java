@@ -35,7 +35,7 @@ public class TikTypeStruct {
         this.origin = o;
         this.endPoint = e;
         this.type = type;
-        for(Vector2 controlPoint : controlPoints) {
+        for (Vector2 controlPoint : controlPoints) {
             vertices.add(controlPoint);
         }
     }
@@ -64,13 +64,13 @@ public class TikTypeStruct {
     @Override
     public String toString() {
         return String.format("type: %s with color: %s\norigin: %s\nend: %s\nangles: %s\ndata: %s\n" +
-            "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\n" +
+                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\n" +
                 "with height: %f", type, color, origin, endPoint,
             Arrays.toString(angles), data, !vertices.isEmpty(), latexImg != null, numericalData, arcHeight);
     }
 
     public void dispose() {
-        if(latexImg != null)
+        if (latexImg != null)
             latexImg.dispose();
     }
 }

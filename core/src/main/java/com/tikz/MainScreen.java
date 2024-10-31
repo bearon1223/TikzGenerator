@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -34,6 +33,7 @@ public class MainScreen implements Screen {
     private float time = 1f;
     private boolean hiddenMenu = false;
     private Vector2 startingPan = new Vector2();
+    private TextButton bezierButton;
 
     public MainScreen(Main app) {
         this.app = app;
@@ -54,7 +54,7 @@ public class MainScreen implements Screen {
         addButton(DrawType.LINE, t, skin, "Line");
         addButton(DrawType.CIRCLE, t, skin, "Circle");
         addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
-        addButton(DrawType.BEZIER, t, skin, "Bezier Line");
+        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
 
         TextButton dashed = new TextButton("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"), skin);
 
@@ -212,10 +212,6 @@ public class MainScreen implements Screen {
     public void addButton(DrawType type, Table table, Skin skin, String name) {
         TextButton b = new TextButton(name, skin);
 
-        if(type == DrawType.BEZIER) {
-            b.setText(name + " control count: " + bezierControlPointCount);
-        }
-
         b.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -225,8 +221,7 @@ public class MainScreen implements Screen {
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
                     GridInterfaceState.addingPoints = true;
-                } else if(type == DrawType.BEZIER) {
-                    b.setText(name + " control count: " + bezierControlPointCount);
+                } else if (type == DrawType.BEZIER) {
                     GridInterfaceState.addingPoints = false;
                 } else {
                     GridInterfaceState.addingPoints = false;
@@ -235,6 +230,30 @@ public class MainScreen implements Screen {
         });
 
         table.add(b).spaceBottom(Value.percentHeight(0.0083f, table));
+        table.row();
+    }
+
+    public void addBezButton(DrawType type, Table table, Skin skin, String name) {
+        bezierButton = new TextButton(name, skin);
+        bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
+        bezierButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                grid.setDrawType(type);
+                table.getStage().setKeyboardFocus(null);
+                stage.setKeyboardFocus(null);
+                if (type == DrawType.TEXT) {
+                    grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
+                    GridInterfaceState.addingPoints = true;
+                } else if (type == DrawType.BEZIER) {
+                    GridInterfaceState.addingPoints = false;
+                } else {
+                    GridInterfaceState.addingPoints = false;
+                }
+            }
+        });
+
+        table.add(bezierButton).spaceBottom(Value.percentHeight(0.0083f, table));
         table.row();
     }
 
@@ -320,11 +339,13 @@ public class MainScreen implements Screen {
                 if (bezierControlPointCount < 1) {
                     bezierControlPointCount = 1;
                 }
+                bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET)) {
                 bezierControlPointCount++;
                 if (bezierControlPointCount > 6) {
                     bezierControlPointCount = 6;
                 }
+                bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
             }
         }
 

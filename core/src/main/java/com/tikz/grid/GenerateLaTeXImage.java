@@ -1,15 +1,15 @@
 package com.tikz.grid;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import org.scilab.forge.jlatexmath.ParseException;
 import org.scilab.forge.jlatexmath.TeXFormula;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
 public class GenerateLaTeXImage {
-    public static BufferedImage renderLaTexToImage(String latex)  throws ParseException {
+    public static BufferedImage renderLaTexToImage(String latex) throws ParseException {
         // Create a TeXFormula object from the LaTeX string, which will be rendered as an image.
         TeXFormula formula = new TeXFormula(latex);
         formula.setDEBUG(false);
@@ -25,7 +25,7 @@ public class GenerateLaTeXImage {
 
         // For each pixel in the BufferedImage, convert the ARGB color format to RGBA
         // and draw it in the Pixmap.
-        for(int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int argb = img.getRGB(x, y);
                 // Check if the pixel is not transparent (alpha > 0)

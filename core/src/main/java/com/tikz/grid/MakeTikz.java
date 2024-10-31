@@ -1,8 +1,6 @@
 package com.tikz.grid;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -58,7 +56,7 @@ public abstract class MakeTikz {
             extraCommandsArray.add("dashed");
         }
 
-        if(tik.type != DrawType.CIRCLE) {
+        if (tik.type != DrawType.CIRCLE) {
             if (tik.frontArrow && !tik.backArrow) {
                 extraCommandsArray.add("->");
             } else if (!tik.frontArrow && tik.backArrow) {
@@ -68,7 +66,7 @@ public abstract class MakeTikz {
             }
         }
         StringBuilder extraCommands = new StringBuilder();
-        if(extraCommandsArray.notEmpty()) {
+        if (extraCommandsArray.notEmpty()) {
             extraCommands.append("[");
             for (String str : extraCommandsArray) {
                 extraCommands.append(str);
@@ -81,7 +79,7 @@ public abstract class MakeTikz {
     }
 
     private static Array<Vector2> getBezierPoints(TikTypeStruct tik) {
-        int lineCount = 15 + GridInterfaceState.bezierControlPointCount * 2;
+        int lineCount = 13 + GridInterfaceState.bezierControlPointCount * 2;
         Array<Vector2> outputPoints = new Array<>();
         Array<Vector2> vectors = new Array<>();
         vectors.add(tik.origin.cpy());
@@ -89,14 +87,14 @@ public abstract class MakeTikz {
             vectors.add(controlPoint);
         }
         vectors.add(tik.endPoint.cpy());
-        int n = vectors.size-1;
+        int n = vectors.size - 1;
 
         // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
-        for(int line = 0; line <= lineCount; line++) {
+        for (int line = 0; line <= lineCount; line++) {
             float t = (float) line / lineCount;
             Vector2 point = new Vector2();
             for (int i = 0; i <= n; i++) {
-                double scl = binomialCoefficient(n, i)*pow(1-t, n - i)*pow(t, i);
+                double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
                 point.add(vectors.get(i).cpy().scl((float) scl));
             }
             outputPoints.add(point);
@@ -106,14 +104,14 @@ public abstract class MakeTikz {
     }
 
     private static int binomialCoefficient(int n, int i) {
-        return factorial(n)/(factorial(i)*factorial(n - i));
+        return factorial(n) / (factorial(i) * factorial(n - i));
     }
 
     private static int factorial(int n) {
         int fac = 1;
-        if(n == 0)
+        if (n == 0)
             return 1;
-        for(int i = 1; i <= n; i++){
+        for (int i = 1; i <= n; i++) {
             fac *= i;
         }
         return fac;
