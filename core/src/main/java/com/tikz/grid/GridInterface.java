@@ -131,7 +131,7 @@ public class GridInterface {
         renderAllPoints(renderer, center);
 
         // Ctrl-Z to remove the latest point
-        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && screen.notTyping()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.Z) && points.size > 0) {
                 points.removeIndex(points.size - 1);
             }

@@ -349,25 +349,35 @@ public class MainScreen implements Screen {
             }
         }
 
-        if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
-            if (Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+        if (MainScreen.checkPanMode()) {
+            if (MainScreen.checkJustPanMode()) {
                 startingPan = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()).add(grid.panning);
             }
             grid.panning.set(startingPan.cpy().sub(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY()));
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) && notTyping()) {
             grid.panning.add(0, scaling / scalingS * 5f);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && notTyping()) {
             grid.panning.add(0, -scaling / scalingS * 5f);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && notTyping()) {
             grid.panning.add(-scaling / scalingS * 5f, 0);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && notTyping()) {
             grid.panning.add(scaling / scalingS * 5f, 0);
         }
+    }
+
+    public static boolean checkPanMode() {
+        return Gdx.input.isButtonPressed(Input.Buttons.MIDDLE) ||(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+            && Gdx.input.isButtonPressed(Input.Buttons.LEFT));
+    }
+
+    public static boolean checkJustPanMode() {
+        return Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE) ||(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+            && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT));
     }
 
     public boolean notTyping() {
