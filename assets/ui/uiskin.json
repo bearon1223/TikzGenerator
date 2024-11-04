@@ -349,7 +349,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
         treePlus: { name: tree-plus, color: up },
         window: { name: rect, color: background },
         windowResize: { name: window-resize, color: background },
-        windowBorder: { name: window-border, color: background },
+        windowBorder: { name: window-border, color: selection },
         alpha: { name: dot, color: semiTransparent }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {

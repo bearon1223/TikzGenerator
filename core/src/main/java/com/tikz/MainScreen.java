@@ -123,18 +123,36 @@ public class MainScreen implements Screen {
         t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
         t.row();
 
-        TextButton importFromFileTikz = new TextButton("Import From File", skin);
+        TextButton importFromFileTikz = new TextButton("Import from File", skin);
 
         importFromFileTikz.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this);
+                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
+                    openFile(file);
+                });
                 fileExplorer.resize(app);
                 stage.addActor(fileExplorer);
             }
         });
 
         t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton saveToFile = new TextButton("Save to File", skin);
+
+        saveToFile.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
+
+                });
+                fileExplorer.resize(app);
+                stage.addActor(fileExplorer);
+            }
+        });
+
+        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
         TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
@@ -173,8 +191,10 @@ public class MainScreen implements Screen {
             try {
                 app.setScreen(new ImportTikzScreen(app, grid, file.readString().replaceAll("\\n+", "\n")));
             } catch (GdxRuntimeException e) {
-                Dialog errorDialog = new Dialog("", skin) {
+                Dialog errorDialog = new Dialog("Error", skin) {
                     {
+                        this.pad(5f);
+                        this.padTop(15f);
                         getContentTable().pad(5f);
                         getButtonTable().defaults().prefWidth(100f).padBottom(5f);
                         button("Ok");
@@ -196,15 +216,6 @@ public class MainScreen implements Screen {
      */
     private static float clamp(float x) {
         return x < (float) 0 ? (float) 0 : Math.min(x, (float) 1);
-    }
-
-    public File openFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile();
-        }
-        return null;
     }
 
     public MainScreen setGrid(GridInterface grid) {

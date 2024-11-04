@@ -9,43 +9,63 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
+import java.io.File;
+
 public class FileExplorer extends Window {
-    private FileHandle currentDirectory;
     private final Array<FileHandle> fileList;
     private final List<String> fileNames;
     private final Label directoryLabel;
+    private FileHandle currentDirectory;
 
-    public FileExplorer(Skin skin, MainScreen screen){
+    public FileExplorer(Skin skin, MainScreen screen, FileExplorerListener listener) {
         super("File Explorer", skin);
+        super.setResizable(true);
         directoryLabel = new Label("", skin);
         fileList = new Array<>();
         fileNames = new List<>(skin);
         TextButton backButton = new TextButton("Back", skin);
 
         this.pad(5f);
-        this.padTop(15f*Gdx.graphics.getHeight()/800f);
-        this.setSize(Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight()/2f);
-        this.setPosition(Gdx.graphics.getWidth()/4f, Gdx.graphics.getHeight()/4f);
+        this.padTop(15f * Gdx.graphics.getHeight() / 800f);
+        this.setSize(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
+        this.setPosition(Gdx.graphics.getWidth() / 4f, Gdx.graphics.getHeight() / 4f);
 
         this.add(directoryLabel).colspan(3).padTop(5f).padBottom(5f).row();
-        this.add(new ScrollPane(fileNames)).expand().fill().colspan(3).row();
+        this.add(new ScrollPane(fileNames)).expand().fill().colspan(3).padBottom(5f).row();
         this.add(backButton).left().size(Value.percentWidth(0.25f, this), Value.percentHeight(0.1f, this));
 
-        currentDirectory = Gdx.files.absolute(System.getProperty("user.dir"));
+        currentDirectory = Gdx.files.absolute(System.getProperty("user.home") + File.separator + "Desktop");
+        if (Gdx.files.absolute(System.getProperty("user.home") + File.separator + "OneDrive" + File.separator + "Desktop").exists()) {
+            currentDirectory = Gdx.files.absolute(System.getProperty("user.home") + File.separator + "OneDrive" + File.separator + "Desktop");
+        }
         updateFileList();
 
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (!currentDirectory.file().getParentFile().getPath().equals("/")) {
-                    currentDirectory = Gdx.files.absolute(currentDirectory.file().getParent());
-                    updateFileList();
+                try {
+                    if (!currentDirectory.file().getParentFile().getPath().equals("/")) {
+                        currentDirectory = Gdx.files.absolute(currentDirectory.file().getParent());
+                        updateFileList();
+                    }
+                } catch (NullPointerException e) {
+                    Dialog errorDialog = new Dialog("Error", skin) {
+                        {
+                            this.pad(5f);
+                            this.padTop(15f);
+                            getContentTable().pad(5f);
+                            getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                            button("Ok");
+                            text("There is no Parent Directory");
+                        }
+                    };
+                    errorDialog.show(FileExplorer.super.getStage());
                 }
             }
         });
 
         TextButton close = new TextButton("Close", skin);
-        close.setWidth(this.getWidth()/4f);
+        close.setWidth(this.getWidth() / 4f);
 
         close.addListener(new ClickListener() {
             @Override
@@ -53,13 +73,13 @@ public class FileExplorer extends Window {
                 screen.openFile(new FileHandle(""));
             }
         });
-        this.add(close).center().size(Value.percentWidth(0.25f, this), Value.percentHeight(0.1f, this));;
+        this.add(close).center().size(Value.percentWidth(0.25f, this), Value.percentHeight(0.1f, this));
 
         TextButton selectButton = new TextButton("Submit", skin);
         selectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                screen.openFile(getFile());
+                listener.fileSelected(getFile());
             }
         });
 
@@ -72,19 +92,17 @@ public class FileExplorer extends Window {
                 if (selected.isDirectory() && this.getTapCount() == 2) {
                     currentDirectory = selected;
                     updateFileList();
-                } else if(!selected.isDirectory()){
-                    if(this.getTapCount() == 2) {
-                        screen.openFile(getFile());
+                } else if (!selected.isDirectory()) {
+                    if (this.getTapCount() == 2) {
+                        listener.fileSelected(getFile());
                     }
-                    System.out.println("File selected: " + selected.path());
                 }
             }
         });
     }
 
     public void resize(Main app) {
-        this.padTop(20f*Gdx.graphics.getHeight()/800f);
-        this.setSize(Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight()/2f);
+        this.padTop(20f * Gdx.graphics.getHeight() / 800f);
 
         this.getSkin().add("default-font", app.editorFont, BitmapFont.class);  // Update the default font
 
@@ -102,9 +120,9 @@ public class FileExplorer extends Window {
         for (Actor actor : this.getChildren()) {
             if (actor instanceof TextButton) {
                 ((TextButton) actor).setStyle(buttonStyle);
-            } else if(actor instanceof Label) {
+            } else if (actor instanceof Label) {
                 ((Label) actor).setStyle(labelStyle);
-            } else if(actor instanceof List) {
+            } else if (actor instanceof List) {
                 ((List<?>) actor).setStyle(listStyle);
             }
         }
@@ -121,10 +139,14 @@ public class FileExplorer extends Window {
         Array<FileHandle> files = new Array<>(currentDirectory.list());
         fileList.clear();
         Array<String> fileNames = new Array<>();
-        for(FileHandle file : files) {
+        for (FileHandle file : files) {
             fileNames.add(file.name());
             fileList.add(file);
         }
         this.fileNames.setItems(fileNames);
+    }
+
+    public interface FileExplorerListener {
+        void fileSelected(FileHandle file);
     }
 }
