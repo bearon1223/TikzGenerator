@@ -34,7 +34,15 @@ public class ImportTikzScreen implements Screen {
         textArea = new TextArea("", skin);
         textArea.setDisabled(false);
 
+        textArea.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                textArea.setPrefRows(textArea.getText().split("\n").length);
+            }
+        });
+
         ScrollPane scrollPane = new ScrollPane(textArea);
+        scrollPane.setForceScroll(true, true);  // Force both horizontal and vertical scrolling
 
         t.add(scrollPane).width(Value.percentWidth(1, t))
             .height(Value.percentHeight(1f - 60 / 800f - 30 / 800f, t)).colspan(3).padBottom(Value.percentHeight(5f / 800f, t));

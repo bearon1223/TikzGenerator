@@ -138,7 +138,6 @@ public class GridInterface {
         }
 
         renderEditingTik(renderer, center);
-//        drawBezier(renderer, new Vector2(300, 300), new Vector2(500, 300), false, false, false, new Vector2(350, 400), new Vector2(450, 200));
     }
 
     private void renderAllPoints(ShapeRenderer renderer, Vector2 center) {
@@ -313,7 +312,7 @@ public class GridInterface {
         }
 
         // do stuff at the cursor
-        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2) {
+        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2 && !screen.isInFileExplorer() && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             switch (currentType) {
                 case LINE:
                 case CIRCLE:

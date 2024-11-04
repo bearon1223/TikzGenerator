@@ -3,6 +3,7 @@ package com.tikz;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -34,12 +35,13 @@ public class MainScreen implements Screen {
     private boolean hiddenMenu = false;
     private Vector2 startingPan = new Vector2();
     private TextButton bezierButton;
+    private FileExplorer fileExplorer;
+
+    Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
     public MainScreen(Main app) {
         this.app = app;
         this.grid = new GridInterface(this, app);
-
-        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         stage = new Stage(new ScreenViewport());
 
@@ -126,24 +128,9 @@ public class MainScreen implements Screen {
         importFromFileTikz.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                File file = openFile();
-                if (file != null)
-                    if (file.exists())
-                        try {
-                            app.setScreen(new ImportTikzScreen(app, grid,
-                                Gdx.files.absolute(file.getAbsolutePath()).readString().replace("\n\n", "")));
-                        } catch (GdxRuntimeException e) {
-                            Dialog errorDialog = new Dialog("", skin) {
-                                {
-                                    getContentTable().pad(5f);
-                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-                                    button("Ok");
-                                    text(String.format("The File at %s was unable to be loaded", file.getAbsolutePath()));
-                                }
-                            };
-
-                            errorDialog.show(stage);
-                        }
+                fileExplorer = new FileExplorer(skin, MainScreen.this);
+                fileExplorer.resize(app);
+                stage.addActor(fileExplorer);
             }
         });
 
@@ -179,6 +166,26 @@ public class MainScreen implements Screen {
     public static float ease(float x) {
         x = clamp(x);
         return (float) (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    }
+
+    public void openFile(FileHandle file) {
+        if(file.exists()) {
+            try {
+                app.setScreen(new ImportTikzScreen(app, grid, file.readString().replaceAll("\\n+", "\n")));
+            } catch (GdxRuntimeException e) {
+                Dialog errorDialog = new Dialog("", skin) {
+                    {
+                        getContentTable().pad(5f);
+                        getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                        button("Ok");
+                        text(String.format("The File at %s was unable to be loaded", file));
+                    }
+                };
+                errorDialog.show(stage);
+            }
+        }
+        stage.getActors().removeValue(fileExplorer, true);
+        fileExplorer = null;
     }
 
     /**
@@ -384,6 +391,10 @@ public class MainScreen implements Screen {
         return stage.getKeyboardFocus() == null;
     }
 
+    public boolean isInFileExplorer() {
+        return fileExplorer != null;
+    }
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().setWorldSize(width, height);
@@ -431,6 +442,10 @@ public class MainScreen implements Screen {
             tableOffset = -t.getWidth() * ease(time * 2);
         } else {
             tableOffset = -t.getWidth() * (1 - ease(time * 2));
+        }
+
+        if(fileExplorer != null) {
+            fileExplorer.resize(app);
         }
     }
 
