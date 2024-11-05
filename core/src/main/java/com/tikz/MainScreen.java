@@ -21,6 +21,7 @@ import com.tikz.grid.*;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Objects;
 
 import static com.tikz.grid.GridInterfaceState.*;
 
@@ -129,7 +130,22 @@ public class MainScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
-                    openFile(file);
+                    try {
+                        openFile(file);
+                    } catch (UnknownFileType e) {
+
+                        Dialog errorDialog = new Dialog("Error", skin) {
+                            {
+                                this.pad(5f);
+                                this.padTop(15f);
+                                getContentTable().pad(5f);
+                                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                                button("Ok");
+                                text("The file must be a txt file");
+                            }
+                        };
+                        errorDialog.show(stage);
+                    }
                 });
                 fileExplorer.resize(app);
                 stage.addActor(fileExplorer);
@@ -186,8 +202,11 @@ public class MainScreen implements Screen {
         return (float) (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
     }
 
-    public void openFile(FileHandle file) {
+    public void openFile(FileHandle file) throws UnknownFileType {
         if(file.exists()) {
+            if(!Objects.equals(file.extension(), "txt")) {
+                throw new UnknownFileType("The File Type must be .txt");
+            }
             try {
                 app.setScreen(new ImportTikzScreen(app, grid, file.readString().replaceAll("\\n+", "\n")));
             } catch (GdxRuntimeException e) {

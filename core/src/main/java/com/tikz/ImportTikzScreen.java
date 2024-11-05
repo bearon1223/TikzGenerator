@@ -95,16 +95,16 @@ public class ImportTikzScreen implements Screen {
                     for (StackTraceElement stackTraceElement : elements) {
                         sb.append(stackTraceElement.toString()).append("\n");
                     }
-
-                    Dialog errorDialog = new Dialog("", skin) {
+                    Dialog errorDialog = new Dialog("Error", skin) {
                         {
+                            this.pad(5f);
+                            this.padTop(15f*Gdx.graphics.getHeight()/800f);
                             getContentTable().pad(5f);
                             getButtonTable().defaults().prefWidth(100f).padBottom(5f);
                             button("Ok");
                             text(sb.toString());
                         }
                     };
-
                     errorDialog.show(stage);
                 }
             }
