@@ -133,7 +133,6 @@ public class MainScreen implements Screen {
                     try {
                         openFile(file);
                     } catch (UnknownFileType e) {
-
                         Dialog errorDialog = new Dialog("Error", skin) {
                             {
                                 this.pad(5f);
@@ -160,8 +159,38 @@ public class MainScreen implements Screen {
         saveToFile.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
+                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
+                    @Override
+                    public void fileSelected(FileHandle file) {
 
+                    }
+
+                    @Override
+                    public void submitPressed(FileHandle file) {
+                        if(Gdx.files.absolute(file.path()).exists()) {
+                            Dialog confirmDialog = new Dialog("Confirmation", skin) {
+                                {
+                                    this.pad(5f);
+                                    this.padTop(15f);
+                                    getContentTable().pad(5f);
+                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+
+                                    text("Are you Sure?");
+
+                                    TextButton submit = new TextButton("Submit", skin);
+                                    submit.addListener(new ClickListener() {
+                                        @Override
+                                        public void clicked(InputEvent event, float x, float y) {
+                                            System.out.println("LMAO");
+                                        }
+                                    });
+                                    this.add(submit).width(Value.percentWidth(0.45f, this)).height(Value.percentHeight(0.1f, this));
+                                    button("Cancel");
+                                }
+                            };
+                            confirmDialog.show(stage);
+                        }
+                    }
                 });
                 fileExplorer.resize(app);
                 stage.addActor(fileExplorer);

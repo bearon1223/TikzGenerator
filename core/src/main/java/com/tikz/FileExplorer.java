@@ -16,6 +16,7 @@ public class FileExplorer extends Window {
     private final List<String> fileNames;
     private final Label directoryLabel;
     private FileHandle currentDirectory;
+    public TextField fileName;
 
     public FileExplorer(Skin skin, MainScreen screen, FileExplorerListener listener) {
         super("File Explorer", skin);
@@ -32,6 +33,10 @@ public class FileExplorer extends Window {
 
         this.add(directoryLabel).colspan(3).padTop(5f).padBottom(5f).row();
         this.add(new ScrollPane(fileNames)).expand().fill().colspan(3).padBottom(5f).row();
+
+        fileName = new TextField("", skin);
+        this.add(fileName).fillX().colspan(3).height(Value.percentHeight(20/400f, this)).pad(5f).row();
+
         this.add(backButton).left().size(Value.percentWidth(0.25f, this), Value.percentHeight(0.1f, this));
 
         currentDirectory = Gdx.files.absolute(System.getProperty("user.home") + File.separator + "Desktop");
@@ -79,7 +84,7 @@ public class FileExplorer extends Window {
         selectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                listener.fileSelected(getFile());
+                listener.submitPressed(getFile());
             }
         });
 
@@ -95,6 +100,8 @@ public class FileExplorer extends Window {
                 } else if (!selected.isDirectory()) {
                     if (this.getTapCount() == 2) {
                         listener.fileSelected(getFile());
+                    } else if (this.getTapCount() == 1) {
+                        fileName.setText(getFile().name());
                     }
                 }
             }
@@ -148,5 +155,9 @@ public class FileExplorer extends Window {
 
     public interface FileExplorerListener {
         void fileSelected(FileHandle file);
+
+        default void submitPressed(FileHandle file){
+            fileSelected(file);
+        }
     }
 }
