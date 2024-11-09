@@ -181,10 +181,20 @@ public class MainScreen implements Screen {
                                     submit.addListener(new ClickListener() {
                                         @Override
                                         public void clicked(InputEvent event, float x, float y) {
-                                            System.out.println("LMAO");
+                                            Dialog errorDialog = new Dialog("Error", skin) {
+                                                {
+                                                    this.pad(5f);
+                                                    this.padTop(15f);
+                                                    getContentTable().pad(5f);
+                                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                                                    button("Ok");
+                                                    text("This Function is Work in Progress.");
+                                                }
+                                            };
+                                            errorDialog.show(stage);
                                         }
                                     });
-                                    this.add(submit).width(Value.percentWidth(0.45f, this)).height(Value.percentHeight(0.1f, this));
+                                    this.add(submit).width(Value.percentWidth(0.45f, this)).height(Value.percentHeight(0.25f, this));
                                     button("Cancel");
                                 }
                             };
