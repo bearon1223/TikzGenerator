@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -31,10 +32,22 @@ public class ShowTikz implements Screen {
         t.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         TextArea textArea = new TextArea(tikz, skin);
+        textArea.setPrefRows(textArea.getText().split("\n").length);
         textArea.setDisabled(false);
 
         ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setFadeScrollBars(false);
+        scrollPane.setFlickScroll(false);
+        scrollPane.layout();
+//        scrollPane.setForceScroll(false, true);
+
+//        textArea.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent changeEvent, Actor actor) {
+//                textArea.setPrefRows(textArea.getText().split("\n").length);
+//                System.out.println(textArea.getText().split("\n").length);
+//                scrollPane.layout();
+//            }
+//        });
 
         TextButton b = new TextButton("Return", skin);
 
@@ -48,7 +61,7 @@ public class ShowTikz implements Screen {
         t.add(b).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
             .padRight(Value.percentWidth(0.00417f, t)).bottom().padBottom(Value.percentWidth(0.00417f, t));
 
-        t.add(textArea).width(Value.percentWidth(0.833f, t)).height(Value.percentHeight(1, t));
+        t.add(scrollPane).width(Value.percentWidth(0.833f, t)).height(Value.percentHeight(1, t));
         stage.addActor(t);
 
         Gdx.input.setInputProcessor(stage);

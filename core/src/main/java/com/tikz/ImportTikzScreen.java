@@ -21,6 +21,7 @@ public class ImportTikzScreen implements Screen {
     private final Main app;
     TextArea textArea;
     private final GridInterface grid;
+    private final ScrollPane scrollPane;
 
     public ImportTikzScreen(Main app, GridInterface gridInterface) {
         this.app = app;
@@ -34,15 +35,18 @@ public class ImportTikzScreen implements Screen {
         textArea = new TextArea("", skin);
         textArea.setDisabled(false);
 
+        scrollPane = new ScrollPane(textArea);
+        scrollPane.setFlickScroll(false);
+
         textArea.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 textArea.setPrefRows(textArea.getText().split("\n").length);
+                System.out.println(textArea.getText().split("\n").length);
+                scrollPane.layout();
             }
         });
-
-        ScrollPane scrollPane = new ScrollPane(textArea);
-        scrollPane.setForceScroll(true, true);  // Force both horizontal and vertical scrolling
+//        scrollPane.setForceScroll(true, true);  // Force both horizontal and vertical scrolling
 
         t.add(scrollPane).width(Value.percentWidth(1, t))
             .height(Value.percentHeight(1f - 60 / 800f - 30 / 800f, t)).colspan(3).padBottom(Value.percentHeight(5f / 800f, t));
@@ -165,6 +169,8 @@ public class ImportTikzScreen implements Screen {
     public ImportTikzScreen(Main app, GridInterface gridInterface, String tikzCode) {
         this(app, gridInterface);
         textArea.setText(tikzCode);
+        textArea.setPrefRows(textArea.getText().split("\n").length);
+        scrollPane.layout();
     }
 
     @Override

@@ -79,7 +79,7 @@ public abstract class MakeTikz {
     }
 
     private static Array<Vector2> getBezierPoints(TikTypeStruct tik) {
-        int lineCount = 13 + GridInterfaceState.bezierControlPointCount * 2;
+        int lineCount = 23 + GridInterfaceState.bezierControlPointCount * 2;
         Array<Vector2> outputPoints = new Array<>();
         Array<Vector2> vectors = new Array<>();
         vectors.add(tik.origin.cpy());
