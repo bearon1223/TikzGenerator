@@ -311,7 +311,7 @@ public class MainScreen implements Screen {
 
     public void addBezButton(DrawType type, Table table, Skin skin, String name) {
         bezierButton = new TextButton(name, skin);
-        bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
+        bezierButton.setText("Bezier Line (Control: " + bezierControlPointCount + ")");
         bezierButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -415,13 +415,13 @@ public class MainScreen implements Screen {
                 if (bezierControlPointCount < 1) {
                     bezierControlPointCount = 1;
                 }
-                bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
+                bezierButton.setText("Bezier Line (Control: " + bezierControlPointCount + ")");
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET)) {
                 bezierControlPointCount++;
                 if (bezierControlPointCount > 6) {
                     bezierControlPointCount = 6;
                 }
-                bezierButton.setText("Bezier Line: Control: " + bezierControlPointCount);
+                bezierButton.setText("Bezier Line (Control: " + bezierControlPointCount + ")");
             }
         }
 

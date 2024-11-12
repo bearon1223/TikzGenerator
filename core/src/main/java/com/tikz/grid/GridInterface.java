@@ -243,7 +243,7 @@ public class GridInterface {
                         vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                     }
                 }
-                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && !addingPoints, false);
+                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false);
                 break;
             case TEXT:
                 if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
@@ -387,6 +387,13 @@ public class GridInterface {
         } else if (Gdx.input.isButtonJustPressed(1)) {
             if ((currentType == DrawType.MULTI_LINE)
                 && editing.vertices.size > 1) {
+                if(editing.vertices.size == 2) {
+                    TikTypeStruct temp = editing;
+                    editing = new TikTypeStruct(temp.vertices.get(0), temp.vertices.get(1), DrawType.LINE);
+                    editing.backArrow = temp.backArrow;
+                    editing.frontArrow = temp.frontArrow;
+                    editing.dashed = temp.dashed;
+                }
                 points.add(editing);
             }
             addingPoints = false;
