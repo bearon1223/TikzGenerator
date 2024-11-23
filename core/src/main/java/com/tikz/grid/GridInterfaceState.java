@@ -6,7 +6,7 @@ public class GridInterfaceState {
     public static boolean addingPoints = false;
     public static float zoomLevel = 1f;
     public static boolean showGrid = true;
-    public static String text = "Base Text";
+    public static String text = "Insert Text";
     public static Color selectedColor = Color.GOLDENROD;
     public static boolean snapGrid = true;
     public static DrawType currentType = DrawType.LINE;

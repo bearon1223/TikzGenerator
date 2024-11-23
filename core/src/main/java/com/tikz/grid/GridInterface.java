@@ -358,14 +358,21 @@ public class GridInterface {
                     }
                     break;
                 case DROPPED_POLYGON:
-                    addingPoints = false;
-                    Array<Vector2> verts = editing.vertices;
+//                    addingPoints = false;
+                    Array<Vector2> verts = new Array<>(editing.vertices.size);
+                    for (Vector2 v : editing.vertices){
+                        verts.add(v.cpy());
+                    }
                     for (int i = 0; i < verts.size; i++) {
                         verts.get(i).add(mouse);
                     }
-                    editing.color = selectedColor;
-                    points.add(editing);
-                    setDrawType(DrawType.MULTI_LINE);
+                    TikTypeStruct temp = new TikTypeStruct(verts, DrawType.MULTI_LINE);
+                    temp.color = selectedColor;
+                    temp.dashed = editing.dashed;
+                    temp.frontArrow = editing.frontArrow;
+                    temp.backArrow = editing.backArrow;
+                    points.add(temp);
+//                    setDrawType(DrawType.MULTI_LINE);
                     break;
                 case BEZIER:
                     if (!addingPoints) {
@@ -395,6 +402,8 @@ public class GridInterface {
                     editing.dashed = temp.dashed;
                 }
                 points.add(editing);
+            } else if (currentType == DrawType.DROPPED_POLYGON) {
+                setDrawType(DrawType.MULTI_LINE);
             }
             addingPoints = false;
         }
@@ -402,6 +411,13 @@ public class GridInterface {
 
     public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius, boolean isDashed) {
         int segments = 360 / 5;
+        for(int i = 0; i < 3; i++) {
+            if(segments * PI/180f * radius < 25) {
+                segments /= 2;
+            } else {
+                break;
+            }
+        }
         Vector2 center = new Vector2(x, y);
         Vector2 vPres = new Vector2(x + radius, y);
         double angularSeparation = 2 * PI / segments;
