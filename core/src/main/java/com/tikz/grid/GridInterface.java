@@ -361,10 +361,7 @@ public class GridInterface {
 //                    addingPoints = false;
                     Array<Vector2> verts = new Array<>(editing.vertices.size);
                     for (Vector2 v : editing.vertices){
-                        verts.add(v.cpy());
-                    }
-                    for (int i = 0; i < verts.size; i++) {
-                        verts.get(i).add(mouse);
+                        verts.add(v.cpy().add(mouse));
                     }
                     TikTypeStruct temp = new TikTypeStruct(verts, DrawType.MULTI_LINE);
                     temp.color = selectedColor;
