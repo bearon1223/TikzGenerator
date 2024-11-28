@@ -16,10 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.*;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.Objects;
 
@@ -132,7 +132,7 @@ public class MainScreen implements Screen {
                 fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
                     try {
                         openFile(file);
-                    } catch (UnknownFileType e) {
+                    } catch (ImproperFileType e) {
                         Dialog errorDialog = new Dialog("Error", skin) {
                             {
                                 this.pad(5f);
@@ -162,13 +162,14 @@ public class MainScreen implements Screen {
                 fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
                     @Override
                     public void fileSelected(FileHandle file) {
-
                     }
 
                     @Override
-                    public void submitPressed(FileHandle file) {
-                        if(Gdx.files.absolute(file.path()).exists()) {
-                            Dialog confirmDialog = new Dialog("Confirmation", skin) {
+                    public void submitPressed(FileHandle file, String fileName) {
+                        if(fileName.equals(file.name())) {
+                            // If we are overwriting a file, confirm if they truly want to overwrite.
+                            final Dialog[] confirmDialog = new Dialog[1];
+                            confirmDialog[0] = new Dialog("Confirmation", skin) {
                                 {
                                     this.pad(5f);
                                     this.padTop(15f);
@@ -178,27 +179,40 @@ public class MainScreen implements Screen {
                                     text("Are you Sure?");
 
                                     TextButton submit = new TextButton("Submit", skin);
+
+                                    // if yes, try to overwrite, if it fails throw an error dialog
                                     submit.addListener(new ClickListener() {
                                         @Override
                                         public void clicked(InputEvent event, float x, float y) {
-                                            Dialog errorDialog = new Dialog("Error", skin) {
-                                                {
-                                                    this.pad(5f);
-                                                    this.padTop(15f);
-                                                    getContentTable().pad(5f);
-                                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-                                                    button("Ok");
-                                                    text("This Function is Work in Progress.");
+                                            confirmDialog[0].hide();
+                                            try {
+                                                if(!Objects.equals(file.extension(), "txt")){
+                                                    throw new ImproperFileType("The file must end with a txt extension");
                                                 }
-                                            };
-                                            errorDialog.show(stage);
+                                                file.writeString(MakeTikz.convert(grid.points), false);
+                                            } catch (Exception e) {
+                                                ErrorDialog(e);
+                                            }
                                         }
                                     });
-                                    this.add(submit).width(Value.percentWidth(0.45f, this)).height(Value.percentHeight(0.25f, this));
+                                    this.getButtonTable().add(submit);
                                     button("Cancel");
                                 }
                             };
-                            confirmDialog.show(stage);
+                            confirmDialog[0].show(stage);
+                        } else {
+                            try {
+                                if(!fileName.endsWith(".txt")){
+                                    fileName += ".txt";
+                                }
+                                String output = MakeTikz.convert(grid.points);
+                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
+                                newFile.writeString(output, false);
+                                openFile(new FileHandle(""));
+                                app.setScreen(new ShowTikz(app, grid, output));
+                            } catch (Exception e) {
+                                ErrorDialog(e);
+                            }
                         }
                     }
                 });
@@ -241,10 +255,10 @@ public class MainScreen implements Screen {
         return (float) (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
     }
 
-    public void openFile(FileHandle file) throws UnknownFileType {
+    public void openFile(FileHandle file) throws ImproperFileType {
         if(file.exists()) {
             if(!Objects.equals(file.extension(), "txt")) {
-                throw new UnknownFileType("The File Type must be .txt");
+                throw new ImproperFileType("The File Type must be .txt");
             }
             try {
                 app.setScreen(new ImportTikzScreen(app, grid, file.readString().replaceAll("\\n+", "\n")));
@@ -338,6 +352,35 @@ public class MainScreen implements Screen {
 
     }
 
+    /**
+     * Creates an Error Dialog that will display the stacktrace back to the source
+     *
+     * @param e Exception to be printed to the error dialog (Can be Null)
+     */
+    public void ErrorDialog(Exception e) {
+        System.err.println("Error: Unable to overwrite file");
+        StringBuilder sb = new StringBuilder();
+
+        if(e != null) {
+            sb.append(e.getMessage()).append("\n\n");
+
+            StackTraceElement[] elements = e.getStackTrace();
+            for (StackTraceElement stackTraceElement : elements) {
+                sb.append(stackTraceElement.toString()).append("\n");
+            }
+        }
+
+        Dialog errorDialog = new Dialog("", skin) {
+            {
+                getContentTable().pad(5f);
+                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                button("Ok");
+                text(sb.toString());
+            }
+        };
+        errorDialog.show(stage);
+    }
+
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.BLACK);
@@ -380,8 +423,9 @@ public class MainScreen implements Screen {
             stage.setKeyboardFocus(null);
         }
 
-        if (Gdx.input.isButtonPressed(0) && Gdx.input.getX() > tableOffset + t.getWidth()) {
-            stage.setKeyboardFocus(null);
+        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > tableOffset + t.getWidth()) {
+            if(isNotFileExplorer())
+                stage.setKeyboardFocus(null);
         }
 
         // change zoom
@@ -460,8 +504,8 @@ public class MainScreen implements Screen {
         return stage.getKeyboardFocus() == null;
     }
 
-    public boolean isInFileExplorer() {
-        return fileExplorer != null;
+    public boolean isNotFileExplorer() {
+        return fileExplorer == null;
     }
 
     @Override

@@ -312,7 +312,7 @@ public class GridInterface {
         }
 
         // do stuff at the cursor
-        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2 && !screen.isInFileExplorer() && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+        if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2 && screen.isNotFileExplorer() && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             switch (currentType) {
                 case LINE:
                 case CIRCLE:

@@ -84,7 +84,7 @@ public class FileExplorer extends Window {
         selectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                listener.submitPressed(getFile());
+                listener.submitPressed(getFile(), fileName.getText());
             }
         });
 
@@ -156,7 +156,7 @@ public class FileExplorer extends Window {
     public interface FileExplorerListener {
         void fileSelected(FileHandle file);
 
-        default void submitPressed(FileHandle file){
+        default void submitPressed(FileHandle file, String fileName){
             fileSelected(file);
         }
     }

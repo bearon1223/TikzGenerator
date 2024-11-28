@@ -13,7 +13,8 @@ This project allows you to create TikZ graphics graphically and export them into
 - `Backspace` to reset the zoom and position
 - `Shift + Backspace` to clear the drawing
 - `Ctrl + Z` Undo's the latest action (last line in the tik code)
-- `Enter` to finalize a bezier curve
+- `Enter` to finalize a Bézier curve
+- `[ or ]` to increase or decrease the number of Bézier control points.
 
 ## Things to Note
 - There is no redo
@@ -22,13 +23,11 @@ This project allows you to create TikZ graphics graphically and export them into
 - When downloading the release versions, only the exe file is included but the code itself is compatible with macOS. 
 You just need to download the code and run it in terminal using the gradle commands below.
 - It will do Math Rendering just beware the rendering is also not one-to-one with how LaTeX will render it.
-- Bezier Curves are moved by dragging the control points around manually. Only quadratic Beziers are implemented currently and others may be added later.
+- Bézier curves are moved by dragging the control points around manually.
 
 ## Things that may be added
-- Cubic Bezier Curves
 - Fixing the Font so that it is one-to-one with how LaTeX will render it
 - Colors
-- Exporting to file (Plain text, TeX files, etc.)
 
 ## Gradle Commands
 
