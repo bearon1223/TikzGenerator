@@ -7,7 +7,8 @@ public class GridInterfaceState {
     public static float zoomLevel = 1f;
     public static boolean showGrid = true;
     public static String text = "Insert Text";
-    public static Color selectedColor = Color.GOLDENROD;
+    // Cyan, Yellow, Red, Black
+    public static Color selectedColor = Color.BLACK;
     public static boolean snapGrid = true;
     public static DrawType currentType = DrawType.LINE;
     public static boolean dashed = false;

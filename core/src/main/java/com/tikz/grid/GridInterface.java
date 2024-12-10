@@ -91,13 +91,13 @@ public class GridInterface {
             max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
             for (int i = min; i <= max - 1; i++) {  // row
                 for (int j = 0; j < count; j++) {
-                    renderer.setColor(Color.GRAY);
+                    renderer.setColor(Color.LIGHT_GRAY);
                     renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
                         new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
                 }
             }
             for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.LIGHT_GRAY);
+                renderer.setColor(Color.GRAY);
                 renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
                     new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
             }
@@ -105,7 +105,7 @@ public class GridInterface {
             max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
             // draw big lines
             for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.LIGHT_GRAY);
+                renderer.setColor(Color.GRAY);
                 renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
                     new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
             }
@@ -264,7 +264,7 @@ public class GridInterface {
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
                 if (tik.latexImg == null) {
-                    app.TikzTextFont.setColor(Color.WHITE);
+                    app.TikzTextFont.setColor(Color.BLACK);
                     app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.numericalData;
@@ -440,7 +440,7 @@ public class GridInterface {
         if (isDashed) {
             drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f);
         } else {
-            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 1));
+            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 2f));
         }
 
         if (frontArrow) {
@@ -484,11 +484,11 @@ public class GridInterface {
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
             shapeRenderer.rectLine(vPres, vPres.cpy().add(dashSpacing * directionX / 2,
-                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1));
+                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 2f));
             vPres.add(dashSpacing * directionX, dashSpacing * directionY);
         }
 
-        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 2f));
     }
 
     public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Array<Vector2> controlPoints) {

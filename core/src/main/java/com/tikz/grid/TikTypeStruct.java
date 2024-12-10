@@ -14,7 +14,7 @@ public class TikTypeStruct {
     public DrawType type;
     public String data = "";
     public Array<Vector2> vertices = new Array<>();
-    public Color color = Color.GOLDENROD;
+    public Color color = Color.BLACK;
     public Texture latexImg;
     /**
      * for images this is upscale. For arcs, this is radius/width

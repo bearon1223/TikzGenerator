@@ -181,7 +181,7 @@ public class ImportTikzScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(0.5f, 0.5f, 0.5f, 1);
         stage.act(delta);
         stage.draw();
     }

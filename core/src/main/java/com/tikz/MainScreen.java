@@ -168,7 +168,7 @@ public class MainScreen implements Screen {
                     public void submitPressed(FileHandle file, String fileName) {
                         if(fileName.equals(file.name())) {
                             // If we are overwriting a file, confirm if they truly want to overwrite.
-                            final Dialog[] confirmDialog = new Dialog[1];
+                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
                             confirmDialog[0] = new Dialog("Confirmation", skin) {
                                 {
                                     this.pad(5f);
@@ -383,7 +383,7 @@ public class MainScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
+        ScreenUtils.clear(Color.WHITE);
         t.setPosition(tableOffset, 0);
         app.shapeRenderer.setAutoShapeType(true);
         app.shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -392,7 +392,7 @@ public class MainScreen implements Screen {
 
         grid.drawGrid(app.shapeRenderer);
 
-        app.shapeRenderer.setColor(Color.BLACK);
+        app.shapeRenderer.setColor(new Color(0xDDDDDDFF));
         app.shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
         app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();

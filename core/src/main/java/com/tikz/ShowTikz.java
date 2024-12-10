@@ -73,7 +73,7 @@ public class ShowTikz implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
+        ScreenUtils.clear(0.5f, 0.5f, 0.5f, 1);
         try {
             stage.act(delta);
             stage.draw();
