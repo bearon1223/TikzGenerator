@@ -32,7 +32,7 @@ public class GenerateLaTeXImage {
                 int alpha = (argb >> 24) & 0xFF;
                 if (alpha > 0x10) {
                     // Set pixel to white with full opacity
-                    pixmap.drawPixel(x, y, 0x000000FF); // White pixel
+                    pixmap.drawPixel(x, y, 0xFFFFFFFF); // White pixel
                 } else {
                     // Optionally set transparent pixels to be transparent in Pixmap
                     pixmap.drawPixel(x, y, 0x00000000); // Fully transparent

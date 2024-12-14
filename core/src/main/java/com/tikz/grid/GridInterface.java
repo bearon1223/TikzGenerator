@@ -125,7 +125,8 @@ public class GridInterface {
             renderer.circle(center.x, center.y, max(2f * scaling, 2));
         }
 
-        renderer.setColor(selectedColor);
+        // If we are not in light mode, and the color is black, render white, else render the selected color
+        renderer.setColor(!lightMode &&  selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);
@@ -222,7 +223,7 @@ public class GridInterface {
     }
 
     private void renderTikz(TikTypeStruct tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
-        renderer.setColor(lightMode ? tik.color : tik.color == Color.BLACK ? Color.WHITE : tik.color);
+        renderer.setColor(!lightMode &&  selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
         switch (type) {
             case LINE:
                 drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow);
@@ -270,6 +271,7 @@ public class GridInterface {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.numericalData;
                     float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
                     Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
+                    app.batch.setColor(lightMode ? Color.BLACK : Color.WHITE);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
                 }
                 app.batch.end();

@@ -22,6 +22,10 @@ public class ImportFromTikz {
         Array<TikTypeStruct> points = new Array<>();
         String[] commands = tik.split("\\n+");
         for (String command : commands) {
+            if(command.contains("%")) {
+                System.out.printf("Commented Code: %s\n", command);
+                continue;
+            }
             command = command.replaceAll("\\s*\\\\draw\\s*", "");
             boolean isDashed = command.contains("dashed");
             boolean frontArrow = command.contains(">");
