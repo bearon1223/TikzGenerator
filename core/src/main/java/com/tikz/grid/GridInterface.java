@@ -191,7 +191,7 @@ public class GridInterface {
                 editing.frontArrow = frontArrow;
                 editing.backArrow = backArrow;
 
-                renderer.setColor(Color.WHITE);
+                renderer.setColor(lightMode ? Color.GRAY : Color.GOLDENROD);
                 renderer.circle(o.x, o.y, 5f * scaling);
                 for (Vector2 c : controlPoints) {
                     renderer.circle(c.x, c.y, 5f * scaling);
