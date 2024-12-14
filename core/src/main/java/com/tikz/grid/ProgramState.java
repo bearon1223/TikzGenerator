@@ -2,7 +2,7 @@ package com.tikz.grid;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class GridInterfaceState {
+public class ProgramState {
     public static boolean addingPoints = false;
     public static float zoomLevel = 1f;
     public static boolean showGrid = true;
@@ -16,4 +16,5 @@ public class GridInterfaceState {
     public static boolean backArrow = false;
     public static int draggingState = 0;
     public static int bezierControlPointCount = 1;
+    public static boolean lightMode = false;
 }

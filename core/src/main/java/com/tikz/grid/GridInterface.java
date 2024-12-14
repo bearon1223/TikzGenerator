@@ -12,7 +12,7 @@ import com.tikz.Main;
 import com.tikz.MainScreen;
 import org.scilab.forge.jlatexmath.ParseException;
 
-import static com.tikz.grid.GridInterfaceState.*;
+import static com.tikz.grid.ProgramState.*;
 import static java.lang.Math.*;
 
 public class GridInterface {
@@ -91,13 +91,13 @@ public class GridInterface {
             max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
             for (int i = min; i <= max - 1; i++) {  // row
                 for (int j = 0; j < count; j++) {
-                    renderer.setColor(Color.LIGHT_GRAY);
+                    renderer.setColor(lightMode ? Color.LIGHT_GRAY : Color.GRAY);
                     renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
                         new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
                 }
             }
             for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.GRAY);
+                renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
                 renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
                     new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
             }
@@ -105,7 +105,7 @@ public class GridInterface {
             max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
             // draw big lines
             for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.GRAY);
+                renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
                 renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
                     new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
             }
@@ -222,7 +222,7 @@ public class GridInterface {
     }
 
     private void renderTikz(TikTypeStruct tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
-        renderer.setColor(tik.color);
+        renderer.setColor(tik.color == Color.BLACK ? Color.WHITE : tik.color);
         switch (type) {
             case LINE:
                 drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow);
@@ -264,7 +264,7 @@ public class GridInterface {
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
                 if (tik.latexImg == null) {
-                    app.TikzTextFont.setColor(Color.BLACK);
+                    app.TikzTextFont.setColor(lightMode ? Color.BLACK : Color.WHITE);
                     app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.numericalData;

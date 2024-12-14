@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.GridInterface;
+import com.tikz.grid.ProgramState;
 
 public class ShowTikz implements Screen {
     private final Stage stage;
@@ -24,7 +25,7 @@ public class ShowTikz implements Screen {
         this.app = app;
         this.grid = grid;
 
-        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
         t = new Table();
         t.setSkin(skin);
@@ -73,7 +74,7 @@ public class ShowTikz implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0.5f, 0.5f, 0.5f, 1);
+        ScreenUtils.clear(ProgramState.lightMode ? new Color(0.5f, 0.5f, 0.5f, 1) : Color.BLACK);
         try {
             stage.act(delta);
             stage.draw();

@@ -23,7 +23,7 @@ import com.tikz.grid.*;
 import java.io.File;
 import java.util.Objects;
 
-import static com.tikz.grid.GridInterfaceState.*;
+import static com.tikz.grid.ProgramState.*;
 
 public class MainScreen implements Screen {
     public final Table t;
@@ -38,7 +38,7 @@ public class MainScreen implements Screen {
     private TextButton bezierButton;
     private FileExplorer fileExplorer;
 
-    Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+    Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
 
     public MainScreen(Main app) {
         this.app = app;
@@ -59,39 +59,39 @@ public class MainScreen implements Screen {
         addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
         addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
 
-        TextButton dashed = new TextButton("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"), skin);
+        TextButton dashed = new TextButton("Dashed: " + (ProgramState.dashed ? "True" : "False"), skin);
 
         dashed.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.dashed = !GridInterfaceState.dashed;
-                dashed.setText("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"));
+                ProgramState.dashed = !ProgramState.dashed;
+                dashed.setText("Dashed: " + (ProgramState.dashed ? "True" : "False"));
             }
         });
 
         t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton frontArrow = new TextButton("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"), skin);
+        TextButton frontArrow = new TextButton("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"), skin);
 
         frontArrow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.frontArrow = !GridInterfaceState.frontArrow;
-                frontArrow.setText("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"));
+                ProgramState.frontArrow = !ProgramState.frontArrow;
+                frontArrow.setText("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"));
             }
         });
 
         t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton backArrow = new TextButton("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"), skin);
+        TextButton backArrow = new TextButton("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"), skin);
 
         backArrow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.backArrow = !GridInterfaceState.backArrow;
-                backArrow.setText("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"));
+                ProgramState.backArrow = !ProgramState.backArrow;
+                backArrow.setText("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"));
             }
         });
 
@@ -99,7 +99,7 @@ public class MainScreen implements Screen {
         t.row();
 
         // Create TextField
-        textField = new TextField(GridInterfaceState.text, skin);
+        textField = new TextField(ProgramState.text, skin);
         t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
         addButton(DrawType.TEXT, t, skin, "Insert Text");
@@ -108,7 +108,7 @@ public class MainScreen implements Screen {
         textField.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GridInterfaceState.text = textField.getText();
+                ProgramState.text = textField.getText();
             }
         });
 
@@ -294,8 +294,8 @@ public class MainScreen implements Screen {
         this.grid = grid;
         this.grid.screen = this;
         if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
-            GridInterfaceState.addingPoints = false;
-        this.textField.setText(GridInterfaceState.text);
+            ProgramState.addingPoints = false;
+        this.textField.setText(ProgramState.text);
         return this;
     }
 
@@ -310,11 +310,11 @@ public class MainScreen implements Screen {
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
-                    GridInterfaceState.addingPoints = true;
+                    ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 } else {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 }
             }
         });
@@ -334,11 +334,11 @@ public class MainScreen implements Screen {
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
-                    GridInterfaceState.addingPoints = true;
+                    ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 } else {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 }
             }
         });
@@ -383,7 +383,10 @@ public class MainScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.WHITE);
+        if(lightMode)
+            ScreenUtils.clear(Color.WHITE);
+        else
+            ScreenUtils.clear(Color.BLACK);
         t.setPosition(tableOffset, 0);
         app.shapeRenderer.setAutoShapeType(true);
         app.shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -392,7 +395,10 @@ public class MainScreen implements Screen {
 
         grid.drawGrid(app.shapeRenderer);
 
-        app.shapeRenderer.setColor(new Color(0xDDDDDDFF));
+        if(lightMode)
+            app.shapeRenderer.setColor(new Color(0xDDDDDDFF));
+        else
+            app.shapeRenderer.setColor(new Color(Color.BLACK));
         app.shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
         app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();
@@ -436,7 +442,7 @@ public class MainScreen implements Screen {
         if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
                 zoomLevel += 0.125f;
-                zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
+                zoomLevel = GridInterface.clamp(ProgramState.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * zoomLevel);
@@ -525,7 +531,7 @@ public class MainScreen implements Screen {
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
         app.updateFont(scaling / scalingS);
-        app.updateTikFont(scaling * GridInterfaceState.zoomLevel / scalingS);
+        app.updateTikFont(scaling * ProgramState.zoomLevel / scalingS);
 
         // Update skin with the new editor font
         Skin skin = t.getSkin();
