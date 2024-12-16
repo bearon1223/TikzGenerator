@@ -323,8 +323,9 @@ public class MainScreen implements Screen {
         stage.getViewport().update(width, height, true);
 
         // Resize table
-        t.setSize(200 * width / 1200f, height);
-        t.defaults().prefWidth(200 * width / 1200f);
+        float tableScaling = Math.min(Gdx.graphics.getWidth() / 1200f, Gdx.graphics.getHeight() / 800f);
+        t.setSize(225 * tableScaling, height);
+        t.defaults().prefWidth(225 * tableScaling);
         t.invalidate();
         t.layout();
 
@@ -428,10 +429,13 @@ public class MainScreen implements Screen {
 
         // Create TextField
         textField = new TextField(ProgramState.text, skin);
-        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(textField).height(Value.percentHeight(0.0375f, t)).
+            spaceTop(Value.percentHeight(0.025f, t)).
+            spaceBottom(Value.percentHeight(0.0083f, t)).
+            width(Value.percentWidth(0.9f, t));
         t.row();
-        addButton(DrawType.TEXT, t, skin, "Insert Text");
 
+        addButton(DrawType.TEXT, t, skin, "Insert Text");
 
         textField.addListener(new ChangeListener() {
             @Override

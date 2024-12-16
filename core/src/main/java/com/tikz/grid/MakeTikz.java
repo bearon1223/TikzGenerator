@@ -34,7 +34,6 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw%s %s;\n", extraCommands, poly));
                     break;
                 case BEZIER:
-                    int lineCount = 15;
                     StringBuilder bezier = new StringBuilder();
                     Array<Vector2> points = getBezierPoints(tik);
                     for (Vector2 p : points) {
@@ -115,10 +114,5 @@ public abstract class MakeTikz {
             fac *= i;
         }
         return fac;
-    }
-
-    public static void writeToFile(String path, Array<TikTypeStruct> tikzShapes) {
-        String output = convert(tikzShapes);
-        Gdx.files.local(path).writeString(output, false);
     }
 }

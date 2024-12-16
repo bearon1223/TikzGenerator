@@ -58,7 +58,7 @@ public class TikTypeStruct {
         this.vertices = vertices;
         this.type = type;
         if (type != DrawType.MULTI_LINE)
-            throw new IllegalDrawType("The Polygon type was not used for polygons");
+            throw new IllegalDrawType("The Multi-Line type was not used for Multi-Lines");
     }
 
     @Override
