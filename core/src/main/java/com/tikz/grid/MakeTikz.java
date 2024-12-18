@@ -1,6 +1,5 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -19,7 +18,7 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw%s %s -- %s;\n", extraCommands, tik.origin.toString(), tik.endPoint.toString()));
                     break;
                 case TEXT:
-                    output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.data));
+                    output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.text));
                     break;
                 case CIRCLE:
                     output.append(String.format("\\draw%s %s circle(%1.2f cm);\n", extraCommands, tik.origin.toString(),
