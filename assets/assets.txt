@@ -3,8 +3,16 @@ ui/font-list.fnt
 ui/font-subtitle.fnt
 ui/font-window.fnt
 ui/font.fnt
+ui/light/font-list.fnt
+ui/light/font-subtitle.fnt
+ui/light/font-window.fnt
+ui/light/font.fnt
+ui/light/uiskin.atlas
+ui/light/uiskin.json
+ui/light/uiskin.png
 ui/mainfont.ttf
 ui/Times New Roman.ttf
+ui/uiskin-light.json
 ui/uiskin.atlas
 ui/uiskin.json
 ui/uiskin.png

@@ -2,6 +2,7 @@ package com.tikz;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -26,7 +27,7 @@ public class ImportTikzScreen implements Screen {
     public ImportTikzScreen(Main app, GridInterface gridInterface) {
         this.app = app;
         this.grid = gridInterface;
-        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
 
         t = new Table(skin);
@@ -124,8 +125,8 @@ public class ImportTikzScreen implements Screen {
                 try {
                     gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText(), scale.getValue(), rotation.getValue());
                     gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
-                    gridInterface.editing.color = GridInterfaceState.selectedColor;
-                    GridInterfaceState.addingPoints = true;
+                    gridInterface.editing.color = ProgramState.selectedColor;
+                    ProgramState.addingPoints = true;
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
                     System.err.println("Error: Improper Tikz Code was imported");
 
@@ -181,7 +182,7 @@ public class ImportTikzScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(ProgramState.lightMode ? new Color(0.5f, 0.5f, 0.5f, 1) : Color.BLACK);
         stage.act(delta);
         stage.draw();
     }

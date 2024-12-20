@@ -1,6 +1,5 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -19,7 +18,7 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw%s %s -- %s;\n", extraCommands, tik.origin.toString(), tik.endPoint.toString()));
                     break;
                 case TEXT:
-                    output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.data));
+                    output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.text));
                     break;
                 case CIRCLE:
                     output.append(String.format("\\draw%s %s circle(%1.2f cm);\n", extraCommands, tik.origin.toString(),
@@ -34,7 +33,6 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw%s %s;\n", extraCommands, poly));
                     break;
                 case BEZIER:
-                    int lineCount = 15;
                     StringBuilder bezier = new StringBuilder();
                     Array<Vector2> points = getBezierPoints(tik);
                     for (Vector2 p : points) {
@@ -79,7 +77,7 @@ public abstract class MakeTikz {
     }
 
     private static Array<Vector2> getBezierPoints(TikTypeStruct tik) {
-        int lineCount = 23 + GridInterfaceState.bezierControlPointCount * 2;
+        int lineCount = 23 + ProgramState.bezierControlPointCount * 2;
         Array<Vector2> outputPoints = new Array<>();
         Array<Vector2> vectors = new Array<>();
         vectors.add(tik.origin.cpy());
@@ -115,10 +113,5 @@ public abstract class MakeTikz {
             fac *= i;
         }
         return fac;
-    }
-
-    public static void writeToFile(String path, Array<TikTypeStruct> tikzShapes) {
-        String output = convert(tikzShapes);
-        Gdx.files.local(path).writeString(output, false);
     }
 }

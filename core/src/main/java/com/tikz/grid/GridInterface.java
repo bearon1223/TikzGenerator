@@ -12,13 +12,12 @@ import com.tikz.Main;
 import com.tikz.MainScreen;
 import org.scilab.forge.jlatexmath.ParseException;
 
-import static com.tikz.grid.GridInterfaceState.*;
+import static com.tikz.grid.ProgramState.*;
 import static java.lang.Math.*;
 
 public class GridInterface {
     public static final int ROWS = 6;
     public static final int COLS = 9;
-    private final float lineWidth = 2f;
     private final Main app;
     public float gridSpacing = 1;
     public float scaling = 1;
@@ -69,46 +68,7 @@ public class GridInterface {
         gridSpacing *= zoomLevel;
 
         if (showGrid) {
-            final int viewable = 7;
-            int count = 10;
-            int min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            int max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            // draw small lines
-            // Vertical Lines
-            if (zoomLevel < 0.5f) {
-                count = 4;
-            }
-            for (int i = min; i <= max - 1; i++) {  // row
-                for (int j = 0; j < count; j++) {
-                    renderer.setColor(Color.GRAY);
-                    renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
-                        new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
-                }
-            }
-
-            // Horizontal Lines
-            min = -Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
-            max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
-            for (int i = min; i <= max - 1; i++) {  // row
-                for (int j = 0; j < count; j++) {
-                    renderer.setColor(Color.GRAY);
-                    renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
-                        new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
-                }
-            }
-            for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.LIGHT_GRAY);
-                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
-                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
-            }
-            min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-            // draw big lines
-            for (int i = min; i <= max; i++) {
-                renderer.setColor(Color.LIGHT_GRAY);
-                renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
-                    new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
-            }
+            drawGridLines(renderer, center);
         }
 
         drawTikz();
@@ -125,7 +85,8 @@ public class GridInterface {
             renderer.circle(center.x, center.y, max(2f * scaling, 2));
         }
 
-        renderer.setColor(selectedColor);
+        // If we are not in light mode, and the color is black, render white, else render the selected color
+        renderer.setColor(!lightMode &&  selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);
@@ -138,6 +99,49 @@ public class GridInterface {
         }
 
         renderEditingTik(renderer, center);
+    }
+
+    private void drawGridLines(ShapeRenderer renderer, Vector2 center) {
+        final int viewable = 7;
+        int count = 10;
+        int min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+        int max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+        // draw small lines
+        // Vertical Lines
+        if (zoomLevel < 0.5f) {
+            count = 4;
+        }
+        for (int i = min; i <= max - 1; i++) {  // row
+            for (int j = 0; j < count; j++) {
+                renderer.setColor(Color.GRAY);
+                renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
+                    new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
+            }
+        }
+
+        // Horizontal Lines
+        min = -Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
+        max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
+        for (int i = min; i <= max - 1; i++) {  // row
+            for (int j = 0; j < count; j++) {
+                renderer.setColor(lightMode ? Color.LIGHT_GRAY : Color.GRAY);
+                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
+                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
+            }
+        }
+        for (int i = min; i <= max; i++) {
+            renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
+            renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
+                new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
+        }
+        min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+        max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+        // draw big lines
+        for (int i = min; i <= max; i++) {
+            renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
+            renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
+                new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
+        }
     }
 
     private void renderAllPoints(ShapeRenderer renderer, Vector2 center) {
@@ -158,6 +162,7 @@ public class GridInterface {
         if (editing != null && addingPoints) {
             Vector2 o = new Vector2();
             Vector2 e = new Vector2();
+
             if (currentType != DrawType.MULTI_LINE) {
                 if (currentType != DrawType.BEZIER)
                     editing.endPoint = mouse.cpy();
@@ -171,7 +176,7 @@ public class GridInterface {
                     drawLine(renderer, vPres, mouse.cpy().scl(gridSpacing).add(center), editing.dashed, editing.frontArrow, false);
                 }
             } else {
-                editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.numericalData);
+                editing = new TikTypeStruct(mouse, currentType, text, editing.latexImg, editing.upscale);
                 editing.color = selectedColor;
                 o = editing.origin.cpy().scl(gridSpacing).add(center);
                 renderTikz(editing, currentType, renderer, o, e, center);
@@ -181,48 +186,59 @@ public class GridInterface {
                 addingPoints = false;
             }
             if (addingPoints && currentType == DrawType.BEZIER) {
-                Array<Vector2> controlPoints = new Array<>();
-
-                for (Vector2 c : editing.vertices) {
-                    controlPoints.add(c.cpy().scl(gridSpacing).add(center));
-                }
-
-                editing.dashed = dashed;
-                editing.frontArrow = frontArrow;
-                editing.backArrow = backArrow;
-
-                renderer.setColor(Color.WHITE);
-                renderer.circle(o.x, o.y, 5f * scaling);
-                for (Vector2 c : controlPoints) {
-                    renderer.circle(c.x, c.y, 5f * scaling);
-                }
-                renderer.circle(e.x, e.y, 5f * scaling);
-                Vector2 mouseReal = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-                if (((mouseReal.dst2(o) < 100 * scaling * scaling && draggingState == 0) || draggingState == 1) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
-                    editing.origin.set(mouse.cpy());
-                    draggingState = 1;
-                } else if (((mouseReal.dst2(e) < 100 * scaling * scaling && draggingState == 0) || draggingState == 2) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
-                    editing.endPoint.set(mouse.cpy());
-                    draggingState = 2;
-                }
-
-                for (int i = 0; i < controlPoints.size; i++) {
-                    Vector2 c = controlPoints.get(i);
-                    if ((mouseReal.dst2(c) < 100 * scaling * scaling && draggingState == 0 || draggingState == i + 3) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                        editing.vertices.get(i).set(mouse.cpy());
-                        draggingState = i + 3;
-                    }
-                }
-
-                if (draggingState != 0 && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                    draggingState = 0;
-                }
+                handleBezierDrawing(renderer, o, e, center);
             }
         }
     }
 
+    private void handleBezierDrawing(ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
+        Array<Vector2> controlPoints = new Array<>();
+
+        for (Vector2 c : editing.vertices) {
+            controlPoints.add(c.cpy().scl(gridSpacing).add(center));
+        }
+
+        editing.dashed = dashed;
+        editing.frontArrow = frontArrow;
+        editing.backArrow = backArrow;
+
+        // Render the Bezier Control Points
+        renderer.setColor(lightMode ? Color.GRAY : Color.GOLDENROD);
+        renderer.circle(o.x, o.y, 5f * scaling);
+        Vector2 vPres = new Vector2(o);
+        for (Vector2 c : controlPoints) {
+            renderer.circle(c.x, c.y, 5f * scaling);
+            drawDashedLine(renderer, vPres.x, vPres.y, c.x, c.y, 10f, 2f);
+            vPres = c.cpy();
+        }
+        renderer.circle(e.x, e.y, 5f * scaling);
+        drawDashedLine(renderer, vPres.x, vPres.y, e.x, e.y, 10f, 2f);
+
+        // Drag the Bezier Control Points
+        Vector2 mouseReal = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        if (((mouseReal.dst2(o) < 100 * scaling * scaling && draggingState == 0) || draggingState == 1) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
+            editing.origin.set(mouse.cpy());
+            draggingState = 1;
+        } else if (((mouseReal.dst2(e) < 100 * scaling * scaling && draggingState == 0) || draggingState == 2) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT))) {
+            editing.endPoint.set(mouse.cpy());
+            draggingState = 2;
+        }
+
+        for (int i = 0; i < controlPoints.size; i++) {
+            Vector2 c = controlPoints.get(i);
+            if ((mouseReal.dst2(c) < 100 * scaling * scaling && draggingState == 0 || draggingState == i + 3) && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                editing.vertices.get(i).set(mouse.cpy());
+                draggingState = i + 3;
+            }
+        }
+
+        if (draggingState != 0 && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            draggingState = 0;
+        }
+    }
+
     private void renderTikz(TikTypeStruct tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
-        renderer.setColor(tik.color);
+        renderer.setColor(!lightMode &&  selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
         switch (type) {
             case LINE:
                 drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow);
@@ -246,17 +262,17 @@ public class GridInterface {
                 drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false);
                 break;
             case TEXT:
-                if (tik.data.matches("^\\$.*\\$$") && tik.latexImg == null) {
+                if (tik.text.matches("^\\$.*\\$$") && tik.latexImg == null) {
                     try {
-                        tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.data.replace("$", ""));
-                        if (tik.data.contains("\\frac")) {
-                            tik.numericalData += 0.5f;
+                        tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.text.replace("$", ""));
+                        if (tik.text.contains("\\frac")) {
+                            tik.upscale += 0.5f;
                         }
-                        if (tik.data.contains("\\sqrt")) {
-                            tik.numericalData += 0.125f;
+                        if (tik.text.contains("\\sqrt")) {
+                            tik.upscale += 0.125f;
                         }
                     } catch (ParseException ignored) {
-                        System.err.println("Parse Error: " + tik.data);
+                        System.err.println("Parse Error: " + tik.text);
                         tik.latexImg = new Texture(Gdx.files.internal("Parsing Error.png"));
                     }
                 }
@@ -264,12 +280,13 @@ public class GridInterface {
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
                 if (tik.latexImg == null) {
-                    app.TikzTextFont.setColor(Color.WHITE);
-                    app.TikzTextFont.draw(app.batch, tik.data, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
+                    app.TikzTextFont.setColor(lightMode ? Color.BLACK : Color.WHITE);
+                    app.TikzTextFont.draw(app.batch, tik.text, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
-                    float sizeY = app.TikzTextFont.getLineHeight() * tik.numericalData;
+                    float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
                     float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
                     Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
+                    app.batch.setColor(lightMode ? Color.BLACK : Color.WHITE);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
                 }
                 app.batch.end();
@@ -358,7 +375,6 @@ public class GridInterface {
                     }
                     break;
                 case DROPPED_POLYGON:
-//                    addingPoints = false;
                     Array<Vector2> verts = new Array<>(editing.vertices.size);
                     for (Vector2 v : editing.vertices){
                         verts.add(v.cpy().add(mouse));
@@ -369,7 +385,6 @@ public class GridInterface {
                     temp.frontArrow = editing.frontArrow;
                     temp.backArrow = editing.backArrow;
                     points.add(temp);
-//                    setDrawType(DrawType.MULTI_LINE);
                     break;
                 case BEZIER:
                     if (!addingPoints) {
@@ -438,9 +453,10 @@ public class GridInterface {
         float arrowHeadSize = 20f * scaling * zoomLevel;
 
         if (isDashed) {
-            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f);
+            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, 4f);
         } else {
-            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 1));
+            float lineWidth = 2f;
+            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 2f));
         }
 
         if (frontArrow) {
@@ -467,7 +483,7 @@ public class GridInterface {
         }
     }
 
-    public void drawDashedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dashSpacing) {
+    public void drawDashedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dashSpacing, float lineWidth) {
         // Calculate the total distance between the start and end points
         float distance = (float) Math.hypot(x2 - x1, y2 - y1);
 
@@ -484,11 +500,11 @@ public class GridInterface {
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
             shapeRenderer.rectLine(vPres, vPres.cpy().add(dashSpacing * directionX / 2,
-                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1));
+                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel / 2, lineWidth));
             vPres.add(dashSpacing * directionX, dashSpacing * directionY);
         }
 
-        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1));
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel / 2, lineWidth));
     }
 
     public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Array<Vector2> controlPoints) {

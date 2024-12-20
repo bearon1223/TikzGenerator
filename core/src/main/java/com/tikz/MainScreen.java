@@ -23,12 +23,12 @@ import com.tikz.grid.*;
 import java.io.File;
 import java.util.Objects;
 
-import static com.tikz.grid.GridInterfaceState.*;
+import static com.tikz.grid.ProgramState.*;
 
 public class MainScreen implements Screen {
-    public final Table t;
+    public Table t;
     private final Main app;
-    private final Stage stage;
+    private Stage stage;
     public float tableOffset = 0f;
     TextField textField;
     private GridInterface grid;
@@ -38,210 +38,13 @@ public class MainScreen implements Screen {
     private TextButton bezierButton;
     private FileExplorer fileExplorer;
 
-    Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+    Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
 
     public MainScreen(Main app) {
         this.app = app;
         this.grid = new GridInterface(this, app);
 
-        stage = new Stage(new ScreenViewport());
-
-        t = new Table();
-        t.setSkin(skin);
-        t.defaults().prefWidth(Value.percentWidth(0.9f, t));
-        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
-
-        t.setSize(200, Gdx.graphics.getHeight());
-
-        // type buttons
-        addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
-        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
-
-        TextButton dashed = new TextButton("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"), skin);
-
-        dashed.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.dashed = !GridInterfaceState.dashed;
-                dashed.setText("Dashed: " + (GridInterfaceState.dashed ? "True" : "False"));
-            }
-        });
-
-        t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        TextButton frontArrow = new TextButton("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"), skin);
-
-        frontArrow.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.frontArrow = !GridInterfaceState.frontArrow;
-                frontArrow.setText("Front Arrow: " + (GridInterfaceState.frontArrow ? "True" : "False"));
-            }
-        });
-
-        t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        TextButton backArrow = new TextButton("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"), skin);
-
-        backArrow.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                GridInterfaceState.backArrow = !GridInterfaceState.backArrow;
-                backArrow.setText("Back Arrow: " + (GridInterfaceState.backArrow ? "True" : "False"));
-            }
-        });
-
-        t.add(backArrow).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        // Create TextField
-        textField = new TextField(GridInterfaceState.text, skin);
-        t.add(textField).height(Value.percentHeight(0.0375f, t)).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-        addButton(DrawType.TEXT, t, skin, "Insert Text");
-
-
-        textField.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                GridInterfaceState.text = textField.getText();
-            }
-        });
-
-        TextButton importTikz = new TextButton("Import existing Tikz", skin);
-
-        importTikz.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                app.setScreen(new ImportTikzScreen(app, grid));
-            }
-        });
-
-        t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
-        t.row();
-
-        TextButton importFromFileTikz = new TextButton("Import from File", skin);
-
-        importFromFileTikz.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
-                    try {
-                        openFile(file);
-                    } catch (ImproperFileType e) {
-                        Dialog errorDialog = new Dialog("Error", skin) {
-                            {
-                                this.pad(5f);
-                                this.padTop(15f);
-                                getContentTable().pad(5f);
-                                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-                                button("Ok");
-                                text("The file must be a txt file");
-                            }
-                        };
-                        errorDialog.show(stage);
-                    }
-                });
-                fileExplorer.resize(app);
-                stage.addActor(fileExplorer);
-            }
-        });
-
-        t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        TextButton saveToFile = new TextButton("Save to File", skin);
-
-        saveToFile.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
-                    @Override
-                    public void fileSelected(FileHandle file) {
-                    }
-
-                    @Override
-                    public void submitPressed(FileHandle file, String fileName) {
-                        if(fileName.equals(file.name())) {
-                            // If we are overwriting a file, confirm if they truly want to overwrite.
-                            final Dialog[] confirmDialog = new Dialog[1];
-                            confirmDialog[0] = new Dialog("Confirmation", skin) {
-                                {
-                                    this.pad(5f);
-                                    this.padTop(15f);
-                                    getContentTable().pad(5f);
-                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-
-                                    text("Are you Sure?");
-
-                                    TextButton submit = new TextButton("Submit", skin);
-
-                                    // if yes, try to overwrite, if it fails throw an error dialog
-                                    submit.addListener(new ClickListener() {
-                                        @Override
-                                        public void clicked(InputEvent event, float x, float y) {
-                                            confirmDialog[0].hide();
-                                            try {
-                                                if(!Objects.equals(file.extension(), "txt")){
-                                                    throw new ImproperFileType("The file must end with a txt extension");
-                                                }
-                                                file.writeString(MakeTikz.convert(grid.points), false);
-                                            } catch (Exception e) {
-                                                ErrorDialog(e);
-                                            }
-                                        }
-                                    });
-                                    this.getButtonTable().add(submit);
-                                    button("Cancel");
-                                }
-                            };
-                            confirmDialog[0].show(stage);
-                        } else {
-                            try {
-                                if(!fileName.endsWith(".txt")){
-                                    fileName += ".txt";
-                                }
-                                String output = MakeTikz.convert(grid.points);
-                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
-                                newFile.writeString(output, false);
-                                openFile(new FileHandle(""));
-                                app.setScreen(new ShowTikz(app, grid, output));
-                            } catch (Exception e) {
-                                ErrorDialog(e);
-                            }
-                        }
-                    }
-                });
-                fileExplorer.resize(app);
-                stage.addActor(fileExplorer);
-            }
-        });
-
-        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
-
-        convertToTikz.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Generating Tikz Points");
-                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
-            }
-        });
-
-        t.add(convertToTikz).spaceBottom(Value.percentHeight(20 / 800f, t)).
-            spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        stage.addActor(t);
-
-        // Set the stage as the input processor
-        Gdx.input.setInputProcessor(stage);
+        setUI();
     }
 
     /**
@@ -294,8 +97,8 @@ public class MainScreen implements Screen {
         this.grid = grid;
         this.grid.screen = this;
         if (this.grid.getDrawType() != DrawType.DROPPED_POLYGON)
-            GridInterfaceState.addingPoints = false;
-        this.textField.setText(GridInterfaceState.text);
+            ProgramState.addingPoints = false;
+        this.textField.setText(ProgramState.text);
         return this;
     }
 
@@ -310,11 +113,11 @@ public class MainScreen implements Screen {
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
-                    GridInterfaceState.addingPoints = true;
+                    ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 } else {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 }
             }
         });
@@ -334,11 +137,11 @@ public class MainScreen implements Screen {
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
-                    GridInterfaceState.addingPoints = true;
+                    ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 } else {
-                    GridInterfaceState.addingPoints = false;
+                    ProgramState.addingPoints = false;
                 }
             }
         });
@@ -383,7 +186,10 @@ public class MainScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
+        if(lightMode)
+            ScreenUtils.clear(Color.WHITE);
+        else
+            ScreenUtils.clear(Color.BLACK);
         t.setPosition(tableOffset, 0);
         app.shapeRenderer.setAutoShapeType(true);
         app.shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -392,7 +198,10 @@ public class MainScreen implements Screen {
 
         grid.drawGrid(app.shapeRenderer);
 
-        app.shapeRenderer.setColor(Color.BLACK);
+        if(lightMode)
+            app.shapeRenderer.setColor(new Color(0xDDDDDDFF));
+        else
+            app.shapeRenderer.setColor(new Color(Color.BLACK));
         app.shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
         app.shapeRenderer.rect(tableOffset, 0, t.getWidth(), Gdx.graphics.getHeight());
         app.shapeRenderer.end();
@@ -436,7 +245,7 @@ public class MainScreen implements Screen {
         if (stage.getKeyboardFocus() == null) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
                 zoomLevel += 0.125f;
-                zoomLevel = GridInterface.clamp(GridInterfaceState.zoomLevel, 0.25f, 2f);
+                zoomLevel = GridInterface.clamp(ProgramState.zoomLevel, 0.25f, 2f);
 
                 // Update tikz font using the gridSpacing factor from the grid
                 app.updateTikFont(scaling / scalingS * zoomLevel);
@@ -514,8 +323,9 @@ public class MainScreen implements Screen {
         stage.getViewport().update(width, height, true);
 
         // Resize table
-        t.setSize(200 * width / 1200f, height);
-        t.defaults().prefWidth(200 * width / 1200f);
+        float tableScaling = Math.min(Gdx.graphics.getWidth() / 1200f, Gdx.graphics.getHeight() / 800f);
+        t.setSize(225 * tableScaling, height);
+        t.defaults().prefWidth(225 * tableScaling);
         t.invalidate();
         t.layout();
 
@@ -525,7 +335,7 @@ public class MainScreen implements Screen {
             (float) Gdx.graphics.getWidth() / GridInterface.COLS);
 
         app.updateFont(scaling / scalingS);
-        app.updateTikFont(scaling * GridInterfaceState.zoomLevel / scalingS);
+        app.updateTikFont(scaling * ProgramState.zoomLevel / scalingS);
 
         // Update skin with the new editor font
         Skin skin = t.getSkin();
@@ -560,6 +370,225 @@ public class MainScreen implements Screen {
         if(fileExplorer != null) {
             fileExplorer.resize(app);
         }
+    }
+
+    public void setUI() {
+        stage = new Stage(new ScreenViewport());
+
+        t = new Table();
+        t.setSkin(skin);
+        t.defaults().prefWidth(Value.percentWidth(0.9f, t));
+        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
+
+        t.setSize(0.16667f*Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // type buttons
+        addButton(DrawType.LINE, t, skin, "Line");
+        addButton(DrawType.CIRCLE, t, skin, "Circle");
+        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
+        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
+
+        TextButton dashed = new TextButton("Dashed: " + (ProgramState.dashed ? "True" : "False"), skin);
+
+        dashed.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ProgramState.dashed = !ProgramState.dashed;
+                dashed.setText("Dashed: " + (ProgramState.dashed ? "True" : "False"));
+            }
+        });
+
+        t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton frontArrow = new TextButton("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"), skin);
+
+        frontArrow.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ProgramState.frontArrow = !ProgramState.frontArrow;
+                frontArrow.setText("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"));
+            }
+        });
+
+        t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton backArrow = new TextButton("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"), skin);
+
+        backArrow.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ProgramState.backArrow = !ProgramState.backArrow;
+                backArrow.setText("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"));
+            }
+        });
+
+        t.add(backArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        // Create TextField
+        textField = new TextField(ProgramState.text, skin);
+        t.add(textField).height(Value.percentHeight(0.0375f, t)).
+            spaceTop(Value.percentHeight(0.025f, t)).
+            spaceBottom(Value.percentHeight(0.0083f, t)).
+            width(Value.percentWidth(0.9f, t));
+        t.row();
+
+        addButton(DrawType.TEXT, t, skin, "Insert Text");
+
+        textField.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                ProgramState.text = textField.getText();
+            }
+        });
+
+        TextButton importTikz = new TextButton("Import existing Tikz", skin);
+
+        importTikz.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                app.setScreen(new ImportTikzScreen(app, grid));
+            }
+        });
+
+        t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
+        t.row();
+
+        TextButton importFromFileTikz = new TextButton("Import from File", skin);
+
+        importFromFileTikz.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
+                    try {
+                        openFile(file);
+                    } catch (ImproperFileType e) {
+                        Dialog errorDialog = new Dialog("Error", skin) {
+                            {
+                                this.pad(5f);
+                                this.padTop(15f);
+                                getContentTable().pad(5f);
+                                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                                button("Ok");
+                                text("The file must be a txt file");
+                            }
+                        };
+                        errorDialog.show(stage);
+                    }
+                });
+                fileExplorer.resize(app);
+                stage.addActor(fileExplorer);
+            }
+        });
+
+        t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton saveToFile = new TextButton("Save to File", skin);
+
+        saveToFile.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
+                    @Override
+                    public void fileSelected(FileHandle file) {
+                    }
+
+                    @Override
+                    public void submitPressed(FileHandle file, String fileName) {
+                        if(fileName.equals(file.name())) {
+                            // If we are overwriting a file, confirm if they truly want to overwrite.
+                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
+                            confirmDialog[0] = new Dialog("Confirmation", skin) {
+                                {
+                                    this.pad(5f);
+                                    this.padTop(15f);
+                                    getContentTable().pad(5f);
+                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+
+                                    text("Are you Sure?");
+
+                                    TextButton submit = new TextButton("Submit", skin);
+
+                                    // if yes, try to overwrite, if it fails throw an error dialog
+                                    submit.addListener(new ClickListener() {
+                                        @Override
+                                        public void clicked(InputEvent event, float x, float y) {
+                                            confirmDialog[0].hide();
+                                            try {
+                                                if(!Objects.equals(file.extension(), "txt")){
+                                                    throw new ImproperFileType("The file must end with a txt extension");
+                                                }
+                                                file.writeString(MakeTikz.convert(grid.points), false);
+                                            } catch (Exception e) {
+                                                ErrorDialog(e);
+                                            }
+                                        }
+                                    });
+                                    this.getButtonTable().add(submit);
+                                    button("Cancel");
+                                }
+                            };
+                            confirmDialog[0].show(stage);
+                        } else {
+                            try {
+                                if(!fileName.endsWith(".txt")){
+                                    fileName += ".txt";
+                                }
+                                String output = MakeTikz.convert(grid.points);
+                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
+                                newFile.writeString(output, false);
+                                openFile(new FileHandle(""));
+                                app.setScreen(new ShowTikz(app, grid, output));
+                            } catch (Exception e) {
+                                ErrorDialog(e);
+                            }
+                        }
+                    }
+                });
+                fileExplorer.resize(app);
+                stage.addActor(fileExplorer);
+            }
+        });
+
+        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
+
+        convertToTikz.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Generating Tikz Points");
+                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
+            }
+        });
+
+        t.add(convertToTikz).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        TextButton lightMode = new TextButton("Toggle Theme", skin);
+
+        lightMode.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ProgramState.lightMode = !ProgramState.lightMode;
+                skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
+                setUI();
+            }
+        });
+
+        t.add(lightMode).spaceBottom(Value.percentHeight(20 / 800f, t)).
+            spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        stage.addActor(t);
+
+        // Set the stage as the input processor
+        Gdx.input.setInputProcessor(stage);
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override

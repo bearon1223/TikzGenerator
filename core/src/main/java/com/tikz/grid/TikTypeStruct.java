@@ -5,22 +5,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-import java.util.Arrays;
-
 public class TikTypeStruct {
     public Vector2 origin = new Vector2();
     public Vector2 endPoint = new Vector2();
-    public float[] angles = {0f, 360f};
     public DrawType type;
-    public String data = "";
+    public String text = "";
     public Array<Vector2> vertices = new Array<>();
-    public Color color = Color.GOLDENROD;
+    public Color color = Color.BLACK;
     public Texture latexImg;
-    /**
-     * for images this is upscale. For arcs, this is radius/width
-     */
-    public float numericalData = 1;
-    public float arcHeight = 1;
+    public float upscale = 1;
     public boolean dashed = false;
     public boolean frontArrow = false;
     public boolean backArrow = false;
@@ -40,33 +33,33 @@ public class TikTypeStruct {
         }
     }
 
-    public TikTypeStruct(Vector2 o, DrawType type, String data) {
+    public TikTypeStruct(Vector2 o, DrawType type, String text) {
         this.origin = o;
         this.type = type;
-        this.data = data;
+        this.text = text;
     }
 
-    public TikTypeStruct(Vector2 o, DrawType type, String data, Texture latexImg, float upscale) {
+    public TikTypeStruct(Vector2 o, DrawType type, String text, Texture latexImg, float upscale) {
         this.origin = o;
         this.type = type;
-        this.data = data;
+        this.text = text;
         this.latexImg = latexImg;
-        this.numericalData = upscale;
+        this.upscale = upscale;
     }
 
     public TikTypeStruct(Array<Vector2> vertices, DrawType type) {
         this.vertices = vertices;
         this.type = type;
         if (type != DrawType.MULTI_LINE)
-            throw new IllegalDrawType("The Polygon type was not used for polygons");
+            throw new IllegalDrawType("The Multi-Line type was not used for Multi-Lines");
     }
 
     @Override
     public String toString() {
-        return String.format("type: %s with color: %s\norigin: %s\nend: %s\nangles: %s\ndata: %s\n" +
-                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\n" +
-                "with height: %f", type, color, origin, endPoint,
-            Arrays.toString(angles), data, !vertices.isEmpty(), latexImg != null, numericalData, arcHeight);
+        return String.format("type: %s with color: %s\norigin: %s\nend: %s\ndata: %s\n" +
+                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\n",
+                type, color, origin, endPoint,
+            text, !vertices.isEmpty(), latexImg != null, upscale);
     }
 
     public void dispose() {
