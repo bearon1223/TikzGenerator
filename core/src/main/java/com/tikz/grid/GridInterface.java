@@ -324,10 +324,6 @@ public class GridInterface {
             mouse.y = (float) Math.round(mouse.y * 10f) / 10f;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.S) && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-            snapGrid = !snapGrid;
-        }
-
         // do stuff at the cursor
         if (Gdx.input.isButtonJustPressed(0) && Gdx.input.getX() > centerOffset * 2 && screen.isNotFileExplorer() && !Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             switch (currentType) {

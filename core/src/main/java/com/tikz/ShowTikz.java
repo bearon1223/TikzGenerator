@@ -33,7 +33,7 @@ public class ShowTikz implements Screen {
         t.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         TextArea textArea = new TextArea(tikz, skin);
-        textArea.setPrefRows(textArea.getText().split("\n").length);
+        textArea.setPrefRows(textArea.getText().split("\\n").length);
         textArea.setDisabled(false);
 
         ScrollPane scrollPane = new ScrollPane(textArea);
