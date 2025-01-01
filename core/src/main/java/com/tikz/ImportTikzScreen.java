@@ -89,7 +89,8 @@ public class ImportTikzScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 try {
                     gridInterface.points = ImportFromTikz.FromTikToPoints(textArea.getText());
-                } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
+                } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType |
+                ImportFromTikz.IllegalUnitType e) {
                     System.err.println("Error: Improper Tikz Code was imported");
 
                     StringBuilder sb = new StringBuilder();

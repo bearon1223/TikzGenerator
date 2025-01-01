@@ -18,7 +18,7 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType, IllegalUnitType {
         Array<TikTypeStruct> points = new Array<>();
         String[] commands = tik.split("\\n+");
         for (String command : commands) {
@@ -44,14 +44,14 @@ public class ImportFromTikz {
                 }
             } else if (command.contains("circle")) {
                 // (a, b) circle(2.0cm);
-                String regex = "\\(([^)]+)\\)\\s*circle\\s*\\(([^}]+)cm\\)";
+                String regex = "\\(([^)]+)\\)\\s*circle\\s*\\((\\d+)\\s*([^}]+)\\)";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(command);
                 if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
                     Vector2 loc = new Vector2().fromString("(" + vector + ")");
-                    float radius = Float.parseFloat(matcher.group(2));
+                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.group(3));
                     TikTypeStruct tikType = new TikTypeStruct(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
                     tikType.dashed = isDashed;
                     points.add(tikType);
@@ -123,5 +123,45 @@ public class ImportFromTikz {
             vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
         }
         return new TikTypeStruct(vectors, DrawType.MULTI_LINE);
+    }
+
+    public static float getConversion(String unit) throws IllegalUnitType {
+        float pt = 28.45274f;   // cm / pt
+        float mm = 10;          // cm / mm
+        float cm = 1;           // cm / cm
+        float ex = 6.6084f;     // cm / ex
+        float em = 2.84528f;    // cm / em
+        float bp = 28.34677f;   // cm / bp
+        float dd = 26.59117f;   // cm / dd
+        float pc = 2.37106f;    // cm / pc
+        float in = 0.3927f;     // cm / in
+        switch (unit) {
+            case "pt":
+                return pt;
+            case "mm":
+                return mm;
+            case "cm":
+                return cm;
+            case "ex":
+                return ex;
+            case "em":
+                return em;
+            case "bp":
+                return bp;
+            case "dd":
+                return dd;
+            case "pc":
+                return pc;
+            case "in":
+                return in;
+            default:
+                throw new IllegalUnitType("Unexpected Unit Type: " + unit);
+        }
+    }
+
+    public static class IllegalUnitType extends Exception {
+        public IllegalUnitType(String error) {
+            super(error);
+        }
     }
 }
