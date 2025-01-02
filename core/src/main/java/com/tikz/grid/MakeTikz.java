@@ -7,6 +7,8 @@ import com.tikz.MainScreen;
 
 import java.util.Objects;
 
+import static com.tikz.grid.ProgramState.colorIndex;
+import static com.tikz.grid.ProgramState.colors;
 import static java.lang.Math.pow;
 
 public abstract class MakeTikz {
@@ -51,24 +53,7 @@ public abstract class MakeTikz {
     }
 
     private static StringBuilder getCommands(TikType tik, MainScreen screen) {
-        Array<String> extraCommandsArray = new Array<>();
-        if (tik.dashed) {
-            extraCommandsArray.add("dashed");
-        }
-
-        if(tik.color != Color.BLACK) {
-            extraCommandsArray.add("color = " + screen.colors[screen.colorIndex]);
-        }
-
-        if (tik.type != DrawType.CIRCLE) {
-            if (tik.frontArrow && !tik.backArrow) {
-                extraCommandsArray.add("->");
-            } else if (!tik.frontArrow && tik.backArrow) {
-                extraCommandsArray.add("<-");
-            } else if (tik.frontArrow) {
-                extraCommandsArray.add("<->");
-            }
-        }
+        Array<String> extraCommandsArray = getModifiers(tik, screen);
         StringBuilder extraCommands = new StringBuilder();
         if (extraCommandsArray.notEmpty()) {
             extraCommands.append("[");
@@ -80,6 +65,28 @@ public abstract class MakeTikz {
             extraCommands.append("]");
         }
         return extraCommands;
+    }
+
+    private static Array<String> getModifiers(TikType tik, MainScreen screen) {
+        Array<String> extraCommandsArray = new Array<>();
+        if (tik.dashed) {
+            extraCommandsArray.add("dashed");
+        }
+
+        if(tik.color.color != Color.BLACK) {
+            extraCommandsArray.add("color = " + tik.color);
+        }
+
+        if (tik.type != DrawType.CIRCLE) {
+            if (tik.frontArrow && !tik.backArrow) {
+                extraCommandsArray.add("->");
+            } else if (!tik.frontArrow && tik.backArrow) {
+                extraCommandsArray.add("<-");
+            } else if (tik.frontArrow) {
+                extraCommandsArray.add("<->");
+            }
+        }
+        return extraCommandsArray;
     }
 
     private static Array<Vector2> getBezierPoints(TikType tik) {

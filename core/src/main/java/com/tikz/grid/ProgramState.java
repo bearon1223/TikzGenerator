@@ -1,14 +1,13 @@
 package com.tikz.grid;
 
 import com.badlogic.gdx.graphics.Color;
+import com.tikz.ColorHolder;
 
 public class ProgramState {
     public static boolean addingPoints = false;
     public static float zoomLevel = 1f;
     public static boolean showGrid = true;
     public static String text = "Insert Text";
-    // Cyan, Yellow, Red, Black
-    public static Color selectedColor = Color.BLACK;
     public static boolean snapGrid = true;
     public static DrawType currentType = DrawType.LINE;
     public static boolean dashed = false;
@@ -19,4 +18,17 @@ public class ProgramState {
     public static boolean lightMode = false;
     public static boolean isFilled = false;
     public static boolean wireframe = false;
+
+    public static int colorIndex = 0;
+    public static final ColorHolder[] colors = {
+        new ColorHolder(new Color(0x000000ff), "Black"),
+        new ColorHolder(new Color(0x808080ff), "Gray"),
+        new ColorHolder(new Color(0xd93122ff), "Red"),
+        new ColorHolder(new Color(0x3716f5ff), "Blue"),
+        new ColorHolder(new Color(0x8dfb4aff), "Green"),
+        new ColorHolder(new Color(0xe18631ff), "Orange"),
+        new ColorHolder(new Color(0xf6eb5fff), "Yellow"),
+        new ColorHolder(new Color(0x70b7edff), "Cyan"),
+    };
+    public static ColorHolder selectedColor = colors[colorIndex];
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.tikz.ColorHolder;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +28,7 @@ public class ImportFromTikz {
                 System.out.printf("Commented Code: %s\n", command);
                 continue;
             }
-            Color tikColor = Color.BLACK;
+            ColorHolder tikColor = ProgramState.colors[0];
             boolean isFilled = false;
             if(command.contains("filldraw")) {
                 command = command.replaceAll("\\s*\\\\filldraw\\s*", "");
@@ -43,26 +44,10 @@ public class ImportFromTikz {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(command);
                 if (matcher.find()) {
-                    switch (matcher.group(1).toLowerCase()){
-                        case "cyan":
-                            tikColor = Color.CYAN;
-                            break;
-                        case "yellow":
-                            tikColor = Color.YELLOW;
-                            break;
-                        case "red":
-                            tikColor = Color.RED;
-                            break;
-                        case "blue":
-                            tikColor = Color.BLUE;
-                            break;
-                        case "orange":
-                            tikColor = Color.ORANGE;
-                            break;
-                        case "gray":
-                        case "grey":
-                            tikColor = Color.GRAY;
-                            break;
+                    for(int i = 0; i < ProgramState.colors.length; i++) {
+                        if(matcher.group(1).equalsIgnoreCase(ProgramState.colors[i].name)) {
+                            tikColor = ProgramState.colors[i];
+                        }
                     }
                 }
             }

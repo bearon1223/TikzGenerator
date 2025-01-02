@@ -86,7 +86,7 @@ public class GridInterface {
         }
 
         // If we are not in light mode, and the color is black, render white, else render the selected color
-        renderer.setColor(!lightMode && selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
+        renderer.setColor(!lightMode && selectedColor.color == Color.BLACK ? Color.WHITE : selectedColor.color);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);
@@ -239,7 +239,7 @@ public class GridInterface {
     }
 
     private void renderTikz(TikType tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
-        renderer.setColor(!lightMode && tik.color == Color.BLACK ? Color.WHITE : tik.color);
+        renderer.setColor(!lightMode && tik.color.color == Color.BLACK ? Color.WHITE : tik.color.color);
         switch (type) {
             case LINE:
                 drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow);
@@ -330,6 +330,9 @@ public class GridInterface {
         }
     }
 
+    /**
+     * Enable drawing the tikz geometry using the mouse inputs
+     */
     private void drawTikz() {
         final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f).sub(panning);
         // do inputs stuff

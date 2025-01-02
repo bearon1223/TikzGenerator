@@ -37,18 +37,6 @@ public class MainScreen implements Screen {
     private Vector2 startingPan = new Vector2();
     private TextButton bezierButton;
     private FileExplorer fileExplorer;
-    
-    public int colorIndex = 0;
-    public final ColorHolder[] colors = {
-        new ColorHolder(Color.BLACK, "Black"),
-        new ColorHolder(Color.GRAY, "Gray"),
-        new ColorHolder(Color.RED, "Red"),
-        new ColorHolder(Color.BLUE, "Blue"),
-        new ColorHolder(Color.GREEN, "Green"),
-        new ColorHolder(Color.ORANGE, "Orange"),
-        new ColorHolder(Color.YELLOW, "Yellow"),
-        new ColorHolder(Color.CYAN, "Cyan"),
-    };
 
     Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
 
@@ -420,6 +408,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 colorIndex++;
                 colorIndex = colorIndex % colors.length;
+                selectedColor = colors[colorIndex];
                 colorButton.setText("Tik Color: " + colors[colorIndex].name);
             }
         });
@@ -461,13 +450,11 @@ public class MainScreen implements Screen {
                     backArrow = false;
                 } else if (!(frontArrow || backArrow)) {
                     frontArrow = true;
-                    backArrow = false;
                 } else if (frontArrow) {
                     frontArrow = false;
                     backArrow = true;
                 } else {
                     frontArrow = true;
-                    backArrow = true;
                 }
 
                 String arrowState;
@@ -684,14 +671,5 @@ public class MainScreen implements Screen {
     public void dispose() {
         grid.dispose();
         stage.dispose();
-    }
-
-    public class ColorHolder {
-        public Color color;
-        public String name;
-        public ColorHolder(Color color, String name) {
-            this.color = color;
-            this.name = name;
-        }
     }
 }

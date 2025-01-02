@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.tikz.ColorHolder;
 
 public class TikType {
     public Vector2 origin = new Vector2();
@@ -15,13 +16,14 @@ public class TikType {
     public Array<Vector2> vertices = new Array<>();
     public short[] triangleLocations;
     float[] flatVertices;
-    public Color color = Color.BLACK;
+    public ColorHolder color = ProgramState.colors[0];
     public Texture latexImg;
     public float upscale = 1;
     public boolean dashed = false;
     public boolean frontArrow = false;
     public boolean backArrow = false;
     public boolean isFilled = false;
+    public int colorIndex = 0;
 
     public TikType(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
