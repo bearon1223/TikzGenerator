@@ -19,7 +19,7 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static Array<TikType> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType, IllegalUnitType {
+    public static Array<TikType> FromTikToPoints(String tik, float scale, float rotationDeg) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType, IllegalUnitType {
         Array<TikType> points = new Array<>();
         String[] commands = tik.split("\\n+");
         for (String command : commands) {
@@ -74,7 +74,7 @@ public class ImportFromTikz {
                 if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
-                    Vector2 loc = new Vector2().fromString("(" + vector + ")");
+                    Vector2 loc = new Vector2().fromString("(" + vector + ")").scl(scale).rotateDeg(rotationDeg);
                     String content = matcher.group(2);
                     points.add(new TikType(loc, DrawType.TEXT, content));
                 } else {
@@ -89,8 +89,8 @@ public class ImportFromTikz {
                 if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
-                    Vector2 loc = new Vector2().fromString("(" + vector + ")");
-                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.group(3));
+                    Vector2 loc = new Vector2().fromString("(" + vector + ")").scl(scale).rotateDeg(rotationDeg);;
+                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.group(3)) * scale;
                     TikType tikType = new TikType(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
                     tikType.dashed = isDashed;
                     tikType.color = tikColor;
@@ -108,8 +108,8 @@ public class ImportFromTikz {
                     vectors[i] = vectors[i].replaceAll(",\\s*", ", ").trim();
                 }
                 if (vectors.length == 2) {
-                    Vector2 start = new Vector2().fromString(vectors[0]);
-                    Vector2 end = new Vector2().fromString(vectors[1]);
+                    Vector2 start = new Vector2().fromString(vectors[0]).scl(scale).rotateDeg(rotationDeg);
+                    Vector2 end = new Vector2().fromString(vectors[1]).scl(scale).rotateDeg(rotationDeg);
                     TikType tikType = new TikType(start, end, DrawType.LINE);
                     tikType.dashed = isDashed;
                     tikType.frontArrow = frontArrow;
@@ -120,7 +120,7 @@ public class ImportFromTikz {
                     Array<Vector2> vector2Array = new Array<>();
                     for (String v : vectors) {
                         v = v.trim();
-                        vector2Array.add(new Vector2().fromString(v));
+                        vector2Array.add(new Vector2().fromString(v).scl(scale).rotateDeg(rotationDeg));
                     }
                     TikType tikType = new TikType(vector2Array, DrawType.MULTI_LINE);
                     tikType.dashed = isDashed;

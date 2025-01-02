@@ -65,7 +65,7 @@ public class ImportTikzScreen implements Screen {
         rotation.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                scaleLabel.setText(String.format("(Vectors) Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
+                scaleLabel.setText(String.format("Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
             }
         });
 
@@ -74,7 +74,7 @@ public class ImportTikzScreen implements Screen {
         scale.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                scaleLabel.setText(String.format("(Vectors) Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
+                scaleLabel.setText(String.format("Scale: %3.2f; rotation angle: %3.0f deg", scale.getValue(), rotation.getValue()));
             }
         });
 
@@ -88,7 +88,7 @@ public class ImportTikzScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    gridInterface.points = ImportFromTikz.FromTikToPoints(textArea.getText());
+                    gridInterface.points = ImportFromTikz.FromTikToPoints(textArea.getText(), scale.getValue(), rotation.getValue());
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType |
                 ImportFromTikz.IllegalUnitType e) {
                     System.err.println("Error: Improper Tikz Code was imported");

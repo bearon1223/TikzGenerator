@@ -86,7 +86,7 @@ public class GridInterface {
         }
 
         // If we are not in light mode, and the color is black, render white, else render the selected color
-        renderer.setColor(!lightMode &&  selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
+        renderer.setColor(!lightMode && selectedColor == Color.BLACK ? Color.WHITE : selectedColor);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);
@@ -248,7 +248,7 @@ public class GridInterface {
                 break;
             case MULTI_LINE:
                 // draw the polygon
-                if(tik.isFilled) {
+                if (tik.isFilled) {
                     if (tik.triangleLocations == null) {
                         tik.triangulate();
                     }
@@ -263,20 +263,19 @@ public class GridInterface {
                             tik.flatVertices[v3] * gridSpacing + center.x, tik.flatVertices[v3 + 1] * gridSpacing + center.y
                         );
                     }
-                } else {
-                    Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
-                    if (tik.vertices.size > 1) {
-                        drawLine(renderer, vPres, tik.vertices.get(1).cpy().scl(gridSpacing).add(center), tik.dashed, false, tik.backArrow);
-                        vPres = tik.vertices.get(1).cpy().scl(gridSpacing).add(center);
-                    }
-                    if (tik.vertices.size > 2) {
-                        for (int i = 2; i < tik.vertices.size - 1; i++) {
-                            drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed, false, false);
-                            vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
-                        }
-                    }
-                    drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false);
                 }
+                Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
+                if (tik.vertices.size > 1) {
+                    drawLine(renderer, vPres, tik.vertices.get(1).cpy().scl(gridSpacing).add(center), tik.dashed, false, tik.backArrow);
+                    vPres = tik.vertices.get(1).cpy().scl(gridSpacing).add(center);
+                }
+                if (tik.vertices.size > 2) {
+                    for (int i = 2; i < tik.vertices.size - 1; i++) {
+                        drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed, false, false);
+                        vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
+                    }
+                }
+                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false);
                 break;
             case TEXT:
                 if (tik.text.matches("^\\$.*\\$$") && tik.latexImg == null) {
@@ -353,7 +352,7 @@ public class GridInterface {
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
-                        if(currentType == DrawType.CIRCLE)
+                        if (currentType == DrawType.CIRCLE)
                             editing.isFilled = isFilled;
                     } else {
                         addingPoints = false;
@@ -392,7 +391,7 @@ public class GridInterface {
                     break;
                 case DROPPED_POLYGON:
                     Array<Vector2> verts = new Array<>(editing.vertices.size);
-                    for (Vector2 v : editing.vertices){
+                    for (Vector2 v : editing.vertices) {
                         verts.add(v.cpy().add(mouse));
                     }
                     TikType temp = new TikType(verts, DrawType.MULTI_LINE);
@@ -423,13 +422,14 @@ public class GridInterface {
         } else if (Gdx.input.isButtonJustPressed(1)) {
             if ((currentType == DrawType.MULTI_LINE)
                 && editing.vertices.size > 1) {
-                if(editing.vertices.size == 2) {
+                if (editing.vertices.size == 2) {
                     TikType temp = editing;
                     editing = new TikType(temp.vertices.get(0), temp.vertices.get(1), DrawType.LINE);
                     editing.backArrow = temp.backArrow;
                     editing.frontArrow = temp.frontArrow;
                     editing.dashed = temp.dashed;
                     editing.isFilled = isFilled;
+                    editing.color = selectedColor;
                 }
                 points.add(editing);
             } else if (currentType == DrawType.DROPPED_POLYGON) {
@@ -440,11 +440,11 @@ public class GridInterface {
     }
 
     public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius, boolean isDashed, boolean isFilled) {
-        if(isFilled) {
+        if (isFilled) {
             shapeRenderer.circle(x, y, radius);
             return;
         }
-        int segments = Math.max(1, (int)(6 * (float)Math.cbrt(radius)));
+        int segments = Math.max(1, (int) (6 * (float) Math.cbrt(radius)));
         Vector2 center = new Vector2(x, y);
         Vector2 vPres = new Vector2(x + radius, y);
         double angularSeparation = 2 * PI / segments;
