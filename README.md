@@ -9,12 +9,13 @@ This project allows you to create TikZ graphics graphically and export them into
 - `Escape` to hide and un-hide the side menu bar
 - `+ or =` to zoom in
 - `-` to zoom out
-- `Middle Mouse Button`  for panning
+- `Middle Mouse Button` or `Arrow Keys` or `Shift + Left Click`  for panning
 - `Backspace` to reset the zoom and position
 - `Shift + Backspace` to clear the drawing
 - `Ctrl + Z` Undo's the latest action (last line in the tik code)
 - `Enter` to finalize a Bézier curve
-- `[ or ]` to increase or decrease the number of Bézier control points.
+- `[ or ]` to increase or decrease the number of Bézier control points.\
+- `Shift + S` to toggle the snapping
 
 ## Things to Note
 - There is no redo
@@ -24,10 +25,11 @@ This project allows you to create TikZ graphics graphically and export them into
 You just need to download the code and run it in terminal using the gradle commands below.
 - It will do Math Rendering just beware the rendering is also not one-to-one with how LaTeX will render it.
 - Bézier curves are moved by dragging the control points around manually.
+- There are filled polygons but do not self interesect. It will not render properly. LaTeX will render it properly though.
 
 ## Things that may be added
 - Fixing the Font so that it is one-to-one with how LaTeX will render it
-- Colors
+- Images
 
 ## Gradle Commands
 
