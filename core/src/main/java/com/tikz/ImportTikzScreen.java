@@ -57,7 +57,7 @@ public class ImportTikzScreen implements Screen {
         Slider scale = new Slider(0.5f, 10f, 0.5f, false, skin);
         scale.setValue(1f);
 
-        t.add(scale).height(Value.percentHeight(15 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
+        t.add(scale).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(25 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
 
         Slider rotation = new Slider(-180, 180, 5, false, skin);
         rotation.setValue(+0f);
@@ -68,7 +68,7 @@ public class ImportTikzScreen implements Screen {
             }
         });
 
-        t.add(rotation).height(Value.percentHeight(15 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
+        t.add(rotation).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(25 / 800f, t)).pad(Value.percentHeight(5 / 800f, t));
 
         scale.addListener(new ChangeListener() {
             @Override

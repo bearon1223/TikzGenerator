@@ -2,6 +2,7 @@ package com.tikz;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -11,21 +12,27 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.GridInterface;
+import com.tikz.grid.MakeTikz;
 import com.tikz.grid.ProgramState;
+
+import java.io.File;
+import java.util.Objects;
 
 public class ShowTikz implements Screen {
     private final Stage stage;
     private final Main app;
     Table t;
+    Skin skin;
     private final GridInterface grid;
 
     public ShowTikz(Main app, GridInterface grid, String tikz) {
         this.app = app;
         this.grid = grid;
 
-        Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
+        skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
         stage = new Stage(new ScreenViewport());
         t = new Table();
         t.setSkin(skin);
@@ -39,27 +46,87 @@ public class ShowTikz implements Screen {
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFlickScroll(false);
         scrollPane.layout();
-//        scrollPane.setForceScroll(false, true);
 
-//        textArea.addListener(new ChangeListener() {
-//            @Override
-//            public void changed(ChangeEvent changeEvent, Actor actor) {
-//                textArea.setPrefRows(textArea.getText().split("\n").length);
-//                System.out.println(textArea.getText().split("\n").length);
-//                scrollPane.layout();
-//            }
-//        });
+        TextButton returnButton = new TextButton("Return", skin);
 
-        TextButton b = new TextButton("Return", skin);
-
-        b.addListener(new ClickListener() {
+        returnButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 app.setScreen(new MainScreen(app).setGrid(grid));
             }
         });
 
-        t.add(b).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
+        TextButton saveToFile = new TextButton("Save to File", skin);
+
+        saveToFile.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                FileExplorer fileExplorer = new FileExplorer(skin, new FileExplorer.FileExplorerListener() {
+                    @Override
+                    public void fileSelected(FileHandle file) {
+                    }
+
+                    @Override
+                    public void submitPressed(FileHandle file, String fileName) {
+                        if(fileName.equals(file.name())) {
+                            // If we are overwriting a file, confirm if they truly want to overwrite.
+                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
+                            confirmDialog[0] = new Dialog("Confirmation", skin) {
+                                {
+                                    this.pad(5f);
+                                    this.padTop(15f);
+                                    getContentTable().pad(5f);
+                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+
+                                    text("Are you Sure?");
+
+                                    TextButton submit = new TextButton("Submit", skin);
+
+                                    // if yes, try to overwrite, if it fails throw an error dialog
+                                    submit.addListener(new ClickListener() {
+                                        @Override
+                                        public void clicked(InputEvent event, float x, float y) {
+                                            confirmDialog[0].hide();
+                                            try {
+                                                if(!Objects.equals(file.extension(), "txt")){
+                                                    throw new ImproperFileType("The file must end with a txt extension");
+                                                }
+                                                file.writeString(MakeTikz.convert(grid.points), false);
+                                            } catch (Exception e) {
+                                                ErrorDialog(e);
+                                            }
+                                        }
+                                    });
+                                    this.getButtonTable().add(submit);
+                                    button("Cancel");
+                                }
+                            };
+                            confirmDialog[0].show(stage);
+                        } else {
+                            try {
+                                if(!fileName.endsWith(".txt")){
+                                    fileName += ".txt";
+                                }
+                                String output = MakeTikz.convert(grid.points);
+                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
+                                newFile.writeString(output, false);
+                                app.setScreen(new MainScreen(app).setGrid(grid));
+//                                app.setScreen(new ShowTikz(app, grid, output));
+                            } catch (Exception e) {
+                                ErrorDialog(e);
+                            }
+                        }
+                    }
+                });
+                fileExplorer.resize(app);
+                stage.addActor(fileExplorer);
+            }
+        });
+
+        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+
+        t.add(returnButton).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
             .padRight(Value.percentWidth(0.00417f, t)).bottom().padBottom(Value.percentWidth(0.00417f, t));
 
         t.add(scrollPane).width(Value.percentWidth(0.833f, t)).height(Value.percentHeight(1, t));
@@ -117,6 +184,35 @@ public class ShowTikz implements Screen {
 
         // Invalidate hierarchy to ensure layout refresh
         t.invalidateHierarchy();
+    }
+
+    /**
+     * Creates an Error Dialog that will display the stacktrace back to the source
+     *
+     * @param e Exception to be printed to the error dialog (Can be Null)
+     */
+    public void ErrorDialog(Exception e) {
+        System.err.println("Error: Unable to overwrite file");
+        com.badlogic.gdx.utils.StringBuilder sb = new StringBuilder();
+
+        if(e != null) {
+            sb.append(e.getMessage()).append("\n\n");
+
+            StackTraceElement[] elements = e.getStackTrace();
+            for (StackTraceElement stackTraceElement : elements) {
+                sb.append(stackTraceElement.toString()).append("\n");
+            }
+        }
+
+        Dialog errorDialog = new Dialog("", skin) {
+            {
+                getContentTable().pad(5f);
+                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+                button("Ok");
+                text(sb.toString());
+            }
+        };
+        errorDialog.show(stage);
     }
 
     @Override

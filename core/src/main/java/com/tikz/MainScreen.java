@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.*;
 
@@ -153,35 +152,6 @@ public class MainScreen implements Screen {
     @Override
     public void show() {
 
-    }
-
-    /**
-     * Creates an Error Dialog that will display the stacktrace back to the source
-     *
-     * @param e Exception to be printed to the error dialog (Can be Null)
-     */
-    public void ErrorDialog(Exception e) {
-        System.err.println("Error: Unable to overwrite file");
-        StringBuilder sb = new StringBuilder();
-
-        if(e != null) {
-            sb.append(e.getMessage()).append("\n\n");
-
-            StackTraceElement[] elements = e.getStackTrace();
-            for (StackTraceElement stackTraceElement : elements) {
-                sb.append(stackTraceElement.toString()).append("\n");
-            }
-        }
-
-        Dialog errorDialog = new Dialog("", skin) {
-            {
-                getContentTable().pad(5f);
-                getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-                button("Ok");
-                text(sb.toString());
-            }
-        };
-        errorDialog.show(stage);
     }
 
     @Override
@@ -521,7 +491,7 @@ public class MainScreen implements Screen {
         importFromFileTikz.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this, file -> {
+                fileExplorer = new FileExplorer(skin, file -> {
                     try {
                         openFile(file);
                     } catch (ImproperFileType e) {
@@ -546,83 +516,83 @@ public class MainScreen implements Screen {
         t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton saveToFile = new TextButton("Save to File", skin);
+//        TextButton saveToFile = new TextButton("Save to File", skin);
+//
+//        saveToFile.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
+//                    @Override
+//                    public void fileSelected(FileHandle file) {
+//                    }
+//
+//                    @Override
+//                    public void submitPressed(FileHandle file, String fileName) {
+//                        if(fileName.equals(file.name())) {
+//                            // If we are overwriting a file, confirm if they truly want to overwrite.
+//                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
+//                            confirmDialog[0] = new Dialog("Confirmation", skin) {
+//                                {
+//                                    this.pad(5f);
+//                                    this.padTop(15f);
+//                                    getContentTable().pad(5f);
+//                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
+//
+//                                    text("Are you Sure?");
+//
+//                                    TextButton submit = new TextButton("Submit", skin);
+//
+//                                    // if yes, try to overwrite, if it fails throw an error dialog
+//                                    submit.addListener(new ClickListener() {
+//                                        @Override
+//                                        public void clicked(InputEvent event, float x, float y) {
+//                                            confirmDialog[0].hide();
+//                                            try {
+//                                                if(!Objects.equals(file.extension(), "txt")){
+//                                                    throw new ImproperFileType("The file must end with a txt extension");
+//                                                }
+//                                                file.writeString(MakeTikz.convert(grid.points, MainScreen.this), false);
+//                                            } catch (Exception e) {
+//                                                ErrorDialog(e);
+//                                            }
+//                                        }
+//                                    });
+//                                    this.getButtonTable().add(submit);
+//                                    button("Cancel");
+//                                }
+//                            };
+//                            confirmDialog[0].show(stage);
+//                        } else {
+//                            try {
+//                                if(!fileName.endsWith(".txt")){
+//                                    fileName += ".txt";
+//                                }
+//                                String output = MakeTikz.convert(grid.points, MainScreen.this);
+//                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
+//                                newFile.writeString(output, false);
+//                                openFile(new FileHandle(""));
+//                                app.setScreen(new ShowTikz(app, grid, output));
+//                            } catch (Exception e) {
+//                                ErrorDialog(e);
+//                            }
+//                        }
+//                    }
+//                });
+//                fileExplorer.resize(app);
+//                stage.addActor(fileExplorer);
+//            }
+//        });
+//
+//        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
+//        t.row();
 
-        saveToFile.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
-                    @Override
-                    public void fileSelected(FileHandle file) {
-                    }
-
-                    @Override
-                    public void submitPressed(FileHandle file, String fileName) {
-                        if(fileName.equals(file.name())) {
-                            // If we are overwriting a file, confirm if they truly want to overwrite.
-                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
-                            confirmDialog[0] = new Dialog("Confirmation", skin) {
-                                {
-                                    this.pad(5f);
-                                    this.padTop(15f);
-                                    getContentTable().pad(5f);
-                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-
-                                    text("Are you Sure?");
-
-                                    TextButton submit = new TextButton("Submit", skin);
-
-                                    // if yes, try to overwrite, if it fails throw an error dialog
-                                    submit.addListener(new ClickListener() {
-                                        @Override
-                                        public void clicked(InputEvent event, float x, float y) {
-                                            confirmDialog[0].hide();
-                                            try {
-                                                if(!Objects.equals(file.extension(), "txt")){
-                                                    throw new ImproperFileType("The file must end with a txt extension");
-                                                }
-                                                file.writeString(MakeTikz.convert(grid.points, MainScreen.this), false);
-                                            } catch (Exception e) {
-                                                ErrorDialog(e);
-                                            }
-                                        }
-                                    });
-                                    this.getButtonTable().add(submit);
-                                    button("Cancel");
-                                }
-                            };
-                            confirmDialog[0].show(stage);
-                        } else {
-                            try {
-                                if(!fileName.endsWith(".txt")){
-                                    fileName += ".txt";
-                                }
-                                String output = MakeTikz.convert(grid.points, MainScreen.this);
-                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
-                                newFile.writeString(output, false);
-                                openFile(new FileHandle(""));
-                                app.setScreen(new ShowTikz(app, grid, output));
-                            } catch (Exception e) {
-                                ErrorDialog(e);
-                            }
-                        }
-                    }
-                });
-                fileExplorer.resize(app);
-                stage.addActor(fileExplorer);
-            }
-        });
-
-        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
-
-        TextButton convertToTikz = new TextButton("Convert to Tikz", skin);
+        TextButton convertToTikz = new TextButton("Export", skin);
 
         convertToTikz.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Generating Tikz Points");
-                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points, MainScreen.this)));
+                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
             }
         });
 

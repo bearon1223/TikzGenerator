@@ -12,10 +12,10 @@ import static com.tikz.grid.ProgramState.colors;
 import static java.lang.Math.pow;
 
 public abstract class MakeTikz {
-    public static String convert(Array<TikType> tikzShapes, MainScreen screen) {
+    public static String convert(Array<TikType> tikzShapes) {
         StringBuilder output = new StringBuilder();
         for (TikType tik : tikzShapes) {
-            StringBuilder extraCommands = getCommands(tik, screen);
+            StringBuilder extraCommands = getCommands(tik);
 
             switch (tik.type) {
                 case LINE:
@@ -52,8 +52,8 @@ public abstract class MakeTikz {
         return output.toString();
     }
 
-    private static StringBuilder getCommands(TikType tik, MainScreen screen) {
-        Array<String> extraCommandsArray = getModifiers(tik, screen);
+    private static StringBuilder getCommands(TikType tik) {
+        Array<String> extraCommandsArray = getModifiers(tik);
         StringBuilder extraCommands = new StringBuilder();
         if (extraCommandsArray.notEmpty()) {
             extraCommands.append("[");
@@ -67,7 +67,7 @@ public abstract class MakeTikz {
         return extraCommands;
     }
 
-    private static Array<String> getModifiers(TikType tik, MainScreen screen) {
+    private static Array<String> getModifiers(TikType tik) {
         Array<String> extraCommandsArray = new Array<>();
         if (tik.dashed) {
             extraCommandsArray.add("dashed");
