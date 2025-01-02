@@ -1,7 +1,7 @@
-package com.tikz.grid;
+package com.tikz;
 
 import com.badlogic.gdx.graphics.Color;
-import com.tikz.ColorHolder;
+import com.tikz.grid.DrawType;
 
 public class ProgramState {
     public static boolean addingPoints = false;
@@ -18,6 +18,9 @@ public class ProgramState {
     public static boolean lightMode = false;
     public static boolean isFilled = false;
     public static boolean wireframe = false;
+
+    // default is the thin line type
+    public static DrawType.LineThickness lineThickness = DrawType.LineThickness.THIN;
 
     public static int colorIndex = 0;
     public static final ColorHolder[] colors = {

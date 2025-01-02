@@ -1,12 +1,12 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.tikz.ColorHolder;
+import com.tikz.ProgramState;
 
 public class TikType {
     public Vector2 origin = new Vector2();
@@ -23,6 +23,7 @@ public class TikType {
     public boolean frontArrow = false;
     public boolean backArrow = false;
     public boolean isFilled = false;
+    public DrawType.LineThickness lineThickness = DrawType.LineThickness.THIN;
 
     public TikType(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
@@ -77,10 +78,10 @@ public class TikType {
 
     @Override
     public String toString() {
-        return String.format("type: %s with color: %s\norigin: %s\nend: %s\ndata: %s\n" +
-                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\n",
-                type, color, origin, endPoint,
-            text, !vertices.isEmpty(), latexImg != null, upscale);
+        return String.format("%s type: %s with color: %s\norigin: %s\nend: %s\ntext: %s\n" +
+                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\nand thickness: %s\n",
+                isFilled ? "filled with" : "", type, color, origin, endPoint,
+            text, !vertices.isEmpty(), latexImg != null, upscale, lineThickness);
     }
 
     public void dispose() {

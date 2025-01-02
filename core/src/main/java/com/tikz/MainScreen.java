@@ -19,10 +19,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.*;
 
-import java.io.File;
 import java.util.Objects;
 
-import static com.tikz.grid.ProgramState.*;
+import static com.tikz.ProgramState.*;
 
 public class MainScreen implements Screen {
     public Table t;
@@ -592,7 +591,7 @@ public class MainScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Generating Tikz Points");
-                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
+                app.setScreen(new ShowTikz(app, grid, ExportToTikz.convert(grid.points)));
             }
         });
 

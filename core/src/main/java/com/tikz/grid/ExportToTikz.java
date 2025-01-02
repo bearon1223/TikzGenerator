@@ -1,17 +1,14 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.tikz.MainScreen;
+import com.tikz.ProgramState;
 
 import java.util.Objects;
 
-import static com.tikz.grid.ProgramState.colorIndex;
-import static com.tikz.grid.ProgramState.colors;
 import static java.lang.Math.pow;
 
-public abstract class MakeTikz {
+public abstract class ExportToTikz {
     public static String convert(Array<TikType> tikzShapes) {
         StringBuilder output = new StringBuilder();
         for (TikType tik : tikzShapes) {
@@ -85,6 +82,10 @@ public abstract class MakeTikz {
             } else if (tik.frontArrow) {
                 extraCommandsArray.add("<->");
             }
+        }
+
+        if(tik.lineThickness != DrawType.LineThickness.THIN) {
+            extraCommandsArray.add(tik.lineThickness.toString().toLowerCase().replaceAll("_", " "));
         }
         return extraCommandsArray;
     }

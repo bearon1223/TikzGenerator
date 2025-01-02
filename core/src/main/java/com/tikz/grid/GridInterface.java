@@ -12,7 +12,7 @@ import com.tikz.Main;
 import com.tikz.MainScreen;
 import org.scilab.forge.jlatexmath.ParseException;
 
-import static com.tikz.grid.ProgramState.*;
+import static com.tikz.ProgramState.*;
 import static java.lang.Math.*;
 
 public class GridInterface {

@@ -9,14 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.tikz.grid.GridInterface;
-import com.tikz.grid.MakeTikz;
-import com.tikz.grid.ProgramState;
+import com.tikz.grid.ExportToTikz;
 
 import java.io.File;
 import java.util.Objects;
@@ -91,7 +89,7 @@ public class ShowTikz implements Screen {
                                                 if(!Objects.equals(file.extension(), "txt")){
                                                     throw new ImproperFileType("The file must end with a txt extension");
                                                 }
-                                                file.writeString(MakeTikz.convert(grid.points), false);
+                                                file.writeString(ExportToTikz.convert(grid.points), false);
                                             } catch (Exception e) {
                                                 ErrorDialog(e);
                                             }
@@ -107,7 +105,7 @@ public class ShowTikz implements Screen {
                                 if(!fileName.endsWith(".txt")){
                                     fileName += ".txt";
                                 }
-                                String output = MakeTikz.convert(grid.points);
+                                String output = ExportToTikz.convert(grid.points);
                                 FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
                                 newFile.writeString(output, false);
                                 app.setScreen(new MainScreen(app).setGrid(grid));
