@@ -86,7 +86,7 @@ public class GridInterface {
         }
 
         // If we are not in light mode, and the color is black, render white, else render the selected color
-        renderer.setColor(!lightMode && selectedColor.color == Color.BLACK ? Color.WHITE : selectedColor.color);
+        renderer.setColor(!lightMode && selectedColor.name.equalsIgnoreCase("black") ? Color.WHITE : selectedColor.color);
         renderer.circle(mouse.x * gridSpacing + center.x, mouse.y * gridSpacing + center.y, 2f);
 
         renderAllPoints(renderer, center);

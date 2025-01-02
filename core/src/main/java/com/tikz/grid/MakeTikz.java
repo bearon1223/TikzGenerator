@@ -73,7 +73,7 @@ public abstract class MakeTikz {
             extraCommandsArray.add("dashed");
         }
 
-        if(tik.color.color != Color.BLACK) {
+        if(!tik.color.name.equalsIgnoreCase("black")) {
             extraCommandsArray.add("color = " + tik.color);
         }
 
