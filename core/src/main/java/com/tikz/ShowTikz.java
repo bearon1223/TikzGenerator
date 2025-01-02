@@ -131,7 +131,8 @@ public class ShowTikz implements Screen {
 
     @Override
     public void hide() {
-
+        stage.clear();
+        stage.dispose();
     }
 
     @Override

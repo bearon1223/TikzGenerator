@@ -241,7 +241,8 @@ public class ImportTikzScreen implements Screen {
 
     @Override
     public void hide() {
-
+        stage.clear();
+        stage.dispose();
     }
 
     @Override

@@ -461,15 +461,15 @@ public class GridInterface {
         float x2 = end.x;
         float y1 = origin.y;
         float y2 = end.y;
+        float lineWidth = 2f;
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
         float arrowHeadSize = 20f * scaling * zoomLevel;
 
         if (isDashed) {
-            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, 4f);
+            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, Math.max(lineWidth * scaling * zoomLevel, 2f));
         } else {
-            float lineWidth = 2f;
             shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 2f));
         }
 

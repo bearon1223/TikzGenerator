@@ -377,6 +377,10 @@ public class MainScreen implements Screen {
     }
 
     public void setUI() {
+        if(stage != null) {
+            stage.clear();
+            stage.dispose();
+        }
         stage = new Stage(new ScreenViewport());
 
         t = new Table();
@@ -684,7 +688,8 @@ public class MainScreen implements Screen {
 
     @Override
     public void hide() {
-
+        stage.clear();
+        stage.dispose();
     }
 
     @Override
