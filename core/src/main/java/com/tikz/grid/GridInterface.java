@@ -400,6 +400,7 @@ public class GridInterface {
                     temp.dashed = editing.dashed;
                     temp.frontArrow = editing.frontArrow;
                     temp.backArrow = editing.backArrow;
+                    temp.isFilled = isFilled;
                     points.add(temp);
                     break;
                 case BEZIER:

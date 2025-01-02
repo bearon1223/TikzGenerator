@@ -169,7 +169,9 @@ public class ImportFromTikz {
 
             vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
         }
-        return new TikType(vectors, DrawType.MULTI_LINE);
+        TikType tikType = new TikType(vectors, DrawType.MULTI_LINE);
+        tikType.isFilled = ProgramState.isFilled;
+        return tikType;
     }
 
     public static float getConversion(String unit) throws IllegalUnitType {
