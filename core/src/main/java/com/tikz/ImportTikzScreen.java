@@ -43,7 +43,6 @@ public class ImportTikzScreen implements Screen {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 textArea.setPrefRows(textArea.getText().split("\\n").length);
-                System.out.println(textArea.getText().split("\\n").length);
                 scrollPane.layout();
             }
         });

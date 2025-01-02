@@ -23,7 +23,6 @@ public class TikType {
     public boolean frontArrow = false;
     public boolean backArrow = false;
     public boolean isFilled = false;
-    public int colorIndex = 0;
 
     public TikType(Vector2 o, Vector2 e, DrawType type) {
         this.origin = o;
