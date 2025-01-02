@@ -50,11 +50,7 @@ public class Main extends Game {
 
     @Override
     public void render() {
-        try {
-            super.render();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        super.render();
     }
 
     @Override

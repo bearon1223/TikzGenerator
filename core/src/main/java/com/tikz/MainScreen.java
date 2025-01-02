@@ -112,7 +112,7 @@ public class MainScreen implements Screen {
                 table.getStage().setKeyboardFocus(null);
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
-                    grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
+                    grid.editing = new TikType(new Vector2(), new Vector2(), DrawType.TEXT);
                     ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
                     ProgramState.addingPoints = false;
@@ -136,7 +136,7 @@ public class MainScreen implements Screen {
                 table.getStage().setKeyboardFocus(null);
                 stage.setKeyboardFocus(null);
                 if (type == DrawType.TEXT) {
-                    grid.editing = new TikTypeStruct(new Vector2(), new Vector2(), DrawType.TEXT);
+                    grid.editing = new TikType(new Vector2(), new Vector2(), DrawType.TEXT);
                     ProgramState.addingPoints = true;
                 } else if (type == DrawType.BEZIER) {
                     ProgramState.addingPoints = false;
@@ -196,7 +196,7 @@ public class MainScreen implements Screen {
         app.shapeRenderer.begin();
         app.shapeRenderer.setColor(Color.WHITE);
 
-        grid.drawGrid(app.shapeRenderer);
+        grid.render(app.shapeRenderer);
 
         if(lightMode)
             app.shapeRenderer.setColor(new Color(0xDDDDDDFF));
@@ -382,7 +382,8 @@ public class MainScreen implements Screen {
         t = new Table();
         t.setSkin(skin);
         t.defaults().prefWidth(Value.percentWidth(0.9f, t));
-        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
+//        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
+        t.defaults().prefHeight(Value.percentHeight(0.052f, t));
 
         t.setSize(0.16667f*Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -391,6 +392,31 @@ public class MainScreen implements Screen {
         addButton(DrawType.CIRCLE, t, skin, "Circle");
         addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
         addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
+
+        TextButton colorButton = new TextButton("Tik Color: " + getColorName(selectedColor), skin);
+
+        colorButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (selectedColor.equals(Color.BLACK)) {
+                    selectedColor = Color.RED;
+                } else if (selectedColor.equals(Color.RED)) {
+                    selectedColor = Color.BLUE;
+                } else if (selectedColor.equals(Color.BLUE)) {
+                    selectedColor = Color.ORANGE;
+                } else if (selectedColor.equals(Color.ORANGE)) {
+                    selectedColor = Color.YELLOW;
+                } else if (selectedColor.equals(Color.YELLOW)) {
+                    selectedColor = Color.CYAN;
+                } else {
+                    selectedColor = Color.BLACK;
+                }
+                colorButton.setText("Tik Color: " + (getColorName(selectedColor)));
+            }
+        });
+
+        t.add(colorButton).spaceTop(Value.percentHeight(0.025f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
 
         TextButton dashed = new TextButton("Dashed: " + (ProgramState.dashed ? "True" : "False"), skin);
 
@@ -402,33 +428,67 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(dashed).spaceTop(Value.percentHeight(20 / 800f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(dashed).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton frontArrow = new TextButton("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"), skin);
+        String arrowState;
+        if(frontArrow && backArrow) {
+            arrowState = "Front and Back";
+        } else if (frontArrow) {
+            arrowState = "Front";
+        } else if (backArrow){
+            arrowState = "Back";
+        } else {
+            arrowState = "None";
+        }
 
-        frontArrow.addListener(new ClickListener() {
+        TextButton arrow = new TextButton("Arrow Heads: " + arrowState, skin);
+
+        arrow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ProgramState.frontArrow = !ProgramState.frontArrow;
-                frontArrow.setText("Front Arrow: " + (ProgramState.frontArrow ? "True" : "False"));
+                if(frontArrow && backArrow) {
+                    frontArrow = false;
+                    backArrow = false;
+                } else if (!(frontArrow || backArrow)) {
+                    frontArrow = true;
+                    backArrow = false;
+                } else if (frontArrow) {
+                    frontArrow = false;
+                    backArrow = true;
+                } else {
+                    frontArrow = true;
+                    backArrow = true;
+                }
+
+                String arrowState;
+                if(frontArrow && backArrow) {
+                    arrowState = "Front and Back";
+                } else if (frontArrow) {
+                    arrowState = "Front";
+                } else if (backArrow){
+                    arrowState = "Back";
+                } else {
+                    arrowState = "None";
+                }
+                arrow.setText("Arrow Heads: " + arrowState);
             }
         });
 
-        t.add(frontArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(arrow).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton backArrow = new TextButton("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"), skin);
+        TextButton filled = new TextButton("Is Filled: " + (isFilled ? "True" : "False"), skin);
 
-        backArrow.addListener(new ClickListener() {
+        filled.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ProgramState.backArrow = !ProgramState.backArrow;
-                backArrow.setText("Back Arrow: " + (ProgramState.backArrow ? "True" : "False"));
+                isFilled = !isFilled;
+                filled.setText("Is Filled: " + (isFilled ? "True" : "False"));
             }
         });
 
-        t.add(backArrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(filled).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
         // Create TextField
@@ -593,6 +653,23 @@ public class MainScreen implements Screen {
         // Set the stage as the input processor
         Gdx.input.setInputProcessor(stage);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    public static String getColorName(Color color) {
+        if (color.equals(Color.RED)) {
+            return "Red";
+        } else if (color.equals(Color.BLUE)) {
+            return "Blue";
+        } else if (color.equals(Color.ORANGE)) {
+            return "Orange";
+        } else if (color.equals(Color.YELLOW)) {
+            return "Yellow";
+        } else if (color.equals(Color.CYAN)) {
+            return "Cyan";
+        } else if (color.equals(Color.BLACK)){
+            return "Black";
+        }
+        return color.toString();
     }
 
     @Override

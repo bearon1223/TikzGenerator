@@ -1,5 +1,6 @@
 package com.tikz.grid;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -18,18 +19,49 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for circles failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static Array<TikTypeStruct> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType, IllegalUnitType {
-        Array<TikTypeStruct> points = new Array<>();
+    public static Array<TikType> FromTikToPoints(String tik) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType, IllegalUnitType {
+        Array<TikType> points = new Array<>();
         String[] commands = tik.split("\\n+");
         for (String command : commands) {
             if(command.contains("%")) {
                 System.out.printf("Commented Code: %s\n", command);
                 continue;
             }
-            command = command.replaceAll("\\s*\\\\draw\\s*", "");
+            Color tikColor = Color.BLACK;
+            boolean isFilled = false;
+            if(command.contains("filldraw")) {
+                command = command.replaceAll("\\s*\\\\filldraw\\s*", "");
+                isFilled = true;
+            } else
+                command = command.replaceAll("\\s*\\\\draw\\s*", "");
             boolean isDashed = command.contains("dashed");
             boolean frontArrow = command.contains(">");
             boolean backArrow = command.contains("<");
+            boolean hasColor = command.contains("color");
+            if(hasColor) {
+                String regex = "color\\s*=\\s*(\\w+)";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(command);
+                if (matcher.find()) {
+                    switch (matcher.group(1).toLowerCase()){
+                        case "cyan":
+                            tikColor = Color.CYAN;
+                            break;
+                        case "yellow":
+                            tikColor = Color.YELLOW;
+                            break;
+                        case "red":
+                            tikColor = Color.RED;
+                            break;
+                        case "blue":
+                            tikColor = Color.BLUE;
+                            break;
+                        case "orange":
+                            tikColor = Color.ORANGE;
+                            break;
+                    }
+                }
+            }
             command = command.replaceAll("\\[(.*?)]", "").replaceAll(";", "");
             if (command.contains("node at")) {
                 String regex = "\\(([^)]+)\\)\\s*\\{((?:\\$[^$]+\\$|[^{}])+)}";
@@ -40,21 +72,29 @@ public class ImportFromTikz {
                     vector = vector.replaceAll(",\\s*", ", ").trim();
                     Vector2 loc = new Vector2().fromString("(" + vector + ")");
                     String content = matcher.group(2);
-                    points.add(new TikTypeStruct(loc, DrawType.TEXT, content));
+                    points.add(new TikType(loc, DrawType.TEXT, content));
+                } else {
+                    throw new IllegalDrawType(String.format("Error: '%s' is not a valid command understood by this program!" +
+                        "\n\t(Commands could not be parsed)\n", command));
                 }
             } else if (command.contains("circle")) {
                 // (a, b) circle(2.0cm);
-                String regex = "\\(([^)]+)\\)\\s*circle\\s*\\((\\d+)\\s*([^}]+)\\)";
+                String regex = "\\(([^)]+)\\)\\s*circle\\s*\\((\\d+[.]?\\d*)\\s*([^}]+)?\\)";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(command);
                 if (matcher.find()) {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
                     Vector2 loc = new Vector2().fromString("(" + vector + ")");
-                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.group(3));
-                    TikTypeStruct tikType = new TikTypeStruct(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
+                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.groupCount() > 3 ? matcher.group(3) : "");
+                    TikType tikType = new TikType(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
                     tikType.dashed = isDashed;
+                    tikType.color = tikColor;
+                    tikType.isFilled = isFilled;
                     points.add(tikType);
+                } else {
+                    throw new IllegalDrawType(String.format("Error: '%s' is not a valid command understood by this program!" +
+                        "\n\t(Commands could not be parsed)\n", command));
                 }
             } else if (command.contains("arc")) {
                 throw new IllegalDrawType("Arcs are unable to be rendered as they are unpredictable: " + command);
@@ -66,10 +106,11 @@ public class ImportFromTikz {
                 if (vectors.length == 2) {
                     Vector2 start = new Vector2().fromString(vectors[0]);
                     Vector2 end = new Vector2().fromString(vectors[1]);
-                    TikTypeStruct tikType = new TikTypeStruct(start, end, DrawType.LINE);
+                    TikType tikType = new TikType(start, end, DrawType.LINE);
                     tikType.dashed = isDashed;
                     tikType.frontArrow = frontArrow;
                     tikType.backArrow = backArrow;
+                    tikType.color = tikColor;
                     points.add(tikType);
                 } else if (vectors.length > 2) {
                     Array<Vector2> vector2Array = new Array<>();
@@ -77,10 +118,12 @@ public class ImportFromTikz {
                         v = v.trim();
                         vector2Array.add(new Vector2().fromString(v));
                     }
-                    TikTypeStruct tikType = new TikTypeStruct(vector2Array, DrawType.MULTI_LINE);
+                    TikType tikType = new TikType(vector2Array, DrawType.MULTI_LINE);
                     tikType.dashed = isDashed;
                     tikType.frontArrow = frontArrow;
                     tikType.backArrow = backArrow;
+                    tikType.color = tikColor;
+                    tikType.isFilled = isFilled;
                     points.add(tikType);
                 }
             }
@@ -100,7 +143,7 @@ public class ImportFromTikz {
      * @throws NumberFormatException Parsing Float for vectors failed
      * @throws IllegalDrawType       Unknown Draw Code
      */
-    public static TikTypeStruct FromVectorsToPoints(String vectorInput, float scale, float rotationDeg) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
+    public static TikType FromVectorsToPoints(String vectorInput, float scale, float rotationDeg) throws GdxRuntimeException, NullPointerException, NumberFormatException, IllegalDrawType {
         Array<Vector2> vectors = new Array<>();
         String[] vectorStrings = vectorInput.replace("(", "").replace(")", "").split("\\n+");
         for (String v : vectorStrings) {
@@ -122,7 +165,7 @@ public class ImportFromTikz {
 
             vectors.add(new Vector2().fromString(stringVector).scl(scale).rotateDeg(rotationDeg));
         }
-        return new TikTypeStruct(vectors, DrawType.MULTI_LINE);
+        return new TikType(vectors, DrawType.MULTI_LINE);
     }
 
     public static float getConversion(String unit) throws IllegalUnitType {
@@ -141,6 +184,7 @@ public class ImportFromTikz {
             case "mm":
                 return mm;
             case "cm":
+            case "":
                 return cm;
             case "ex":
                 return ex;

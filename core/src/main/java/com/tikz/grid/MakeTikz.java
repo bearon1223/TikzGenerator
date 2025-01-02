@@ -1,16 +1,18 @@
 package com.tikz.grid;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.tikz.MainScreen;
 
 import java.util.Objects;
 
 import static java.lang.Math.pow;
 
 public abstract class MakeTikz {
-    public static String convert(Array<TikTypeStruct> tikzShapes) {
+    public static String convert(Array<TikType> tikzShapes) {
         StringBuilder output = new StringBuilder();
-        for (TikTypeStruct tik : tikzShapes) {
+        for (TikType tik : tikzShapes) {
             StringBuilder extraCommands = getCommands(tik);
 
             switch (tik.type) {
@@ -21,8 +23,8 @@ public abstract class MakeTikz {
                     output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.text));
                     break;
                 case CIRCLE:
-                    output.append(String.format("\\draw%s %s circle(%1.2f cm);\n", extraCommands, tik.origin.toString(),
-                        tik.origin.dst(tik.endPoint)));
+                    output.append(String.format("\\%s%s %s circle(%1.2f cm);\n", tik.isFilled ? "filldraw" : "draw",
+                        extraCommands, tik.origin.toString(), tik.origin.dst(tik.endPoint)));
                     break;
                 case MULTI_LINE:
                     StringBuilder poly = new StringBuilder();
@@ -30,7 +32,7 @@ public abstract class MakeTikz {
                         poly.append(String.format("--%s", vertex.toString()));
                     }
                     poly.delete(0, 2);
-                    output.append(String.format("\\draw%s %s;\n", extraCommands, poly));
+                    output.append(String.format("\\%s%s %s;\n", tik.isFilled ? "filldraw" : "draw", extraCommands, poly));
                     break;
                 case BEZIER:
                     StringBuilder bezier = new StringBuilder();
@@ -48,10 +50,14 @@ public abstract class MakeTikz {
         return output.toString();
     }
 
-    private static StringBuilder getCommands(TikTypeStruct tik) {
+    private static StringBuilder getCommands(TikType tik) {
         Array<String> extraCommandsArray = new Array<>();
         if (tik.dashed) {
             extraCommandsArray.add("dashed");
+        }
+
+        if(tik.color != Color.BLACK) {
+            extraCommandsArray.add("color = " + MainScreen.getColorName(tik.color).toLowerCase());
         }
 
         if (tik.type != DrawType.CIRCLE) {
@@ -76,7 +82,7 @@ public abstract class MakeTikz {
         return extraCommands;
     }
 
-    private static Array<Vector2> getBezierPoints(TikTypeStruct tik) {
+    private static Array<Vector2> getBezierPoints(TikType tik) {
         int lineCount = 23 + ProgramState.bezierControlPointCount * 2;
         Array<Vector2> outputPoints = new Array<>();
         Array<Vector2> vectors = new Array<>();
