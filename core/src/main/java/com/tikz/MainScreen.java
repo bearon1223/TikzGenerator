@@ -37,6 +37,18 @@ public class MainScreen implements Screen {
     private Vector2 startingPan = new Vector2();
     private TextButton bezierButton;
     private FileExplorer fileExplorer;
+    
+    public int colorIndex = 0;
+    public final ColorHolder[] colors = {
+        new ColorHolder(Color.BLACK, "Black"),
+        new ColorHolder(Color.GRAY, "Gray"),
+        new ColorHolder(Color.RED, "Red"),
+        new ColorHolder(Color.BLUE, "Blue"),
+        new ColorHolder(Color.GREEN, "Green"),
+        new ColorHolder(Color.ORANGE, "Orange"),
+        new ColorHolder(Color.YELLOW, "Yellow"),
+        new ColorHolder(Color.CYAN, "Cyan"),
+    };
 
     Skin skin = new Skin(Gdx.files.internal(ProgramState.lightMode ? "ui/light/uiskin.json" : "ui/uiskin.json"));
 
@@ -401,27 +413,14 @@ public class MainScreen implements Screen {
         addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
         addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
 
-        TextButton colorButton = new TextButton("Tik Color: " + getColorName(selectedColor), skin);
+        TextButton colorButton = new TextButton("Tik Color: " + colors[colorIndex].name, skin);
 
         colorButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (selectedColor.equals(Color.BLACK)) {
-                    selectedColor = Color.RED;
-                } else if (selectedColor.equals(Color.RED)) {
-                    selectedColor = Color.BLUE;
-                } else if (selectedColor.equals(Color.BLUE)) {
-                    selectedColor = Color.ORANGE;
-                } else if (selectedColor.equals(Color.ORANGE)) {
-                    selectedColor = Color.YELLOW;
-                } else if (selectedColor.equals(Color.YELLOW)) {
-                    selectedColor = Color.CYAN;
-                } else if (selectedColor.equals(Color.CYAN)) {
-                    selectedColor = Color.GRAY;
-                } else {
-                    selectedColor = Color.BLACK;
-                }
-                colorButton.setText("Tik Color: " + (getColorName(selectedColor)));
+                colorIndex++;
+                colorIndex = colorIndex % colors.length;
+                colorButton.setText("Tik Color: " + colors[colorIndex].name);
             }
         });
 
@@ -595,7 +594,7 @@ public class MainScreen implements Screen {
                                                 if(!Objects.equals(file.extension(), "txt")){
                                                     throw new ImproperFileType("The file must end with a txt extension");
                                                 }
-                                                file.writeString(MakeTikz.convert(grid.points), false);
+                                                file.writeString(MakeTikz.convert(grid.points, MainScreen.this), false);
                                             } catch (Exception e) {
                                                 ErrorDialog(e);
                                             }
@@ -611,7 +610,7 @@ public class MainScreen implements Screen {
                                 if(!fileName.endsWith(".txt")){
                                     fileName += ".txt";
                                 }
-                                String output = MakeTikz.convert(grid.points);
+                                String output = MakeTikz.convert(grid.points, MainScreen.this);
                                 FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
                                 newFile.writeString(output, false);
                                 openFile(new FileHandle(""));
@@ -636,7 +635,7 @@ public class MainScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Generating Tikz Points");
-                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points)));
+                app.setScreen(new ShowTikz(app, grid, MakeTikz.convert(grid.points, MainScreen.this)));
             }
         });
 
@@ -665,25 +664,6 @@ public class MainScreen implements Screen {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    public static String getColorName(Color color) {
-        if (color.equals(Color.RED)) {
-            return "Red";
-        } else if (color.equals(Color.BLUE)) {
-            return "Blue";
-        } else if (color.equals(Color.ORANGE)) {
-            return "Orange";
-        } else if (color.equals(Color.YELLOW)) {
-            return "Yellow";
-        } else if (color.equals(Color.CYAN)) {
-            return "Cyan";
-        } else if (color.equals(Color.BLACK)){
-            return "Black";
-        } else if (color.equals(Color.GRAY)) {
-            return "Gray";
-        }
-        return color.toString();
-    }
-
     @Override
     public void pause() {
 
@@ -704,5 +684,14 @@ public class MainScreen implements Screen {
     public void dispose() {
         grid.dispose();
         stage.dispose();
+    }
+
+    public class ColorHolder {
+        public Color color;
+        public String name;
+        public ColorHolder(Color color, String name) {
+            this.color = color;
+            this.name = name;
+        }
     }
 }

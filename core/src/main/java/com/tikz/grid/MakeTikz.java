@@ -10,10 +10,10 @@ import java.util.Objects;
 import static java.lang.Math.pow;
 
 public abstract class MakeTikz {
-    public static String convert(Array<TikType> tikzShapes) {
+    public static String convert(Array<TikType> tikzShapes, MainScreen screen) {
         StringBuilder output = new StringBuilder();
         for (TikType tik : tikzShapes) {
-            StringBuilder extraCommands = getCommands(tik);
+            StringBuilder extraCommands = getCommands(tik, screen);
 
             switch (tik.type) {
                 case LINE:
@@ -50,14 +50,14 @@ public abstract class MakeTikz {
         return output.toString();
     }
 
-    private static StringBuilder getCommands(TikType tik) {
+    private static StringBuilder getCommands(TikType tik, MainScreen screen) {
         Array<String> extraCommandsArray = new Array<>();
         if (tik.dashed) {
             extraCommandsArray.add("dashed");
         }
 
         if(tik.color != Color.BLACK) {
-            extraCommandsArray.add("color = " + MainScreen.getColorName(tik.color).toLowerCase());
+            extraCommandsArray.add("color = " + screen.colors[screen.colorIndex]);
         }
 
         if (tik.type != DrawType.CIRCLE) {

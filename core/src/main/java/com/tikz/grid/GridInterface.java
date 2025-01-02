@@ -94,6 +94,7 @@ public class GridInterface {
         // Ctrl-Z to remove the latest point
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && screen.notTyping()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.Z) && points.size > 0) {
+                points.peek().dispose();
                 points.removeIndex(points.size - 1);
             }
         }
