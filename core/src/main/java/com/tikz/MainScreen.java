@@ -241,6 +241,10 @@ public class MainScreen implements Screen {
             snapGrid = !snapGrid;
         }
 
+        if (notTyping() && Gdx.input.isKeyJustPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+            wireframe = !wireframe;
+        }
+
         // change zoom
         float scalingS = Math.min((float) 800 / GridInterface.ROWS, (float) 1200 / GridInterface.COLS);
         float scaling = Math.min((float) Gdx.graphics.getHeight() / GridInterface.ROWS,

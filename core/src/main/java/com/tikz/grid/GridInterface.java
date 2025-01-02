@@ -58,7 +58,7 @@ public class GridInterface {
         centerOffset = screen.t.getWidth() / 2f + screen.tableOffset / 2;
         final Vector2 center = new Vector2(Gdx.graphics.getWidth() / 2f + centerOffset,
             Gdx.graphics.getHeight() / 2f).sub(panning);
-        renderer.set(ShapeRenderer.ShapeType.Filled);
+        renderer.set(wireframe ? ShapeRenderer.ShapeType.Line : ShapeRenderer.ShapeType.Filled);
 
         // set the gridSpacing and scaling
         gridSpacing = Math.min((float) Gdx.graphics.getHeight() / ROWS, (float) Gdx.graphics.getWidth() / COLS);
@@ -308,7 +308,7 @@ public class GridInterface {
                 }
                 app.batch.end();
                 renderer.begin();
-                renderer.set(ShapeRenderer.ShapeType.Filled);
+                renderer.set(wireframe ? ShapeRenderer.ShapeType.Line : ShapeRenderer.ShapeType.Filled);
                 break;
             case DROPPED_POLYGON:
                 // draw the polygon

@@ -18,4 +18,5 @@ public class ProgramState {
     public static int bezierControlPointCount = 1;
     public static boolean lightMode = false;
     public static boolean isFilled = false;
+    public static boolean wireframe = false;
 }
