@@ -59,6 +59,10 @@ public class ImportFromTikz {
                         case "orange":
                             tikColor = Color.ORANGE;
                             break;
+                        case "gray":
+                        case "grey":
+                            tikColor = Color.GRAY;
+                            break;
                     }
                 }
             }
@@ -86,7 +90,7 @@ public class ImportFromTikz {
                     String vector = matcher.group(1);
                     vector = vector.replaceAll(",\\s*", ", ").trim();
                     Vector2 loc = new Vector2().fromString("(" + vector + ")");
-                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.groupCount() > 3 ? matcher.group(3) : "");
+                    float radius = Float.parseFloat(matcher.group(2)) / getConversion(matcher.group(3));
                     TikType tikType = new TikType(loc, loc.cpy().add(radius, 0), DrawType.CIRCLE);
                     tikType.dashed = isDashed;
                     tikType.color = tikColor;
@@ -178,13 +182,15 @@ public class ImportFromTikz {
         float dd = 26.59117f;   // cm / dd
         float pc = 2.37106f;    // cm / pc
         float in = 0.3927f;     // cm / in
-        switch (unit) {
+        if(unit == null) {
+            return cm;
+        }
+        switch (unit.trim()) {
             case "pt":
                 return pt;
             case "mm":
                 return mm;
             case "cm":
-            case "":
                 return cm;
             case "ex":
                 return ex;

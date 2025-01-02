@@ -412,6 +412,8 @@ public class MainScreen implements Screen {
                     selectedColor = Color.YELLOW;
                 } else if (selectedColor.equals(Color.YELLOW)) {
                     selectedColor = Color.CYAN;
+                } else if (selectedColor.equals(Color.CYAN)) {
+                    selectedColor = Color.GRAY;
                 } else {
                     selectedColor = Color.BLACK;
                 }
@@ -672,6 +674,8 @@ public class MainScreen implements Screen {
             return "Cyan";
         } else if (color.equals(Color.BLACK)){
             return "Black";
+        } else if (color.equals(Color.GRAY)) {
+            return "Gray";
         }
         return color.toString();
     }
