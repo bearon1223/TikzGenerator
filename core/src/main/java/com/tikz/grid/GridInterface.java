@@ -468,7 +468,7 @@ public class GridInterface {
         float arrowHeadSize = 20f * scaling * zoomLevel;
 
         if (isDashed) {
-            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, Math.max(lineWidth * scaling * zoomLevel, 2f));
+            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, 4f);
         } else {
             shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 2f));
         }
