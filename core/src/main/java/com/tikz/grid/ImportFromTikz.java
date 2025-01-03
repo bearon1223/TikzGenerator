@@ -1,10 +1,10 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.tikz.ColorHolder;
+import com.tikz.ProgramState;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,16 +29,23 @@ public class ImportFromTikz {
                 continue;
             }
             ColorHolder tikColor = ProgramState.colors[0];
+
+            // set fill state
             boolean isFilled = false;
             if(command.contains("filldraw")) {
                 command = command.replaceAll("\\s*\\\\filldraw\\s*", "");
                 isFilled = true;
             } else
                 command = command.replaceAll("\\s*\\\\draw\\s*", "");
+
+            // Get Modifiers
             boolean isDashed = command.contains("dashed");
             boolean frontArrow = command.contains(">");
             boolean backArrow = command.contains("<");
             boolean hasColor = command.contains("color");
+            DrawType.LineThickness lineThickness = getLineThickness(command);
+
+            // get Color
             if(hasColor) {
                 String regex = "color\\s*=\\s*(\\w+)";
                 Pattern pattern = Pattern.compile(regex);
@@ -51,6 +58,7 @@ public class ImportFromTikz {
                     }
                 }
             }
+
             command = command.replaceAll("\\[(.*?)]", "").replaceAll(";", "");
             if (command.contains("node at")) {
                 String regex = "\\(([^)]+)\\)\\s*\\{((?:\\$[^$]+\\$|[^{}])+)}";
@@ -80,6 +88,7 @@ public class ImportFromTikz {
                     tikType.dashed = isDashed;
                     tikType.color = tikColor;
                     tikType.isFilled = isFilled;
+                    tikType.lineThickness = lineThickness;
                     points.add(tikType);
                 } else {
                     throw new IllegalDrawType(String.format("Error: '%s' is not a valid command understood by this program!" +
@@ -100,6 +109,7 @@ public class ImportFromTikz {
                     tikType.frontArrow = frontArrow;
                     tikType.backArrow = backArrow;
                     tikType.color = tikColor;
+                    tikType.lineThickness = lineThickness;
                     points.add(tikType);
                 } else if (vectors.length > 2) {
                     Array<Vector2> vector2Array = new Array<>();
@@ -113,11 +123,31 @@ public class ImportFromTikz {
                     tikType.backArrow = backArrow;
                     tikType.color = tikColor;
                     tikType.isFilled = isFilled;
+                    tikType.lineThickness = lineThickness;
                     points.add(tikType);
                 }
             }
         }
+        System.out.println("\n\nImporting...");
+        for (TikType p : points) {
+            System.out.println(p);
+        }
         return points;
+    }
+
+    private static DrawType.LineThickness getLineThickness(String command) {
+        DrawType.LineThickness lineThickness = DrawType.LineThickness.THIN;
+        if(command.contains("ultra thin"))
+            lineThickness = DrawType.LineThickness.ULTRA_THIN;
+        else if(command.contains("very thick"))
+            lineThickness = DrawType.LineThickness.VERY_THICK;
+        else if(command.contains("ultra thick"))
+            lineThickness = DrawType.LineThickness.ULTRA_THICK;
+        else if(command.contains("very thin"))
+            lineThickness = DrawType.LineThickness.VERY_THIN;
+        else if(command.contains("thick"))
+            lineThickness = DrawType.LineThickness.THICK;
+        return lineThickness;
     }
 
     /**
@@ -159,7 +189,7 @@ public class ImportFromTikz {
         return tikType;
     }
 
-    public static float getConversion(String unit) throws IllegalUnitType {
+    private static float getConversion(String unit) throws IllegalUnitType {
         float pt = 28.45274f;   // cm / pt
         float mm = 10;          // cm / mm
         float cm = 1;           // cm / cm

@@ -1,21 +1,18 @@
 package com.tikz.grid;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.tikz.MainScreen;
+import com.tikz.ProgramState;
 
 import java.util.Objects;
 
-import static com.tikz.grid.ProgramState.colorIndex;
-import static com.tikz.grid.ProgramState.colors;
 import static java.lang.Math.pow;
 
-public abstract class MakeTikz {
-    public static String convert(Array<TikType> tikzShapes, MainScreen screen) {
+public abstract class ExportToTikz {
+    public static String convert(Array<TikType> tikzShapes) {
         StringBuilder output = new StringBuilder();
         for (TikType tik : tikzShapes) {
-            StringBuilder extraCommands = getCommands(tik, screen);
+            StringBuilder extraCommands = combineModifiers(tik);
 
             switch (tik.type) {
                 case LINE:
@@ -52,41 +49,45 @@ public abstract class MakeTikz {
         return output.toString();
     }
 
-    private static StringBuilder getCommands(TikType tik, MainScreen screen) {
-        Array<String> extraCommandsArray = getModifiers(tik, screen);
-        StringBuilder extraCommands = new StringBuilder();
-        if (extraCommandsArray.notEmpty()) {
-            extraCommands.append("[");
-            for (String str : extraCommandsArray) {
-                extraCommands.append(str);
-                if (!Objects.equals(str, extraCommandsArray.peek()))
-                    extraCommands.append(", ");
+    private static StringBuilder combineModifiers(TikType tik) {
+        Array<String> modifiersArray = getModifiers(tik);
+        StringBuilder modifiers = new StringBuilder();
+        if (modifiersArray.notEmpty()) {
+            modifiers.append("[");
+            for (String str : modifiersArray) {
+                modifiers.append(str);
+                if (!Objects.equals(str, modifiersArray.peek()))
+                    modifiers.append(", ");
             }
-            extraCommands.append("]");
+            modifiers.append("]");
         }
-        return extraCommands;
+        return modifiers;
     }
 
-    private static Array<String> getModifiers(TikType tik, MainScreen screen) {
-        Array<String> extraCommandsArray = new Array<>();
+    private static Array<String> getModifiers(TikType tik) {
+        Array<String> modifiersArray = new Array<>();
         if (tik.dashed) {
-            extraCommandsArray.add("dashed");
+            modifiersArray.add("dashed");
         }
 
         if(!tik.color.name.equalsIgnoreCase("black")) {
-            extraCommandsArray.add("color = " + tik.color);
+            modifiersArray.add("color = " + tik.color);
         }
 
         if (tik.type != DrawType.CIRCLE) {
             if (tik.frontArrow && !tik.backArrow) {
-                extraCommandsArray.add("->");
+                modifiersArray.add("->");
             } else if (!tik.frontArrow && tik.backArrow) {
-                extraCommandsArray.add("<-");
+                modifiersArray.add("<-");
             } else if (tik.frontArrow) {
-                extraCommandsArray.add("<->");
+                modifiersArray.add("<->");
             }
         }
-        return extraCommandsArray;
+
+        if(tik.lineThickness != DrawType.LineThickness.THIN) {
+            modifiersArray.add(tik.lineThickness.toString().toLowerCase().replaceAll("_", " "));
+        }
+        return modifiersArray;
     }
 
     private static Array<Vector2> getBezierPoints(TikType tik) {

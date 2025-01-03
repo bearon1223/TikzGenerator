@@ -18,7 +18,7 @@ public class FileExplorer extends Window {
     private FileHandle currentDirectory;
     public TextField fileName;
 
-    public FileExplorer(Skin skin, MainScreen screen, FileExplorerListener listener) {
+    public FileExplorer(Skin skin, FileExplorerListener listener) {
         super("File Explorer", skin);
         super.setResizable(true);
         directoryLabel = new Label("", skin);
@@ -75,7 +75,7 @@ public class FileExplorer extends Window {
         close.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                screen.openFile(new FileHandle(""));
+                getStage().getActors().removeValue(FileExplorer.this, false);
             }
         });
         this.add(close).center().size(Value.percentWidth(0.25f, this), Value.percentHeight(0.1f, this));
