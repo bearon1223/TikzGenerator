@@ -17,7 +17,7 @@ public class TikType {
     public String text = "";
     public Array<Vector2> vertices = new Array<>();
     public short[] triangleLocations;
-    float[] flatVertices;
+    public float[] flatVertices;
     public ColorHolder color = ProgramState.colors[0];
     public Texture latexImg;
     public float upscale = 1;

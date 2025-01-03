@@ -19,14 +19,14 @@ import com.tikz.grid.ExportToTikz;
 import java.io.File;
 import java.util.Objects;
 
-public class ShowTikz implements Screen {
+public class ExportTikScreen implements Screen {
     private final Stage stage;
     private final Main app;
     Table t;
     Skin skin;
     private final GridInterface grid;
 
-    public ShowTikz(Main app, GridInterface grid, String tikz) {
+    public ExportTikScreen(Main app, GridInterface grid, String tikz) {
         this.app = app;
         this.grid = grid;
 

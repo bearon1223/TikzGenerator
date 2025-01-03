@@ -112,8 +112,6 @@ public class MainScreen implements Screen {
                 if (type == DrawType.TEXT) {
                     grid.editing = new TikType(new Vector2(), new Vector2(), DrawType.TEXT);
                     ProgramState.addingPoints = true;
-                } else if (type == DrawType.BEZIER) {
-                    ProgramState.addingPoints = false;
                 } else {
                     ProgramState.addingPoints = false;
                 }
@@ -553,7 +551,7 @@ public class MainScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Generating Tikz Points");
-                app.setScreen(new ShowTikz(app, grid, ExportToTikz.convert(grid.points)));
+                app.setScreen(new ExportTikScreen(app, grid, ExportToTikz.convert(grid.points)));
             }
         });
 
