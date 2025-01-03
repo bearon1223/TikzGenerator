@@ -547,7 +547,7 @@ public class MainScreen implements Screen {
         t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
-        TextButton convertToTikz = new TextButton("Export", skin);
+        TextButton convertToTikz = new TextButton("Export to Tikz", skin);
 
         convertToTikz.addListener(new ClickListener() {
             @Override
