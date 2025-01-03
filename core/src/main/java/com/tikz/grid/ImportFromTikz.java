@@ -128,6 +128,7 @@ public class ImportFromTikz {
                 }
             }
         }
+        System.out.println("\n\nImporting...");
         for (TikType p : points) {
             System.out.println(p);
         }

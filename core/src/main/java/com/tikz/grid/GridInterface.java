@@ -553,7 +553,7 @@ public class GridInterface {
             vPres.add(dashSpacing * directionX, dashSpacing * directionY);
         }
 
-        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel / 2, lineWidth));
+        shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel, 1f));
     }
 
     public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow,

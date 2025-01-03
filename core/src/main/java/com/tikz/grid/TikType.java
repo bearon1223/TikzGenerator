@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.tikz.ColorHolder;
 import com.tikz.ProgramState;
 
+import java.util.Objects;
+
 public class TikType {
     public Vector2 origin = new Vector2();
     public Vector2 endPoint = new Vector2();
@@ -78,10 +80,12 @@ public class TikType {
 
     @Override
     public String toString() {
-        return String.format("%s type: %s with color: %s\norigin: %s\nend: %s\ntext: %s\n" +
-                "hasVertices: %b\nhasTexture: %b\nwith width / upscale: %f\nand thickness: %s\n",
-                isFilled ? "filled with" : "", type, color, origin, endPoint,
-            text, !vertices.isEmpty(), latexImg != null, upscale, lineThickness);
+        return String.format(
+                "%stype: %s %s with color: %s\n" +
+                "origin: %s, end: %s, text: %s\n" +
+                "hasVertices: %b, hasTexture: %b\n",
+                isFilled ? "filled " : "", lineThickness, type, color, origin, endPoint,
+            Objects.equals(text, "") ? "No Text" : text, !vertices.isEmpty(), latexImg != null);
     }
 
     public void dispose() {

@@ -50,6 +50,7 @@ public class ShowTikz implements Screen {
         returnButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                stage.clear();
                 app.setScreen(new MainScreen(app).setGrid(grid));
             }
         });
