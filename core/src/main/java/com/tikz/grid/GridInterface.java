@@ -521,13 +521,13 @@ public class GridInterface {
             case VERY_THIN:
                 return 1.25f;
             case THIN:
-                return 2f;
+                return 1.55f;
             case THICK:
-                return 3f;
+                return 2f;
             case VERY_THICK:
-                return 4f;
+                return 3f;
             case ULTRA_THICK:
-                return 6f;
+                return 5f;
         }
         return 2f;
     }

@@ -120,16 +120,16 @@ public class ShowTikz implements Screen {
                 stage.addActor(fileExplorer);
             }
         });
-
-        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
+        t.add(scrollPane).colspan(2).width(Value.percentWidth(1, t)).height(Value.percentHeight(0.9f, t));
         t.row();
 
+        t.add(saveToFile).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
+            .spaceTop(Value.percentHeight(0.0083f, t));
+
         t.add(returnButton).width(Value.percentWidth(0.15f, t)).height(Value.percentHeight(0.0625f, t))
-            .padRight(Value.percentWidth(0.00417f, t)).bottom().padBottom(Value.percentWidth(0.00417f, t));
+            .spaceTop(Value.percentHeight(0.0083f, t));;
 
-        t.add(scrollPane).width(Value.percentWidth(0.833f, t)).height(Value.percentHeight(1, t));
         stage.addActor(t);
-
         Gdx.input.setInputProcessor(stage);
     }
 
