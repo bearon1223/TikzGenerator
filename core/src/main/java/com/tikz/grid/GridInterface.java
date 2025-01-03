@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.tikz.Main;
 import com.tikz.MainScreen;
+import com.tikz.ProgramState;
 import org.scilab.forge.jlatexmath.ParseException;
 
 import static com.tikz.ProgramState.*;
@@ -174,7 +175,8 @@ public class GridInterface {
                 renderTikz(editing, currentType, renderer, o, e, center);
                 if (currentType == DrawType.MULTI_LINE) {
                     Vector2 vPres = editing.vertices.peek().cpy().scl(gridSpacing).add(center);
-                    drawLine(renderer, vPres, mouse.cpy().scl(gridSpacing).add(center), editing.dashed, editing.frontArrow, false);
+                    drawLine(renderer, vPres, mouse.cpy().scl(gridSpacing).add(center), editing.dashed,
+                        editing.frontArrow, false, editing.lineThickness);
                 }
             } else {
                 editing = new TikType(mouse, currentType, text, editing.latexImg, editing.upscale);
@@ -242,10 +244,10 @@ public class GridInterface {
         renderer.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
         switch (type) {
             case LINE:
-                drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow);
+                drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, tik.lineThickness);
                 break;
             case CIRCLE:
-                drawCircle(renderer, o.x, o.y, o.dst(e), tik.dashed, tik.isFilled);
+                drawCircle(renderer, o.x, o.y, o.dst(e), tik.dashed, tik.isFilled, tik.lineThickness);
                 break;
             case MULTI_LINE:
                 // draw the polygon
@@ -267,16 +269,19 @@ public class GridInterface {
                 }
                 Vector2 vPres = tik.vertices.get(0).cpy().scl(gridSpacing).add(center);
                 if (tik.vertices.size > 1) {
-                    drawLine(renderer, vPres, tik.vertices.get(1).cpy().scl(gridSpacing).add(center), tik.dashed, false, tik.backArrow);
+                    drawLine(renderer, vPres, tik.vertices.get(1).cpy().scl(gridSpacing).add(center), tik.dashed,
+                        false, tik.backArrow, tik.lineThickness);
                     vPres = tik.vertices.get(1).cpy().scl(gridSpacing).add(center);
                 }
                 if (tik.vertices.size > 2) {
                     for (int i = 2; i < tik.vertices.size - 1; i++) {
-                        drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed, false, false);
+                        drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed,
+                            false, false, tik.lineThickness);
                         vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                     }
                 }
-                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center), tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false);
+                drawLine(renderer, vPres, tik.vertices.get(tik.vertices.size - 1).cpy().scl(gridSpacing).add(center),
+                    tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false, tik.lineThickness);
                 break;
             case TEXT:
                 if (tik.text.matches("^\\$.*\\$$") && tik.latexImg == null) {
@@ -314,7 +319,7 @@ public class GridInterface {
                 // draw the polygon
                 Vector2 vOld = editing.vertices.get(0).cpy().add(mouse).scl(gridSpacing).add(center);
                 for (int i = 1; i < editing.vertices.size; i++) {
-                    drawLine(renderer, vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), dashed, frontArrow, backArrow);
+                    drawLine(renderer, vOld, editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center), dashed, frontArrow, backArrow, lineThickness);
                     vOld = editing.vertices.get(i).cpy().add(mouse).scl(gridSpacing).add(center);
                 }
                 break;
@@ -323,7 +328,7 @@ public class GridInterface {
                 for (Vector2 p : tik.vertices) {
                     points.add(p.cpy().scl(gridSpacing).add(center));
                 }
-                drawBezier(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, points);
+                drawBezier(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, points, lineThickness);
                 break;
             default:
                 throw new IllegalDrawType("Unknown Draw Type");
@@ -356,6 +361,7 @@ public class GridInterface {
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
+                        editing.lineThickness = lineThickness;
                         if (currentType == DrawType.CIRCLE)
                             editing.isFilled = isFilled;
                     } else {
@@ -381,6 +387,7 @@ public class GridInterface {
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
+                        editing.lineThickness = lineThickness;
                     } else {
                         if (mouse.equals(editing.vertices.get(0))) {
                             addingPoints = false;
@@ -388,6 +395,7 @@ public class GridInterface {
                             editing.frontArrow = false;
                             editing.backArrow = false;
                             editing.isFilled = isFilled;
+                            editing.lineThickness = lineThickness;
                             points.add(editing);
                         } else
                             editing.vertices.add(mouse);
@@ -404,6 +412,7 @@ public class GridInterface {
                     temp.frontArrow = editing.frontArrow;
                     temp.backArrow = editing.backArrow;
                     temp.isFilled = isFilled;
+                    temp.lineThickness = lineThickness;
                     points.add(temp);
                     break;
                 case BEZIER:
@@ -418,6 +427,7 @@ public class GridInterface {
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
+                        editing.lineThickness = lineThickness;
                     }
                     break;
                 default:
@@ -443,7 +453,8 @@ public class GridInterface {
         }
     }
 
-    public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius, boolean isDashed, boolean isFilled) {
+    public void drawCircle(ShapeRenderer shapeRenderer, float x, float y, float radius, boolean isDashed, boolean isFilled,
+                           DrawType.LineThickness thickness) {
         if (isFilled) {
             shapeRenderer.circle(x, y, radius);
             return;
@@ -456,26 +467,27 @@ public class GridInterface {
             double alpha = angularSeparation * i;
             Vector2 newPoint = center.cpy().add((float) (radius * cos(alpha)), (float) (radius * sin(alpha)));
             if ((angularSeparation * radius > 30f || i % 2 == 0) || !isDashed)
-                drawLine(shapeRenderer, vPres, newPoint, isDashed, false, false);
+                drawLine(shapeRenderer, vPres, newPoint, isDashed, false, false, thickness);
             vPres = newPoint.cpy();
         }
     }
 
-    public void drawLine(ShapeRenderer shapeRenderer, Vector2 origin, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow) {
+    public void drawLine(ShapeRenderer shapeRenderer, Vector2 origin, Vector2 end, boolean isDashed, boolean frontArrow
+        , boolean backArrow, DrawType.LineThickness thickness) {
         float x1 = origin.x;
         float x2 = end.x;
         float y1 = origin.y;
         float y2 = end.y;
-        float lineWidth = 2f;
+        float lineWidth = getLineWidth(thickness);
 
         // Calculate the angle of the line
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
         float arrowHeadSize = 20f * scaling * zoomLevel;
 
         if (isDashed) {
-            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, 4f);
+            drawDashedLine(shapeRenderer, origin.x, origin.y, end.x, end.y, 20f, lineWidth);
         } else {
-            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 2f));
+            shapeRenderer.rectLine(origin, end, Math.max(lineWidth * scaling * zoomLevel, 1f));
         }
 
         if (frontArrow) {
@@ -502,6 +514,24 @@ public class GridInterface {
         }
     }
 
+    public float getLineWidth(DrawType.LineThickness thickness) {
+        switch (thickness) {
+            case ULTRA_THIN:
+                return 0.5f;
+            case VERY_THIN:
+                return 1.25f;
+            case THIN:
+                return 2f;
+            case THICK:
+                return 3f;
+            case VERY_THICK:
+                return 4f;
+            case ULTRA_THICK:
+                return 6f;
+        }
+        return 2f;
+    }
+
     public void drawDashedLine(ShapeRenderer shapeRenderer, float x1, float y1, float x2, float y2, float dashSpacing, float lineWidth) {
         // Calculate the total distance between the start and end points
         float distance = (float) Math.hypot(x2 - x1, y2 - y1);
@@ -519,14 +549,15 @@ public class GridInterface {
         Vector2 vPres = new Vector2(x1, y1);
         for (int i = 0; i < numDots; i++) {
             shapeRenderer.rectLine(vPres, vPres.cpy().add(dashSpacing * directionX / 2,
-                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel / 2, lineWidth));
+                dashSpacing * directionY / 2), Math.max(lineWidth * scaling * zoomLevel, 1f));
             vPres.add(dashSpacing * directionX, dashSpacing * directionY);
         }
 
         shapeRenderer.rectLine(vPres.x, vPres.y, x2, y2, Math.max(lineWidth * scaling * zoomLevel / 2, lineWidth));
     }
 
-    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow, boolean backArrow, Array<Vector2> controlPoints) {
+    public void drawBezier(ShapeRenderer renderer, Vector2 start, Vector2 end, boolean isDashed, boolean frontArrow,
+                           boolean backArrow, Array<Vector2> controlPoints, DrawType.LineThickness thickness) {
         int lineCount = 50;
         Vector2 vPres = start.cpy();
         Array<Vector2> vectors = new Array<>();
@@ -542,7 +573,7 @@ public class GridInterface {
             double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
             point.add(vectors.get(i).cpy().scl((float) scl));
         }
-        drawLine(renderer, vPres, point, false, false, backArrow);
+        drawLine(renderer, vPres, point, false, false, backArrow, thickness);
         vPres = point.cpy();
 
         // \sum_{i=0}^n*\frac{n!}{i!(n-i)!}(1-t)^{n-i}t^iP_i
@@ -554,7 +585,7 @@ public class GridInterface {
                 point.add(vectors.get(i).cpy().scl((float) scl));
             }
             if (line % 2 == 0 || !isDashed)
-                drawLine(renderer, vPres, point, false, false, false);
+                drawLine(renderer, vPres, point, false, false, false, thickness);
             vPres = point.cpy();
         }
         t = 1;
@@ -563,7 +594,7 @@ public class GridInterface {
             double scl = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
             point.add(vectors.get(i).cpy().scl((float) scl));
         }
-        drawLine(renderer, vPres, point, false, frontArrow, false);
+        drawLine(renderer, vPres, point, false, frontArrow, false, thickness);
     }
 
     private int binomialCoefficient(int n, int i) {

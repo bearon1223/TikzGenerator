@@ -360,17 +360,11 @@ public class MainScreen implements Screen {
         t.setSkin(skin);
         t.defaults().prefWidth(Value.percentWidth(0.9f, t));
 //        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
-        t.defaults().prefHeight(Value.percentHeight(0.052f, t));
+        t.defaults().prefHeight(Value.percentHeight(0.053f, t));
 
         t.setSize(0.16667f*Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // type buttons
-        addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
-        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
-
-        TextButton colorButton = new TextButton("Tik Color: " + colors[colorIndex].name, skin);
+        TextButton colorButton = new TextButton("Line Color: " + colors[colorIndex].name, skin);
 
         colorButton.addListener(new ClickListener() {
             @Override
@@ -378,7 +372,7 @@ public class MainScreen implements Screen {
                 colorIndex++;
                 colorIndex = colorIndex % colors.length;
                 selectedColor = colors[colorIndex];
-                colorButton.setText("Tik Color: " + colors[colorIndex].name);
+                colorButton.setText("Line Color: " + colors[colorIndex].name);
             }
         });
 
@@ -443,6 +437,38 @@ public class MainScreen implements Screen {
         t.add(arrow).spaceBottom(Value.percentHeight(0.0083f, t));
         t.row();
 
+        TextButton lineThickness = new TextButton(String.format("%s Lines", getThicknessName(ProgramState.lineThickness)), skin);
+
+        lineThickness.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                switch (ProgramState.lineThickness) {
+                    case ULTRA_THIN:
+                        ProgramState.lineThickness = DrawType.LineThickness.VERY_THIN;
+                        break;
+                    case VERY_THIN:
+                        ProgramState.lineThickness = DrawType.LineThickness.THIN;
+                        break;
+                    case THIN:
+                        ProgramState.lineThickness = DrawType.LineThickness.THICK;
+                        break;
+                    case THICK:
+                        ProgramState.lineThickness = DrawType.LineThickness.VERY_THICK;
+                        break;
+                    case VERY_THICK:
+                        ProgramState.lineThickness = DrawType.LineThickness.ULTRA_THICK;
+                        break;
+                    case ULTRA_THICK:
+                        ProgramState.lineThickness = DrawType.LineThickness.ULTRA_THIN;
+                        break;
+                }
+                lineThickness.setText(String.format("%s Lines", getThicknessName(ProgramState.lineThickness)));
+            }
+        });
+
+        t.add(lineThickness).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+
         TextButton filled = new TextButton("Is Filled: " + (isFilled ? "True" : "False"), skin);
 
         filled.addListener(new ClickListener() {
@@ -453,8 +479,14 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(filled).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.add(filled).spaceBottom(Value.percentHeight(0.025f, t));
         t.row();
+
+        // type buttons
+        addButton(DrawType.LINE, t, skin, "Line");
+        addButton(DrawType.CIRCLE, t, skin, "Circle");
+        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
+        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
 
         // Create TextField
         textField = new TextField(ProgramState.text, skin);
@@ -515,76 +547,6 @@ public class MainScreen implements Screen {
         t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
-//        TextButton saveToFile = new TextButton("Save to File", skin);
-//
-//        saveToFile.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                fileExplorer = new FileExplorer(skin, MainScreen.this, new FileExplorer.FileExplorerListener() {
-//                    @Override
-//                    public void fileSelected(FileHandle file) {
-//                    }
-//
-//                    @Override
-//                    public void submitPressed(FileHandle file, String fileName) {
-//                        if(fileName.equals(file.name())) {
-//                            // If we are overwriting a file, confirm if they truly want to overwrite.
-//                            final Dialog[] confirmDialog = new Dialog[1]; // Get around Java Restrictions
-//                            confirmDialog[0] = new Dialog("Confirmation", skin) {
-//                                {
-//                                    this.pad(5f);
-//                                    this.padTop(15f);
-//                                    getContentTable().pad(5f);
-//                                    getButtonTable().defaults().prefWidth(100f).padBottom(5f);
-//
-//                                    text("Are you Sure?");
-//
-//                                    TextButton submit = new TextButton("Submit", skin);
-//
-//                                    // if yes, try to overwrite, if it fails throw an error dialog
-//                                    submit.addListener(new ClickListener() {
-//                                        @Override
-//                                        public void clicked(InputEvent event, float x, float y) {
-//                                            confirmDialog[0].hide();
-//                                            try {
-//                                                if(!Objects.equals(file.extension(), "txt")){
-//                                                    throw new ImproperFileType("The file must end with a txt extension");
-//                                                }
-//                                                file.writeString(MakeTikz.convert(grid.points, MainScreen.this), false);
-//                                            } catch (Exception e) {
-//                                                ErrorDialog(e);
-//                                            }
-//                                        }
-//                                    });
-//                                    this.getButtonTable().add(submit);
-//                                    button("Cancel");
-//                                }
-//                            };
-//                            confirmDialog[0].show(stage);
-//                        } else {
-//                            try {
-//                                if(!fileName.endsWith(".txt")){
-//                                    fileName += ".txt";
-//                                }
-//                                String output = MakeTikz.convert(grid.points, MainScreen.this);
-//                                FileHandle newFile = Gdx.files.absolute(file.file().getParent() + File.separator + fileName);
-//                                newFile.writeString(output, false);
-//                                openFile(new FileHandle(""));
-//                                app.setScreen(new ShowTikz(app, grid, output));
-//                            } catch (Exception e) {
-//                                ErrorDialog(e);
-//                            }
-//                        }
-//                    }
-//                });
-//                fileExplorer.resize(app);
-//                stage.addActor(fileExplorer);
-//            }
-//        });
-//
-//        t.add(saveToFile).spaceTop(Value.percentHeight(0.0083f, t));
-//        t.row();
-
         TextButton convertToTikz = new TextButton("Export", skin);
 
         convertToTikz.addListener(new ClickListener() {
@@ -613,11 +575,30 @@ public class MainScreen implements Screen {
             spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
 
+        assert stage != null;
         stage.addActor(t);
 
         // Set the stage as the input processor
         Gdx.input.setInputProcessor(stage);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    private String getThicknessName(DrawType.LineThickness thickness) {
+        switch (thickness) {
+            case ULTRA_THIN:
+                return "Ultra Thin";
+            case VERY_THIN:
+                return "Very Thin";
+            case THIN:
+                return "Thin";
+            case THICK:
+                return "Thick";
+            case VERY_THICK:
+                return "Very Thick";
+            case ULTRA_THICK:
+                return "Ultra Thick";
+        }
+        return "Error";
     }
 
     @Override

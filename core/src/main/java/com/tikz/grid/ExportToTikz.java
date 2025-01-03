@@ -12,7 +12,7 @@ public abstract class ExportToTikz {
     public static String convert(Array<TikType> tikzShapes) {
         StringBuilder output = new StringBuilder();
         for (TikType tik : tikzShapes) {
-            StringBuilder extraCommands = getCommands(tik);
+            StringBuilder extraCommands = combineModifiers(tik);
 
             switch (tik.type) {
                 case LINE:
@@ -49,45 +49,45 @@ public abstract class ExportToTikz {
         return output.toString();
     }
 
-    private static StringBuilder getCommands(TikType tik) {
-        Array<String> extraCommandsArray = getModifiers(tik);
-        StringBuilder extraCommands = new StringBuilder();
-        if (extraCommandsArray.notEmpty()) {
-            extraCommands.append("[");
-            for (String str : extraCommandsArray) {
-                extraCommands.append(str);
-                if (!Objects.equals(str, extraCommandsArray.peek()))
-                    extraCommands.append(", ");
+    private static StringBuilder combineModifiers(TikType tik) {
+        Array<String> modifiersArray = getModifiers(tik);
+        StringBuilder modifiers = new StringBuilder();
+        if (modifiersArray.notEmpty()) {
+            modifiers.append("[");
+            for (String str : modifiersArray) {
+                modifiers.append(str);
+                if (!Objects.equals(str, modifiersArray.peek()))
+                    modifiers.append(", ");
             }
-            extraCommands.append("]");
+            modifiers.append("]");
         }
-        return extraCommands;
+        return modifiers;
     }
 
     private static Array<String> getModifiers(TikType tik) {
-        Array<String> extraCommandsArray = new Array<>();
+        Array<String> modifiersArray = new Array<>();
         if (tik.dashed) {
-            extraCommandsArray.add("dashed");
+            modifiersArray.add("dashed");
         }
 
         if(!tik.color.name.equalsIgnoreCase("black")) {
-            extraCommandsArray.add("color = " + tik.color);
+            modifiersArray.add("color = " + tik.color);
         }
 
         if (tik.type != DrawType.CIRCLE) {
             if (tik.frontArrow && !tik.backArrow) {
-                extraCommandsArray.add("->");
+                modifiersArray.add("->");
             } else if (!tik.frontArrow && tik.backArrow) {
-                extraCommandsArray.add("<-");
+                modifiersArray.add("<-");
             } else if (tik.frontArrow) {
-                extraCommandsArray.add("<->");
+                modifiersArray.add("<->");
             }
         }
 
         if(tik.lineThickness != DrawType.LineThickness.THIN) {
-            extraCommandsArray.add(tik.lineThickness.toString().toLowerCase().replaceAll("_", " "));
+            modifiersArray.add(tik.lineThickness.toString().toLowerCase().replaceAll("_", " "));
         }
-        return extraCommandsArray;
+        return modifiersArray;
     }
 
     private static Array<Vector2> getBezierPoints(TikType tik) {

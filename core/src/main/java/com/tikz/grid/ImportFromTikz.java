@@ -188,7 +188,7 @@ public class ImportFromTikz {
         return tikType;
     }
 
-    public static float getConversion(String unit) throws IllegalUnitType {
+    private static float getConversion(String unit) throws IllegalUnitType {
         float pt = 28.45274f;   // cm / pt
         float mm = 10;          // cm / mm
         float cm = 1;           // cm / cm

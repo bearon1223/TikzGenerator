@@ -32,6 +32,7 @@ public class ProgramState {
         new ColorHolder(new Color(0xe18631ff), "Orange"),
         new ColorHolder(new Color(0xf6eb5fff), "Yellow"),
         new ColorHolder(new Color(0x70b7edff), "Cyan"),
+        new ColorHolder(new Color(0xfc2f99ff), "Magenta"),
     };
     public static ColorHolder selectedColor = colors[colorIndex];
 }
