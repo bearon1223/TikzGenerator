@@ -69,7 +69,9 @@ public class ImportFromTikz {
                     vector = vector.replaceAll(",\\s*", ", ").trim();
                     Vector2 loc = new Vector2().fromString("(" + vector + ")").scl(scale).rotateDeg(rotationDeg);
                     String content = matcher.group(2);
-                    points.add(new TikType(loc, DrawType.TEXT, content));
+                    TikType tikType = new TikType(loc, DrawType.TEXT, content);
+                    tikType.color = tikColor;
+                    points.add(tikType);
                 } else {
                     throw new IllegalDrawType(String.format("Error: '%s' is not a valid command understood by this program!" +
                         "\n\t(Commands could not be parsed)\n", command));

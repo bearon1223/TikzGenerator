@@ -19,7 +19,7 @@ public abstract class ExportToTikz {
                     output.append(String.format("\\draw%s %s -- %s;\n", extraCommands, tik.origin.toString(), tik.endPoint.toString()));
                     break;
                 case TEXT:
-                    output.append(String.format("\\draw node at %s {%s};\n", tik.origin.toString(), tik.text));
+                    output.append(String.format("\\draw%s node at %s {%s};\n", extraCommands, tik.origin.toString(), tik.text));
                     break;
                 case CIRCLE:
                     output.append(String.format("\\%s%s %s circle(%1.2f cm);\n", tik.isFilled ? "filldraw" : "draw",
@@ -66,12 +66,17 @@ public abstract class ExportToTikz {
 
     private static Array<String> getModifiers(TikType tik) {
         Array<String> modifiersArray = new Array<>();
-        if (tik.dashed) {
-            modifiersArray.add("dashed");
-        }
 
         if(!tik.color.name.equalsIgnoreCase("black")) {
             modifiersArray.add("color = " + tik.color);
+        }
+
+        if(tik.type == DrawType.TEXT) {
+            return modifiersArray;
+        }
+
+        if (tik.dashed) {
+            modifiersArray.add("dashed");
         }
 
         if (tik.type != DrawType.CIRCLE) {

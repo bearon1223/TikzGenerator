@@ -106,43 +106,39 @@ public class GridInterface {
     private void drawGridLines(ShapeRenderer renderer, Vector2 center) {
         final int viewable = 7;
         int count = 10;
-        int min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-        int max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-        // draw small lines
-        // Vertical Lines
+        int halfLineCount = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
+
         if (zoomLevel < 0.5f) {
             count = 4;
         }
-        for (int i = min; i <= max - 1; i++) {  // row
+
+        // Vertical Lines
+        for (int i = -halfLineCount; i < halfLineCount; i++) {
+            renderer.setColor(Color.GRAY);
+            // Draw Minor Grid Lines
             for (int j = 0; j < count; j++) {
-                renderer.setColor(Color.GRAY);
                 renderer.rectLine(new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, 0),
                     new Vector2(center.x + gridSpacing * i + gridSpacing / count * j, Gdx.graphics.getHeight()), 1f);
             }
-        }
-
-        // Horizontal Lines
-        min = -Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
-        max = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
-        for (int i = min; i <= max - 1; i++) {  // row
-            for (int j = 0; j < count; j++) {
-                renderer.setColor(lightMode ? Color.LIGHT_GRAY : Color.GRAY);
-                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
-                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
-            }
-        }
-        for (int i = min; i <= max; i++) {
-            renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
-            renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
-                new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
-        }
-        min = -Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-        max = Math.round(viewable / zoomLevel) + (int) (panning.x / gridSpacing);
-        // draw big lines
-        for (int i = min; i <= max; i++) {
+            // Draw Major Grid Lines
             renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
             renderer.rectLine(new Vector2(center.x + gridSpacing * i, 0),
                 new Vector2(center.x + gridSpacing * i, Gdx.graphics.getHeight()), 2f);
+        }
+
+        // Horizontal Lines
+        halfLineCount = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
+        for (int i = -halfLineCount; i < halfLineCount; i++) {
+            // Draw Minor Grid Lines
+            renderer.setColor(lightMode ? Color.LIGHT_GRAY : Color.GRAY);
+            for (int j = 0; j < count; j++) {
+                renderer.rectLine(new Vector2(0, center.y + gridSpacing * i + gridSpacing / count * j),
+                    new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i + gridSpacing / count * j), 1f);
+            }
+            // Draw Major Grid Lines
+            renderer.setColor(lightMode ? Color.GRAY : Color.LIGHT_GRAY);
+            renderer.rectLine(new Vector2(0, center.y + gridSpacing * i),
+                new Vector2(Gdx.graphics.getWidth(), center.y + gridSpacing * i), 2f);
         }
     }
 
@@ -302,7 +298,7 @@ public class GridInterface {
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
                 if (tik.latexImg == null) {
-                    app.TikzTextFont.setColor(lightMode ? Color.BLACK : Color.WHITE);
+                    app.TikzTextFont.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
                     app.TikzTextFont.draw(app.batch, tik.text, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
