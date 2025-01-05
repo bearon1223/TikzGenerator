@@ -304,7 +304,7 @@ public class GridInterface {
                     float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
                     float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
                     Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
-                    app.batch.setColor(lightMode ? Color.BLACK : Color.WHITE);
+                    app.batch.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
                 }
                 app.batch.end();
