@@ -113,7 +113,7 @@ public class GridInterface {
         }
 
         // Vertical Lines
-        for (int i = -halfLineCount; i < halfLineCount; i++) {
+        for (int i = -halfLineCount + (int) (2 * panning.x / gridSpacing); i < halfLineCount; i++) {
             renderer.setColor(Color.GRAY);
             // Draw Minor Grid Lines
             for (int j = 0; j < count; j++) {
@@ -128,7 +128,7 @@ public class GridInterface {
 
         // Horizontal Lines
         halfLineCount = Math.round(viewable / 1.25f / zoomLevel) + (int) (panning.y / gridSpacing);
-        for (int i = -halfLineCount; i < halfLineCount; i++) {
+        for (int i = -halfLineCount + (int) (2 * panning.y / gridSpacing); i < halfLineCount; i++) {
             // Draw Minor Grid Lines
             renderer.setColor(lightMode ? Color.LIGHT_GRAY : Color.GRAY);
             for (int j = 0; j < count; j++) {
@@ -280,6 +280,7 @@ public class GridInterface {
                     tik.dashed, tik.frontArrow && (!addingPoints || tik != editing), false, tik.lineThickness);
                 break;
             case TEXT:
+                // Check if a texture needs to be generated
                 if (tik.text.matches("^\\$.*\\$$") && tik.latexImg == null) {
                     try {
                         tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.text.replace("$", ""));
@@ -297,6 +298,7 @@ public class GridInterface {
                 renderer.end();
                 app.batch.begin();
                 app.batch.setProjectionMatrix(renderer.getProjectionMatrix());
+                // If there is no texture, render the text, otherwise render the image
                 if (tik.latexImg == null) {
                     app.TikzTextFont.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
                     app.TikzTextFont.draw(app.batch, tik.text, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
