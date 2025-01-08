@@ -271,8 +271,15 @@ public class GridInterface {
                 }
                 if (tik.vertices.size > 2) {
                     for (int i = 2; i < tik.vertices.size - 1; i++) {
-                        drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed,
-                            false, false, tik.lineThickness);
+                        boolean isShort = vPres.cpy().sub(tik.vertices.get(i).cpy().scl(gridSpacing).add(center)).len() < 20f * scaling;
+                        if (isShort && tik.dashed) {
+                            if (i % 2 == 1) {
+                                drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed,
+                                    false, false, tik.lineThickness);
+                            }
+                        } else
+                            drawLine(renderer, vPres, tik.vertices.get(i).cpy().scl(gridSpacing).add(center), tik.dashed,
+                                false, false, tik.lineThickness);
                         vPres = tik.vertices.get(i).cpy().scl(gridSpacing).add(center);
                     }
                 }
