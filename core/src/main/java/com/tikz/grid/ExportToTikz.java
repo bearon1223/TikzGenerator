@@ -67,8 +67,8 @@ public abstract class ExportToTikz {
     private static Array<String> getModifiers(TikType tik) {
         Array<String> modifiersArray = new Array<>();
 
-        if(!tik.color.name.equalsIgnoreCase("black")) {
-            modifiersArray.add("color = " + tik.color);
+        if(!tik.color.name.equalsIgnoreCase("black") || tik.color.percentValue != 1.0f) {
+            modifiersArray.add("color = " + tik.color + (tik.color.percentValue != 1.0f ? ("!" + Math.round(tik.color.percentValue * 100)) : ""));
         }
 
         if(tik.type == DrawType.TEXT) {
