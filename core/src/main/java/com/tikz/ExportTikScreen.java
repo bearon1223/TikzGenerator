@@ -51,7 +51,7 @@ public class ExportTikScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 stage.clear();
-                app.setScreen(new MainScreen(app).setGrid(grid));
+                app.setScreen(new MainScreen(app, grid));
             }
         });
 
@@ -228,6 +228,7 @@ public class ExportTikScreen implements Screen {
     public void hide() {
         stage.clear();
         stage.dispose();
+        skin.dispose();
     }
 
     @Override

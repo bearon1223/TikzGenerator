@@ -237,7 +237,11 @@ public class GridInterface {
     }
 
     private void renderTikz(TikType tik, DrawType type, ShapeRenderer renderer, Vector2 o, Vector2 e, Vector2 center) {
-        renderer.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
+        renderer.setColor(new Color(
+            (tik.color.r != 0 || lightMode ? tik.color.r : 1) * tik.color.percentValue + (lightMode ? 1 : 0x00) * (1 - tik.color.percentValue),
+            (tik.color.g != 0 || lightMode ? tik.color.g : 1) * tik.color.percentValue + (lightMode ? 1 : 0x00) * (1 - tik.color.percentValue),
+            (tik.color.b != 0 || lightMode ? tik.color.b : 1) * tik.color.percentValue + (lightMode ? 1 : 0x00) * (1 - tik.color.percentValue)
+                , 255));
         switch (type) {
             case LINE:
                 drawLine(renderer, o, e, tik.dashed, tik.frontArrow, tik.backArrow, tik.lineThickness);

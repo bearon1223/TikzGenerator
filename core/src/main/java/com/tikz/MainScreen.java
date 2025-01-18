@@ -45,6 +45,13 @@ public class MainScreen implements Screen {
         setUI();
     }
 
+    public MainScreen(Main app, GridInterface grid) {
+        this.app = app;
+        this.grid = grid;
+
+        setUI();
+    }
+
     /**
      * an easing function where f(x) = -x^{4}+2x^{2} when 0 < x < 1
      *
@@ -613,6 +620,7 @@ public class MainScreen implements Screen {
     public void hide() {
         stage.clear();
         stage.dispose();
+        skin.dispose();
     }
 
     @Override

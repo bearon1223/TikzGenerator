@@ -1,5 +1,6 @@
 package com.tikz.grid;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -28,7 +29,7 @@ public class ImportFromTikz {
                 System.out.printf("Commented Code: %s\n", command);
                 continue;
             }
-            ColorHolder tikColor = ProgramState.colors[0];
+            ColorHolder tikColor = new ColorHolder(Color.BLACK, "Black", 1.0f);
 
             // set fill state
             boolean isFilled = false;
@@ -47,13 +48,15 @@ public class ImportFromTikz {
 
             // get Color
             if(hasColor) {
-                String regex = "color\\s*=\\s*(\\w+)";
-                Pattern pattern = Pattern.compile(regex);
+                Pattern pattern = Pattern.compile("color\\s*=\\s*(\\w+)(?:!(\\d+))?");
                 Matcher matcher = pattern.matcher(command);
                 if (matcher.find()) {
                     for(int i = 0; i < ProgramState.colors.length; i++) {
                         if(matcher.group(1).equalsIgnoreCase(ProgramState.colors[i].name)) {
-                            tikColor = ProgramState.colors[i];
+                            tikColor = new ColorHolder(ProgramState.colors[i]);
+                            if (matcher.group(2) != null) {
+                                tikColor.percentValue = Float.parseFloat(matcher.group(2)) / 100f;
+                            }
                         }
                     }
                 }
