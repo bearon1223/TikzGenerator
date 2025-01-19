@@ -364,25 +364,35 @@ public class MainScreen implements Screen {
         t = new Table();
         t.setSkin(skin);
         t.defaults().prefWidth(Value.percentWidth(0.9f, t));
-//        t.defaults().prefHeight(Value.percentHeight(0.05625f, t));
-        t.defaults().prefHeight(Value.percentHeight(0.053f, t));
+        t.defaults().prefHeight(Value.percentHeight(0.048f, t));
 
         t.setSize(0.16667f*Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         TextButton colorButton = new TextButton("Line Color: " + colors[colorIndex].name, skin);
+
+        Label weightSliderText = new Label(String.format("Color Weight: %d%%", (int) (grid.selectedColor.percentValue * 100)), skin);
+        Slider weightSlider = new Slider(5, 100, 5, false, skin);
+        weightSlider.setValue((int) (grid.selectedColor.percentValue * 100));
 
         colorButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 colorIndex++;
                 colorIndex = colorIndex % colors.length;
-                selectedColor = colors[colorIndex];
+                grid.selectedColor = new ColorHolder(colors[colorIndex]);
+                weightSliderText.setText(String.format("Color Weight: %d%%", (int) (grid.selectedColor.percentValue * 100)));
+                weightSlider.setValue(100);
                 colorButton.setText("Line Color: " + colors[colorIndex].name);
             }
         });
 
-        t.add(colorButton).spaceTop(Value.percentHeight(0.025f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
+        weightSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                grid.selectedColor.percentValue = weightSlider.getValue() / 100f;
+                weightSliderText.setText(String.format("Color Weight: %d%%", (int) (grid.selectedColor.percentValue * 100)));
+            }
+        });
 
         TextButton dashed = new TextButton("Dashed: " + (ProgramState.dashed ? "True" : "False"), skin);
 
@@ -393,9 +403,6 @@ public class MainScreen implements Screen {
                 dashed.setText("Dashed: " + (ProgramState.dashed ? "True" : "False"));
             }
         });
-
-        t.add(dashed).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
 
         String arrowState;
         if(frontArrow && backArrow) {
@@ -439,9 +446,6 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(arrow).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
         TextButton lineThickness = new TextButton(String.format("%s Lines", getThicknessName(ProgramState.lineThickness)), skin);
 
         lineThickness.addListener(new ClickListener() {
@@ -471,9 +475,6 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(lineThickness).spaceBottom(Value.percentHeight(0.0083f, t));
-        t.row();
-
         TextButton filled = new TextButton("Is Filled: " + (isFilled ? "True" : "False"), skin);
 
         filled.addListener(new ClickListener() {
@@ -484,24 +485,8 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(filled).spaceBottom(Value.percentHeight(0.025f, t));
-        t.row();
-
-        // type buttons
-        addButton(DrawType.LINE, t, skin, "Line");
-        addButton(DrawType.CIRCLE, t, skin, "Circle");
-        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
-        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
-
         // Create TextField
         textField = new TextField(ProgramState.text, skin);
-        t.add(textField).height(Value.percentHeight(0.0375f, t)).
-            spaceTop(Value.percentHeight(0.025f, t)).
-            spaceBottom(Value.percentHeight(0.0083f, t)).
-            width(Value.percentWidth(0.9f, t));
-        t.row();
-
-        addButton(DrawType.TEXT, t, skin, "Insert Text");
 
         textField.addListener(new ChangeListener() {
             @Override
@@ -518,9 +503,6 @@ public class MainScreen implements Screen {
                 app.setScreen(new ImportTikzScreen(app, grid));
             }
         });
-
-        t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
-        t.row();
 
         TextButton importFromFileTikz = new TextButton("Import from File", skin);
 
@@ -549,9 +531,6 @@ public class MainScreen implements Screen {
             }
         });
 
-        t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
-
         TextButton convertToTikz = new TextButton("Export to Tikz", skin);
 
         convertToTikz.addListener(new ClickListener() {
@@ -561,9 +540,6 @@ public class MainScreen implements Screen {
                 app.setScreen(new ExportTikScreen(app, grid, ExportToTikz.convert(grid.points)));
             }
         });
-
-        t.add(convertToTikz).spaceTop(Value.percentHeight(0.0083f, t));
-        t.row();
 
         TextButton lightMode = new TextButton("Toggle Theme", skin);
 
@@ -576,10 +552,42 @@ public class MainScreen implements Screen {
             }
         });
 
+        t.add(colorButton).spaceTop(Value.percentHeight(0.025f, t)).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+        t.add(weightSliderText).height(Value.percentHeight(0.025f, t));
+        t.row();
+        t.add(weightSlider);
+        t.row();
+        t.add(dashed).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+        t.add(arrow).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+        t.add(lineThickness).spaceBottom(Value.percentHeight(0.0083f, t));
+        t.row();
+        t.add(filled).spaceBottom(Value.percentHeight(0.025f, t));
+        t.row();
+
+        // type buttons
+        addButton(DrawType.LINE, t, skin, "Line");
+        addButton(DrawType.CIRCLE, t, skin, "Circle");
+        addButton(DrawType.MULTI_LINE, t, skin, "Multi-Line / Polygon");
+        addBezButton(DrawType.BEZIER, t, skin, "Bezier Line");
+        t.add(textField).height(Value.percentHeight(0.0375f, t)).
+            spaceTop(Value.percentHeight(0.025f, t)).
+            spaceBottom(Value.percentHeight(0.0083f, t)).
+            width(Value.percentWidth(0.9f, t));
+        t.row();
+        addButton(DrawType.TEXT, t, skin, "Insert Text");
+
+        t.add(importTikz).spaceTop(Value.percentHeight(20 / 800f, t));
+        t.row();
+        t.add(importFromFileTikz).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
+        t.add(convertToTikz).spaceTop(Value.percentHeight(0.0083f, t));
+        t.row();
         t.add(lightMode).spaceBottom(Value.percentHeight(20 / 800f, t)).
             spaceTop(Value.percentHeight(0.0083f, t));
         t.row();
-
         assert stage != null;
         stage.addActor(t);
 

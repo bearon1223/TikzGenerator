@@ -126,7 +126,7 @@ public class ImportTikzScreen implements Screen {
                 try {
                     gridInterface.editing = ImportFromTikz.FromVectorsToPoints(textArea.getText(), scale.getValue(), rotation.getValue());
                     gridInterface.setDrawType(DrawType.DROPPED_POLYGON);
-                    gridInterface.editing.color = ProgramState.selectedColor;
+                    gridInterface.editing.color = new ColorHolder(ProgramState.colors[0]);
                     ProgramState.addingPoints = true;
                 } catch (NullPointerException | NumberFormatException | GdxRuntimeException | IllegalDrawType e) {
                     System.err.println("Error: Improper Tikz Code was imported");

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.tikz.ColorHolder;
 import com.tikz.Main;
 import com.tikz.MainScreen;
 import com.tikz.ProgramState;
@@ -28,6 +29,8 @@ public class GridInterface {
     public TikType editing;
     public MainScreen screen;
     private float centerOffset = 0f;
+
+    public ColorHolder selectedColor = new ColorHolder(colors[0]);
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
