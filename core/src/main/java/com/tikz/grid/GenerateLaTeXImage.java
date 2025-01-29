@@ -43,7 +43,7 @@ public class GenerateLaTeXImage {
     }
 
     public static Texture createLaTeXFormulaImage(String latex) throws ParseException {
-        BufferedImage image = renderLaTexToImage(latex);
+        BufferedImage image = renderLaTexToImage("\\text{ " + latex + " }");
         Pixmap map = bufferedImageToPixMap(image);
         System.out.printf("\tpixmap size: %d, %d%n", map.getWidth(), map.getHeight());
         return new Texture(map);

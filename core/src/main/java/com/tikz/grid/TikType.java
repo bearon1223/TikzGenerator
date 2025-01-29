@@ -18,7 +18,7 @@ public class TikType {
     public Array<Vector2> vertices = new Array<>();
     public short[] triangleLocations;
     public float[] flatVertices;
-    public ColorHolder color = ProgramState.colors[0];
+    public ColorHolder color = ProgramState.colors[0].clone();
     public Texture latexImg;
     public float upscale = 1;
     public boolean dashed = false;

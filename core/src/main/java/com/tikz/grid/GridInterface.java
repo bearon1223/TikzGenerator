@@ -30,7 +30,7 @@ public class GridInterface {
     public MainScreen screen;
     private float centerOffset = 0f;
 
-    public ColorHolder selectedColor = new ColorHolder(colors[0]);
+    public ColorHolder selectedColor = colors[0].clone();
 
     public GridInterface(MainScreen screen, Main app) {
         this.app = app;
@@ -297,13 +297,7 @@ public class GridInterface {
                 // Check if a texture needs to be generated
                 if (tik.text.matches("^\\$.*\\$$") && tik.latexImg == null) {
                     try {
-                        tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.text.replace("$", ""));
-                        if (tik.text.contains("\\frac")) {
-                            tik.upscale += 0.5f;
-                        }
-                        if (tik.text.contains("\\sqrt")) {
-                            tik.upscale += 0.125f;
-                        }
+                        tik.latexImg = GenerateLaTeXImage.createLaTeXFormulaImage(tik.text);
                     } catch (ParseException ignored) {
                         System.err.println("Parse Error: " + tik.text);
                         tik.latexImg = new Texture(Gdx.files.internal("Parsing Error.png"));
@@ -317,8 +311,8 @@ public class GridInterface {
                     app.TikzTextFont.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
                     app.TikzTextFont.draw(app.batch, tik.text, o.x, o.y + app.TikzTextFont.getCapHeight() / 2, 1f, Align.center, false);
                 } else {
-                    float sizeY = app.TikzTextFont.getLineHeight() * tik.upscale;
-                    float sizeX = tik.latexImg.getWidth() * sizeY / (float) (tik.latexImg.getHeight());
+                    float sizeX = tik.latexImg.getWidth() / 512f * zoomLevel * scaling * (40f - 9f);
+                    float sizeY = tik.latexImg.getHeight() / 512f * zoomLevel * scaling * (40f - 9f);
                     Vector2 o2 = o.cpy().sub(sizeX / 2, sizeY / 2);
                     app.batch.setColor(!lightMode && tik.color.name.equalsIgnoreCase("black") ? Color.WHITE : tik.color.color);
                     app.batch.draw(tik.latexImg, o2.x, o2.y, sizeX, sizeY);
@@ -369,7 +363,7 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikType(mouse, mouse.cpy().add(0.01f, 0.01f), currentType);
-                        editing.color = selectedColor;
+                        editing.color = selectedColor.clone();
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
@@ -386,7 +380,7 @@ public class GridInterface {
                 case TEXT:
                     if (addingPoints) {
                         editing = new TikType(mouse, currentType, text);
-                        editing.color = selectedColor;
+                        editing.color = selectedColor.clone();
                         points.add(editing);
                     }
                     break;
@@ -394,7 +388,7 @@ public class GridInterface {
                     if (!addingPoints) {
                         addingPoints = true;
                         editing = new TikType(new Array<>(), currentType);
-                        editing.color = selectedColor;
+                        editing.color = selectedColor.clone();
                         editing.vertices.add(mouse);
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
@@ -419,7 +413,7 @@ public class GridInterface {
                         verts.add(v.cpy().add(mouse));
                     }
                     TikType temp = new TikType(verts, DrawType.MULTI_LINE);
-                    temp.color = selectedColor;
+                    temp.color = selectedColor.clone();
                     temp.dashed = editing.dashed;
                     temp.frontArrow = editing.frontArrow;
                     temp.backArrow = editing.backArrow;
@@ -435,7 +429,7 @@ public class GridInterface {
                             v[i] = mouse.cpy().add(2f / (bezierControlPointCount + 1) * (i + 1), (float) pow(-1, i));
                         }
                         editing = new TikType(new Vector2(mouse.cpy()), mouse.cpy().add(2, 0), DrawType.BEZIER, v);
-                        editing.color = selectedColor;
+                        editing.color = selectedColor.clone();
                         editing.dashed = dashed;
                         editing.frontArrow = frontArrow;
                         editing.backArrow = backArrow;
@@ -455,7 +449,7 @@ public class GridInterface {
                     editing.frontArrow = temp.frontArrow;
                     editing.dashed = temp.dashed;
                     editing.isFilled = isFilled;
-                    editing.color = selectedColor;
+                    editing.color = selectedColor.clone();
                 }
                 points.add(editing);
             } else if (currentType == DrawType.DROPPED_POLYGON) {

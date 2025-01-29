@@ -53,7 +53,7 @@ public class ImportFromTikz {
                 if (matcher.find()) {
                     for(int i = 0; i < ProgramState.colors.length; i++) {
                         if(matcher.group(1).equalsIgnoreCase(ProgramState.colors[i].name)) {
-                            tikColor = new ColorHolder(ProgramState.colors[i]);
+                            tikColor = ProgramState.colors[i].clone();
                             if (matcher.group(2) != null) {
                                 tikColor.percentValue = Float.parseFloat(matcher.group(2)) / 100f;
                             }

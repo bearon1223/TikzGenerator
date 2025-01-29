@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -164,6 +165,8 @@ public class MainScreen implements Screen {
             ScreenUtils.clear(Color.WHITE);
         else
             ScreenUtils.clear(Color.BLACK);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
+
         t.setPosition(tableOffset, 0);
         app.shapeRenderer.setAutoShapeType(true);
         app.shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -379,7 +382,7 @@ public class MainScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 colorIndex++;
                 colorIndex = colorIndex % colors.length;
-                grid.selectedColor = new ColorHolder(colors[colorIndex]);
+                grid.selectedColor = colors[colorIndex].clone();
                 weightSliderText.setText(String.format("Color Weight: %d%%", (int) (grid.selectedColor.percentValue * 100)));
                 weightSlider.setValue(100);
                 colorButton.setText("Line Color: " + colors[colorIndex].name);
