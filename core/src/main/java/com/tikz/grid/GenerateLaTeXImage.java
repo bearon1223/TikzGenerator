@@ -23,29 +23,34 @@ public class GenerateLaTeXImage {
         System.out.printf("buffered image size: %d, %d%n", width, height);
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
 
-        // For each pixel in the BufferedImage, convert the ARGB color format to RGBA
-        // and draw it in the Pixmap.
+        // Iterate over the BufferedImage and convert each pixel properly
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int argb = img.getRGB(x, y);
-                // Check if the pixel is not transparent (alpha > 0)
+
+                // Extract color channels
                 int alpha = (argb >> 24) & 0xFF;
-                if (alpha > 0x10) {
-                    // Set pixel to white with full opacity
-                    pixmap.drawPixel(x, y, 0xFFFFFFFF); // White pixel
-                } else {
-                    // Optionally set transparent pixels to be transparent in Pixmap
-                    pixmap.drawPixel(x, y, 0x00000000); // Fully transparent
-                }
+                int red = (argb >> 16) & 0xFF;
+                int green = (argb >> 8) & 0xFF;
+                int blue = argb & 0xFF;
+
+                // Convert ARGB to LibGDX RGBA format
+                int rgba = (red << 24) | (green << 16) | (blue << 8) | alpha;
+                pixmap.drawPixel(x, y, rgba);
             }
         }
+
         return pixmap;
     }
+
 
     public static Texture createLaTeXFormulaImage(String latex) throws ParseException {
         BufferedImage image = renderLaTexToImage("\\text{ " + latex + " }");
         Pixmap map = bufferedImageToPixMap(image);
         System.out.printf("\tpixmap size: %d, %d%n", map.getWidth(), map.getHeight());
-        return new Texture(map);
+        Texture latexTexture = new Texture(map, true); // Enable mipmapping
+        latexTexture.setFilter(Texture.TextureFilter.MipMapNearestLinear, Texture.TextureFilter.Linear);
+
+        return latexTexture;
     }
 }
